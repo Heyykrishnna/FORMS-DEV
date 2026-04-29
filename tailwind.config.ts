@@ -15,6 +15,7 @@ export default {
     },
     extend: {
       fontFamily: {
+        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
         mono: ['"Space Mono"', 'monospace'],
       },
       colors: {
