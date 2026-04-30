@@ -247,7 +247,7 @@ export const DashboardMock = () => {
 export const FormBuilderMock = () => {
   const [active, setActive] = useState(0);
   return (
-    <div className="hex-card overflow-hidden w-full max-w-[560px]">
+    <div className="hex-card overflow-hidden w-full max-w-[650px] max-h-[650px]">
       <div className="flex items-center justify-between px-4 py-2.5 border-b hex-line-soft" style={{ borderBottomWidth: 1 }}>
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#e5746a' }} />

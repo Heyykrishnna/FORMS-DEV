@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'motion/react';
+import { Star } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Footer from '@/components/Footer';
 import {
@@ -56,27 +58,48 @@ const Index = () => {
         <div className="hex-corner top-6 right-6" style={{ borderLeft: 0, borderBottom: 0 }} />
 
         <div className="max-w-7xl mx-auto px-6 pt-20 pb-24 relative">
-          <div className="grid lg:grid-cols-[1fr_auto] gap-16 items-start">
-            <div className="max-w-2xl">
-              <h1 className="text-[64px] md:text-[84px] font-semibold leading-[0.96] tracking-[-0.04em]">
-                Forms, <em className="italic font-normal" style={{ fontFamily: "'Poppins', serif" }}>thoughtfully</em><br />
-                built for teams<br />
-                that ship.
-              </h1>
-              <p className="mt-7 text-[17px] max-w-xl leading-relaxed" style={{ color: 'var(--hex-ink-soft)' }}>
-                Revox is the calm form builder for product teams. Capture feedback, run research,
-                qualify leads — without the bloat, without the chaos, without leaving your flow.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link to="/auth" className="hex-btn-primary">Start building →</Link>
-                <Link to="/learn-more" className="hex-btn-ghost">Take the tour</Link>
-              </div>
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+              >
+                <h1 className="text-[64px] md:text-[80px] font-semibold leading-[1.05] tracking-[-0.04em] text-foreground">
+                  Forms, <br />
+                  <span className="relative">
+                    thoughtfully
+                    <svg className="absolute -bottom-2 left-0 w-full h-3 text-accent/30" viewBox="0 0 100 10" preserveAspectRatio="none">
+                      <path d="M0 5 Q 25 0, 50 5 T 100 5" fill="none" stroke="currentColor" strokeWidth="4" />
+                    </svg>
+                  </span><br />
+                  built for teams.
+                </h1>
+                <p className="mt-8 text-[18px] max-w-lg leading-relaxed text-muted-foreground">
+                  Revox is the calm form builder for product teams. Capture feedback, run research,
+                  and qualify leads — without the chaos.
+                </p>
+
+              </motion.div>
             </div>
 
-            <div className="hidden lg:block pt-4">
-              <GeoGlyph />
-            </div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, x: 20 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="hidden lg:block relative"
+            >
+              <div className="relative group">
+                <div className="absolute -inset-4 blur-2xl opacity-0 group-hover:opacity-100 transition duration-1000" />
+                <img
+                  src="https://ik.imagekit.io/yatharth/ChatGPT_Image_Apr_30__2026__03_40_13_PM-removebg-preview.png"
+                  alt="Revox Premium Interface"
+                  className="relative rounded-2xl w-full transform transition-transform duration-500 select-none pointer-events-none"
+                />
+              </div>
+            </motion.div>
           </div>
+
 
           <div className="mt-20 relative">
             <div className="absolute inset-0 hex-grid-fine opacity-40 pointer-events-none -m-8" />

@@ -1,5 +1,4 @@
 import React from 'react';
-import { ReactLenis } from 'lenis/react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -24,6 +23,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import Profile from "./pages/Profile";
 import QuizResults from "./pages/QuizResults";
 import CollabAccess from "./pages/CollabAccess";
+import Noise from "./components/Noise";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -73,14 +73,13 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <ReactLenis root>
+          <Noise />
           <Toaster />
           <Sonner />
           <BrowserRouter>
             <ScrollToTop />
             <AnimatedRoutes />
           </BrowserRouter>
-        </ReactLenis>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
