@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion } from 'motion/react';
 
 export const GeoGlyph = ({ className = '' }: { className?: string }) => (
   <div className={`hex-glyph inline-flex items-center gap-2 ${className}`}>
@@ -627,3 +628,156 @@ export const AIStudioMock = () => {
 };
 
 export const AnalyticsMock = DashboardMock;
+
+export const CanvasEditorMock = () => {
+  const [tab, setTab] = useState('Build');
+  const tabs = ['Build', 'Logic', 'Design', 'Settings'];
+  return (
+    <div className="hex-card overflow-hidden w-full max-w-[1180px] mx-auto min-w-0 group/canvas shadow-[0_32px_64px_-16px_rgba(26,29,41,0.1)] transition-all duration-500 hover:shadow-[0_32px_64px_-16px_rgba(26,29,41,0.2)]">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b hex-line-soft" style={{ borderBottomWidth: 1 }}>
+        <div className="flex items-center gap-2">
+          <span className="text-[12px] font-medium">Revox · Customer Feedback Form</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button className="text-[11px] px-2.5 py-1 border hex-line-soft rounded cursor-pointer hover:bg-slate-50 transition-colors" style={{ borderWidth: 1 }}>Preview</button>
+          <button className="text-[11px] px-2.5 py-1 rounded text-white cursor-pointer hover:opacity-90 transition-opacity" style={{ background: 'var(--hex-ink)' }}>Publish</button>
+        </div>
+      </div>
+
+      <div className="p-5">
+        <h3 className="text-[20px] font-semibold tracking-tight">Form Builder · Interactive Canvas</h3>
+        <p className="text-[12px] mt-1" style={{ color: 'var(--hex-ink-soft)' }}>
+          Drag and drop blocks, configure conditional logic, and set up integrations.
+        </p>
+
+        <div className="flex items-center gap-6 mt-4 border-b hex-line-soft" style={{ borderBottomWidth: 1 }}>
+          {tabs.map((t) => (
+            <div key={t} className={`hex-tab cursor-pointer ${tab === t ? 'active' : ''}`} onClick={() => setTab(t)}>{t}</div>
+          ))}
+        </div>
+
+        {/* Similar to KPIs in DashboardMock but for Editor */}
+        <div className="grid grid-cols-3 gap-3 mt-4">
+          {[
+            { v: '12', l: 'Total Blocks', sub: '3 pages configured' },
+            { v: '4',   l: 'Logic Rules', sub: '2 conditional jumps' },
+            { v: '2m',  l: 'Est. Time',       sub: 'Average completion' },
+          ].map((k) => (
+            <div key={k.l} className="hex-kpi">
+              <div className="text-[20px] font-semibold leading-none">{k.v}</div>
+              <div className="text-[11px] mt-1.5" style={{ color: 'var(--hex-ink-soft)' }}>{k.l}</div>
+              <div className="text-[9px] hex-mono mt-1" style={{ color: 'var(--c-purple)' }}>{k.sub}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* The visual canvas part */}
+        <div className="mt-5 border hex-line-soft rounded-lg bg-[#fcfbf7] h-[420px] relative overflow-hidden flex shadow-sm min-h-0">
+          {/* Infinite Grid Background */}
+          <div className="absolute inset-0 opacity-[0.03] hex-grid-fine pointer-events-none" 
+               style={{ backgroundSize: '24px 24px' }} />
+          
+          {/* Toolbar (Left) */}
+          <div className="w-14 shrink-0 border-r hex-line-soft flex flex-col items-center py-4 gap-3 bg-[#fafaf7] z-10">
+             {[1, 2, 3, 4, 5].map((i) => (
+               <div key={i} className={`w-8 h-8 rounded border hex-line-soft shadow-sm flex items-center justify-center hover:bg-black hover:text-white transition-all duration-300 cursor-pointer ${i === 2 ? 'bg-black text-white shadow-lg' : 'bg-white opacity-60 hover:opacity-100'}`}>
+                  {i === 1 && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>}
+                  {i === 2 && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg>}
+                  {i === 3 && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>}
+                  {i === 4 && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>}
+                  {i === 5 && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.5 1.5"/><path d="M14 11l7 7"/></svg>}
+               </div>
+             ))}
+          </div>
+
+          {/* Canvas Area — scrollable so blocks stay usable when tall */}
+          <div className="flex-1 min-w-0 relative flex flex-col min-h-0">
+            <div className="flex-1 overflow-y-auto overflow-x-auto custom-scrollbar px-6 py-6 pt-7">
+             <div className="w-full max-w-[560px] mx-auto space-y-6">
+                {/* Block 1 */}
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-5 rounded-xl border hex-line-soft bg-white/90 shadow-sm relative group/block backdrop-blur-sm cursor-pointer hover:border-indigo-200 transition-colors"
+                >
+                   <div className="absolute -left-2.5 top-5 w-5 h-5 rounded-full bg-slate-900 flex items-center justify-center text-white text-[9px] font-bold hex-mono shadow-md">
+                      01
+                   </div>
+                   <div className="text-[11px] font-bold opacity-30 hex-mono mb-1.5 uppercase tracking-widest">NPS Selection</div>
+                   <div className="text-[13px] font-semibold mb-3 text-slate-800">How likely are you to recommend Revox?</div>
+                   <div className="flex gap-1.5">
+                      {[1, 2, 3, 4, 5].map(n => (
+                        <div key={n} className="flex-grow h-8 rounded border hex-line-soft flex items-center justify-center text-[10px] font-medium opacity-60 hover:opacity-100 hover:bg-indigo-50 transition-all cursor-pointer">
+                          {n}
+                        </div>
+                      ))}
+                   </div>
+                </motion.div>
+
+                {/* Connection Line */}
+                <div className="h-6 ml-5 w-[1.5px] bg-indigo-500/20 relative">
+                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                </div>
+
+                {/* Block 2 */}
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="p-5 rounded-xl border-2 border-indigo-500 bg-white shadow-md relative z-10 cursor-pointer"
+                >
+                   <div className="absolute -left-2.5 top-5 w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center text-white text-[9px] font-bold hex-mono shadow-md">
+                      02
+                   </div>
+                   <div className="flex justify-between items-start mb-1.5">
+                      <div className="text-[11px] font-bold text-indigo-600 hex-mono uppercase tracking-widest">Logic: Branching</div>
+                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                   </div>
+                   <div className="text-[13px] font-semibold mb-3 text-slate-900">What is the primary reason for your score?</div>
+                   <div className="h-16 rounded border hex-line-soft bg-slate-50/50 p-2 text-[11px] text-slate-400 font-medium">
+                      Type your reason here...
+                   </div>
+                </motion.div>
+             </div>
+            </div>
+          </div>
+
+          {/* Properties Panel (Right) */}
+          <div className="w-[272px] shrink-0 border-l hex-line-soft bg-white/95 backdrop-blur-sm z-10 flex flex-col min-h-0 min-w-0 transform transition-transform duration-500 shadow-[-10px_0_20px_rgba(0,0,0,0.02)]">
+             <div className="p-3.5 shrink-0 border-b hex-line-soft bg-[#fafaf7] flex items-center justify-between">
+                <div className="text-[9px] font-bold uppercase tracking-widest opacity-40 hex-mono">Properties</div>
+                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]" />
+             </div>
+             <div className="p-4 flex-1 min-h-0 overflow-y-auto custom-scrollbar space-y-5">
+                <div className="space-y-1.5">
+                   <div className="text-[8px] font-bold uppercase tracking-widest opacity-40 hex-mono">Component ID</div>
+                   <div className="h-8 rounded border hex-line-soft flex items-center px-2.5 text-[10px] font-mono bg-white shadow-sm">q_reason_text</div>
+                </div>
+                
+                <div className="space-y-2.5">
+                   <div className="text-[8px] font-bold uppercase tracking-widest opacity-40 hex-mono">Conditions</div>
+                   <div className="space-y-1.5">
+                     {[
+                       { q: 'Score < 7', then: 'Show Reason' },
+                       { q: 'Score > 8', then: 'Show Success' },
+                     ].map((rule, i) => (
+                       <div key={i} className="p-2.5 rounded bg-indigo-50/40 border border-indigo-100/50 text-[10px] leading-snug">
+                         <span className="opacity-50 font-bold">IF</span> <span className="font-bold text-indigo-900">{rule.q}</span><br/>
+                         <span className="opacity-50 font-bold">THEN</span> <span className="font-bold text-indigo-900">{rule.then}</span>
+                       </div>
+                     ))}
+                   </div>
+                </div>
+             </div>
+             <div className="p-4 shrink-0 border-t hex-line-soft bg-[#fafaf7]">
+                <button className="w-full py-2 rounded bg-slate-900 text-white text-[10px] font-bold uppercase tracking-widest shadow-md hover:bg-black transition-colors cursor-pointer">
+                   Apply Logic
+                </button>
+             </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+};

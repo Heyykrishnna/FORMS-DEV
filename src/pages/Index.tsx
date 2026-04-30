@@ -6,10 +6,11 @@ import { supabase } from '@/lib/supabase';
 import Footer from '@/components/Footer';
 import {
   GeoGlyph,
-  FormBuilderMock,  
+  FormBuilderMock,
   ContextStudioMock,
   AIStudioMock,
   AIPromptMock,
+  CanvasEditorMock,
   AnalyticsMock
 } from '@/components/landing/RevoxMockups';
 import { cn } from '@/lib/utils';
@@ -146,7 +147,7 @@ const Index = () => {
         </div>
       </section> */}
 
-      <section className="border-b hex-line-soft" style={{ borderBottomWidth: 1 }}>
+      <section className="border-b hex-line-soft" style={{ borderBottomWidth: 1, borderTopWidth: 1 }}>
         <div className="max-w-7xl mx-auto grid md:grid-cols-2">
           <div className="p-12 md:p-16 md:border-r hex-line-soft" style={{ borderRightWidth: 1 }}>
             <div className="text-[15px] font-semibold tracking-wide mb-8">MERCOR</div>
@@ -211,8 +212,8 @@ const Index = () => {
         title={<>A canvas that <br />stays out of the way.</>}
         body="Sane defaults. No fifty-tab settings panels. Drag a block, write a question, pick a theme — your form is already publishable, accessible, and fast on mobile."
         cta="Open the builder"
-        mock={<FormBuilderMock />}
-        reverse={false}
+        mock={<CanvasEditorMock />}
+        reverse={true}
         noHover={true}
       />
 
@@ -251,7 +252,6 @@ const Index = () => {
       <section className="border-b hex-line-soft py-28 relative hex-vignette" style={{ borderBottomWidth: 1 }}>
         <div className="max-w-6xl mx-auto px-6 grid lg:grid-cols-[360px_1fr] gap-16">
           <div>
-            <div className="hex-chip hex-chip-accent mb-5">FAQ</div>
             <h2 className="text-[42px] font-semibold tracking-[-0.035em] leading-[1.05]">
               Questions, <em className="italic font-normal" style={{ fontFamily: "'Instrument Serif', serif" }}>answered.</em>
             </h2>
@@ -432,24 +432,40 @@ const SignalIllustration = () => (
 const FeatureBlock = ({ glyph, title, body, cta, mock, reverse, noHover }: {
   glyph: string; chip: string; title: React.ReactNode; body: string; cta: string; mock: React.ReactNode; reverse?: boolean; noHover?: boolean;
 }) => (
-  <section className="border-b hex-line-soft py-32 relative overflow-hidden" style={{ borderBottomWidth: 1 }}>
-    <div className="max-w-7xl mx-auto px-6">
-      <div className={`grid lg:grid-cols-[1fr_1.8fr] gap-20 items-center ${reverse ? 'lg:[&>*:first-child]:order-2' : ''}`}>
-        <div className="max-w-lg">
+  <section className="border-b hex-line-soft py-40 relative overflow-hidden" style={{ borderBottomWidth: 1 }}>
+    {/* Subtle background glow for reverse sections */}
+    {reverse && <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/5 blur-[120px] pointer-events-none" />}
+    {!reverse && <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/5 blur-[120px] pointer-events-none" />}
+    
+    <div className="max-w-7xl mx-auto px-6 relative z-10">
+      <div
+        className={cn(
+          'grid gap-20 items-center lg:items-start',
+          reverse
+            ? 'lg:grid-cols-[1.8fr_1fr] lg:[&>*:first-child]:order-2'
+            : 'lg:grid-cols-[1fr_1.8fr]',
+        )}
+      >
+        <div className="max-w-lg lg:pt-4">
           <div className="flex items-center gap-3 mb-6">
             <GeoGlyph />
             <span className="hex-mono text-[11px] tracking-wider" style={{ color: 'var(--hex-ink-muted)' }}>FIG.{glyph}</span>
           </div>
-          <h2 className="text-[44px] font-semibold tracking-[-0.035em] leading-[1.02]">{title}</h2>
-          <p className="mt-8 text-[17px] leading-relaxed" style={{ color: 'var(--hex-ink-soft)' }}>{body}</p>
-          <Link to="/learn-more" className="hex-btn-ghost mt-10">{cta} →</Link>
+          <h2 className="text-[48px] font-semibold tracking-[-0.035em] leading-[1.02]">{title}</h2>
+          <p className="mt-8 text-[18px] leading-relaxed opacity-70" style={{ color: 'var(--hex-ink-soft)' }}>{body}</p>
+          <div className="mt-12 flex items-center gap-6">
+            <Link to="/auth" className="hex-btn-primary text-[14px] px-8 py-3">{cta} →</Link>
+            <Link to="/learn-more" className="text-[13px] font-bold hex-mono uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity">Documentation</Link>
+          </div>
         </div>
-        <div className="flex justify-center relative group">
+        <div className="flex justify-center relative group min-w-0 w-full">
           {!noHover && <div className="absolute -inset-10 bg-indigo-500/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />}
-          <div className={cn(
-            "relative transition-all duration-700 ease-out",
-            !noHover && "transform group-hover:scale-[1.03] group-hover:-rotate-1"
-          )}>
+          <div
+            className={cn(
+              'relative transition-all duration-700 ease-out w-full max-w-full min-w-0',
+              !noHover && 'transform group-hover:scale-[1.03] group-hover:-rotate-1',
+            )}
+          >
             {mock}
           </div>
         </div>
