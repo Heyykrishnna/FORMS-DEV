@@ -299,7 +299,7 @@ const QuizResults = () => {
 
         {/* Footer */}
         <div className="text-center mt-16">
-          <p className="text-xs opacity-40 font-black uppercase tracking-[0.5em]">REVOX.</p>
+          <p className="text-xs opacity-40 font-black uppercase tracking-[0.5em]">AQORA.</p>
         </div>
       </div>
     </div>

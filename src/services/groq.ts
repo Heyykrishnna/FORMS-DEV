@@ -15,7 +15,7 @@ const researchClient = new Groq({
 });
 
 const SYSTEM_PROMPT = `
-You are an expert form designer for REVOX, a brutalist, high-performance form builder. 
+You are an expert form designer for AQORA, a brutalist, high-performance form builder. 
 Your task is to generate a JSON object representing a complete form based on the user's objective.
 
 The JSON MUST match this structure:

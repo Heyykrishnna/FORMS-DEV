@@ -26,88 +26,88 @@ const CATEGORIES = [
 
 interface FeatureRow {
   feature: string;
-  revox: boolean | string;
+  AQORA: boolean | string;
   google: boolean | string;
   typeform: boolean | string;
 }
 
-const COMPARISON_DATA: Record<string, { summary: { revox: string; others: string }; features: FeatureRow[] }> = {
+const COMPARISON_DATA: Record<string, { summary: { AQORA: string; others: string }; features: FeatureRow[] }> = {
   ai: {
     summary: {
-      revox: 'Deep neural integration with AI Forge, automated protocol generation, and real-time response prediction.',
+      AQORA: 'Deep neural integration with AI Forge, automated protocol generation, and real-time response prediction.',
       others: 'Legacy form builders with no AI integration. All logic and structure must be built manually.'
     },
     features: [
-      { feature: 'AI Forge (Prompt-to-Form)', revox: true, google: false, typeform: false },
-      { feature: 'Neural Response Analysis', revox: true, google: false, typeform: false },
-      { feature: 'Adaptive UI Evolution', revox: true, google: false, typeform: false },
-      { feature: 'Automated Data Correlation', revox: true, google: false, typeform: false },
-      { feature: 'Predictive Smart-Logic', revox: true, google: false, typeform: false },
+      { feature: 'AI Forge (Prompt-to-Form)', AQORA: true, google: false, typeform: false },
+      { feature: 'Neural Response Analysis', AQORA: true, google: false, typeform: false },
+      { feature: 'Adaptive UI Evolution', AQORA: true, google: false, typeform: false },
+      { feature: 'Automated Data Correlation', AQORA: true, google: false, typeform: false },
+      { feature: 'Predictive Smart-Logic', AQORA: true, google: false, typeform: false },
     ]
   },
   design: {
     summary: {
-      revox: 'Brutalist design system with 15+ themes, custom fonts, and full visual control.',
+      AQORA: 'Brutalist design system with 15+ themes, custom fonts, and full visual control.',
       others: 'Limited templates with no design customization or theme switching.'
     },
     features: [
-      { feature: '15+ built-in themes', revox: true, google: false, typeform: '3 basic' },
-      { feature: 'Custom font & color control', revox: true, google: false, typeform: 'Paid' },
-      { feature: 'Background patterns', revox: true, google: false, typeform: false },
-      { feature: 'Card opacity & shadow depth', revox: true, google: false, typeform: false },
-      { feature: 'Conversational layout mode', revox: true, google: false, typeform: true },
+      { feature: '15+ built-in themes', AQORA: true, google: false, typeform: '3 basic' },
+      { feature: 'Custom font & color control', AQORA: true, google: false, typeform: 'Paid' },
+      { feature: 'Background patterns', AQORA: true, google: false, typeform: false },
+      { feature: 'Card opacity & shadow depth', AQORA: true, google: false, typeform: false },
+      { feature: 'Conversational layout mode', AQORA: true, google: false, typeform: true },
     ]
   },
   intel: {
     summary: {
-      revox: 'Deep analytics with survey, research, and data-work intelligence modes.',
+      AQORA: 'Deep analytics with survey, research, and data-work intelligence modes.',
       others: 'Basic response viewing with manual CSV export required for analysis.'
     },
     features: [
-      { feature: 'Real-time response dashboard', revox: true, google: false, typeform: true },
-      { feature: 'Mean, median, std deviation', revox: true, google: false, typeform: false },
-      { feature: 'Consensus detection', revox: true, google: false, typeform: false },
-      { feature: 'Score distribution charts', revox: true, google: 'Basic', typeform: 'Paid' },
-      { feature: 'Multiple analysis modes', revox: '3 modes', google: false, typeform: false },
+      { feature: 'Real-time response dashboard', AQORA: true, google: false, typeform: true },
+      { feature: 'Mean, median, std deviation', AQORA: true, google: false, typeform: false },
+      { feature: 'Consensus detection', AQORA: true, google: false, typeform: false },
+      { feature: 'Score distribution charts', AQORA: true, google: 'Basic', typeform: 'Paid' },
+      { feature: 'Multiple analysis modes', AQORA: '3 modes', google: false, typeform: false },
     ]
   },
   seo: {
     summary: {
-      revox: 'Full SEO control with meta tags, social previews, and indexing options.',
+      AQORA: 'Full SEO control with meta tags, social previews, and indexing options.',
       others: 'Zero SEO capabilities. Forms are hidden from search engines entirely.'
     },
     features: [
-      { feature: 'Custom meta title & description', revox: true, google: false, typeform: 'Basic' },
-      { feature: 'SEO keywords support', revox: true, google: false, typeform: false },
-      { feature: 'Indexability toggle', revox: true, google: false, typeform: false },
-      { feature: 'Social sharing previews', revox: true, google: false, typeform: false },
-      { feature: 'Custom form URLs', revox: true, google: false, typeform: 'Paid' },
+      { feature: 'Custom meta title & description', AQORA: true, google: false, typeform: 'Basic' },
+      { feature: 'SEO keywords support', AQORA: true, google: false, typeform: false },
+      { feature: 'Indexability toggle', AQORA: true, google: false, typeform: false },
+      { feature: 'Social sharing previews', AQORA: true, google: false, typeform: false },
+      { feature: 'Custom form URLs', AQORA: true, google: false, typeform: 'Paid' },
     ]
   },
   security: {
     summary: {
-      revox: 'Password protection, domain restrictions, and submission limits built-in.',
+      AQORA: 'Password protection, domain restrictions, and submission limits built-in.',
       others: 'Basic authentication tied to workspace. Advanced security is paywalled.'
     },
     features: [
-      { feature: 'Password-protected forms', revox: true, google: false, typeform: 'Paid' },
-      { feature: 'Email domain restriction', revox: true, google: 'GSuite only', typeform: 'Paid' },
-      { feature: 'Submission limit control', revox: true, google: false, typeform: 'Paid' },
-      { feature: 'Form close date scheduling', revox: true, google: true, typeform: true },
-      { feature: 'Row-level security (RLS)', revox: true, google: false, typeform: false },
+      { feature: 'Password-protected forms', AQORA: true, google: false, typeform: 'Paid' },
+      { feature: 'Email domain restriction', AQORA: true, google: 'GSuite only', typeform: 'Paid' },
+      { feature: 'Submission limit control', AQORA: true, google: false, typeform: 'Paid' },
+      { feature: 'Form close date scheduling', AQORA: true, google: true, typeform: true },
+      { feature: 'Row-level security (RLS)', AQORA: true, google: false, typeform: false },
     ]
   },
   vibe: {
     summary: {
-      revox: 'Edgy validation messages, quiz mode with scoring, and confetti celebrations.',
+      AQORA: 'Edgy validation messages, quiz mode with scoring, and confetti celebrations.',
       others: 'Generic error messages. Quiz features limited or require paid plans.'
     },
     features: [
-      { feature: 'Quiz mode with scoring', revox: true, google: true, typeform: 'Paid' },
-      { feature: 'Custom confirmation messages', revox: true, google: 'Basic', typeform: true },
-      { feature: 'Conditional logic branching', revox: true, google: false, typeform: true },
-      { feature: 'Section headers & descriptions', revox: true, google: true, typeform: true },
-      { feature: 'Response time tracking', revox: true, google: false, typeform: false },
+      { feature: 'Quiz mode with scoring', AQORA: true, google: true, typeform: 'Paid' },
+      { feature: 'Custom confirmation messages', AQORA: true, google: 'Basic', typeform: true },
+      { feature: 'Conditional logic branching', AQORA: true, google: false, typeform: true },
+      { feature: 'Section headers & descriptions', AQORA: true, google: true, typeform: true },
+      { feature: 'Response time tracking', AQORA: true, google: false, typeform: false },
     ]
   }
 };
@@ -158,7 +158,7 @@ export const ComparisonSection = () => {
             </div>
             
             <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tighter mb-6 leading-[0.9]">
-              <span className="text-accent">REVOX</span>{' '}
+              <span className="text-accent">AQORA</span>{' '}
               <span className="text-white/20">VS</span>{' '}
               <span className="text-white/60">THE REST</span>
             </h2>
@@ -205,9 +205,9 @@ export const ComparisonSection = () => {
             <div className="border-2 border-accent/40 bg-accent/5 p-8 relative">
               <div className="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-accent" />
               <div className="flex items-center gap-3 mb-4">
-                <span className="text-[10px] font-black uppercase tracking-widest text-accent">REVOX APPROACH</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-accent">AQORA APPROACH</span>
               </div>
-              <p className="text-sm font-bold text-white/80 leading-relaxed">{data.summary.revox}</p>
+              <p className="text-sm font-bold text-white/80 leading-relaxed">{data.summary.AQORA}</p>
             </div>
             <div className="border-2 border-white/10 bg-white/[0.02] p-8">
               <div className="flex items-center gap-3 mb-4">
@@ -234,7 +234,7 @@ export const ComparisonSection = () => {
                 <span className="text-[10px] font-black uppercase tracking-widest text-white/30">FEATURE</span>
               </div>
               <div className="p-4 md:p-6 text-center border-l border-white/5">
-                <span className="text-[11px] font-black uppercase tracking-tight text-accent">REVOX</span>
+                <span className="text-[11px] font-black uppercase tracking-tight text-accent">AQORA</span>
               </div>
               <div className="p-4 md:p-6 text-center border-l border-white/5">
                 <span className="text-[11px] font-black uppercase tracking-tight text-white/30">GOOGLE</span>
@@ -258,7 +258,7 @@ export const ComparisonSection = () => {
                   <span className="text-xs font-bold text-white/70">{row.feature}</span>
                 </div>
                 <div className="p-4 md:p-5 flex items-center justify-center border-l border-white/5 bg-accent/[0.03]">
-                  <FeatureCell value={row.revox} />
+                  <FeatureCell value={row.AQORA} />
                 </div>
                 <div className="p-4 md:p-5 flex items-center justify-center border-l border-white/5">
                   <FeatureCell value={row.google} />

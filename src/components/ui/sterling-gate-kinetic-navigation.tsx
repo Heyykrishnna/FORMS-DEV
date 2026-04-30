@@ -158,7 +158,7 @@ export function SterlingGateKineticNavigation() {
                     }
                   }}
                 >
-                  REVOX<span className="text-accent">.</span>
+                  AQORA<span className="text-accent">.</span>
                 </Link>
                 <div className="flex items-center gap-6">
                   <button role="button" className="nav-close-btn flex items-center gap-3 border-brutal bg-background px-5 py-2 text-xs font-black uppercase shadow-brutal hover:-translate-y-0.5" onClick={toggleMenu} style={{ pointerEvents: 'auto' }}>
@@ -246,9 +246,9 @@ export function SterlingGateKineticNavigation() {
                     <span className="text-[10px] font-black uppercase text-accent tracking-[0.3em]">SOCIALS</span>
                     <div className="flex gap-8">
                         {[
-                          { name: 'TWITTER', url: 'https://twitter.com/revox_build' },
-                          { name: 'GITHUB', url: 'https://github.com/revox-build' },
-                          { name: 'DISCORD', url: 'https://discord.gg/revox' }
+                          { name: 'TWITTER', url: 'https://twitter.com/AQORA_build' },
+                          { name: 'GITHUB', url: 'https://github.com/AQORA-build' },
+                          { name: 'DISCORD', url: 'https://discord.gg/AQORA' }
                         ].map(s => (
                             <a 
                               key={s.name} 

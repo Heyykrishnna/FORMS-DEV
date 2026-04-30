@@ -147,7 +147,7 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen, onClo
 
           {/* FUNNY FOOTER */}
           <div className="mt-12 flex items-center justify-between opacity-30 text-[9px] font-black uppercase tracking-[0.2em] border-t-2 border-black/10 pt-4">
-             <div>REVOX_SYS_v4.2</div>
+             <div>AQORA_SYS_v4.2</div>
           </div>
         </div>
 

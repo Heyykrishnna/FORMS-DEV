@@ -161,7 +161,7 @@ const ResponsesTab = ({ form }: Props) => {
     // Define a premium styling options with ample spacing
     const opt = {
       margin:       [20, 25, 25, 25] as [number, number, number, number], // top, left, bottom, right in mm
-      filename:     `${form.title || 'REVOX_INTEL'}_RESEARCH_PAPER.pdf`,
+      filename:     `${form.title || 'AQORA_INTEL'}_RESEARCH_PAPER.pdf`,
       image:        { type: 'jpeg' as const, quality: 1.0 },
       html2canvas:  { 
         scale: 2, 
@@ -546,7 +546,7 @@ const ResponsesTab = ({ form }: Props) => {
       <div className="hidden print:block print-header mb-8">
         <div className="flex justify-between items-start border-b-4 border-black pb-4 mb-6">
           <div>
-            <h1 className="text-4xl font-black uppercase italic tracking-tighter leading-none mb-2">REVOX INTEL REPORT</h1>
+            <h1 className="text-4xl font-black uppercase italic tracking-tighter leading-none mb-2">AQORA INTEL REPORT</h1>
             <p className="text-lg font-black uppercase tracking-widest mb-1 print-accent">{form.title || 'UNTITLED PROTOCOL'}</p>
             <p className="text-xs font-bold italic opacity-60">{form.description || 'No description provided.'}</p>
           </div>
@@ -1435,7 +1435,7 @@ const ResponsesTab = ({ form }: Props) => {
                        <div className="pdf-header-element mb-10 pb-6 border-b border-gray-200" style={{ display: 'none' }}>
                          <div className="flex justify-between items-end">
                            <div>
-                             <h1 className="text-3xl font-black uppercase tracking-tighter text-black mb-1">REVOX RESEARCH</h1>
+                             <h1 className="text-3xl font-black uppercase tracking-tighter text-black mb-1">AQORA RESEARCH</h1>
                              <p className="font-semibold text-xs text-gray-500 uppercase tracking-widest">{form.title || 'INTELLIGENCE REPORT'}</p>
                            </div>
                            <div className="text-right">
@@ -1454,7 +1454,7 @@ const ResponsesTab = ({ form }: Props) => {
                          <div className="flex justify-between items-center">
                            <div className="flex items-center gap-2">
                              <div className="w-4 h-4 bg-black" />
-                             <p className="font-black text-[10px] text-black uppercase tracking-widest">REVOX ENGINE</p>
+                             <p className="font-black text-[10px] text-black uppercase tracking-widest">AQORA ENGINE</p>
                            </div>
                            <p className="font-medium text-[9px] text-gray-400 uppercase tracking-widest text-right max-w-[200px] leading-tight">
                              CONFIDENTIAL INTERNAL DOCUMENT <br/> POWERED BY GROQ MIXTRAL

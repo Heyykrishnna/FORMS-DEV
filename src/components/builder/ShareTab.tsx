@@ -24,7 +24,7 @@ const ShareTab = ({ form }: Props) => {
 
   const shareSocial = (platform: 'twitter' | 'whatsapp' | 'linkedin' | 'email') => {
     const messages = [
-      `Just crafted something epic with Revox! Check it out: ${form.title}`,
+      `Just crafted something epic with AQORA! Check it out: ${form.title}`,
       `A little something special I made... ${form.title}`,
       `Eyes on this! ${form.title} — let me know what you think!`,
       `Hot off the press! ${form.title} is live.`,

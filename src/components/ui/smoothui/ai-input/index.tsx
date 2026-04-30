@@ -141,7 +141,7 @@ function Dock() {
           className="flex h-fit flex-1 justify-end rounded-none px-2 py-0.5 font-bold uppercase tracking-tight cursor-pointer"
           onClick={openFeedback}
         >
-          <span className="truncate">Ask REVOX AI</span>
+          <span className="truncate">Ask AQORA AI</span>
         </div>
       </div>
     </footer>

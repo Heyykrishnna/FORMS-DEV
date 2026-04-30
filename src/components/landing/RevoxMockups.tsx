@@ -152,7 +152,7 @@ export const DashboardMock = () => {
       <div className="flex items-center justify-between px-4 py-2.5 border-b hex-line-soft" style={{ borderBottomWidth: 1 }}>
         <div className="flex items-center gap-2">
           <span className="w-4 h-4 rounded-sm bg-black flex items-center justify-center text-white text-[9px] font-bold">R</span>
-          <span className="text-[12px] font-medium">Revox · Onboarding Survey</span>
+          <span className="text-[12px] font-medium">AQORA · Onboarding Survey</span>
         </div>
         <div className="flex items-center gap-2">
           <button className="text-[11px] px-2.5 py-1 border hex-line-soft rounded" style={{ borderWidth: 1 }}>Edit</button>
@@ -253,7 +253,7 @@ export const FormBuilderMock = () => {
           <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#e5746a' }} />
           <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#e8c547' }} />
           <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#79c879' }} />
-          <span className="hex-mono text-[11px] ml-3" style={{ color: 'var(--hex-ink-muted)' }}>revox.app/builder</span>
+          <span className="hex-mono text-[11px] ml-3" style={{ color: 'var(--hex-ink-muted)' }}>AQORA.app/builder</span>
         </div>
         <span className="hex-mono text-[10px]" style={{ color: 'var(--hex-ink-muted)' }}>autosaved · 2s ago</span>
       </div>

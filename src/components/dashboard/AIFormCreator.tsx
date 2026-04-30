@@ -210,7 +210,7 @@ const AIFormCreator: React.FC<AIFormCreatorProps> = ({ isOpen, onClose, onSucces
           </div>
 
           <div className="mt-8 flex justify-between items-center opacity-30 text-[9px] font-black uppercase tracking-[0.2em]">
-            <span>REVOX_ENGINE_v4.2</span>
+            <span>AQORA_ENGINE_v4.2</span>
           </div>
         </div>
       </DialogContent>

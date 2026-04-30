@@ -168,7 +168,7 @@ const PublicForm = () => {
 
     // Title
     const originalTitle = document.title;
-    document.title = form.seoTitle || form.title || 'Revox Form';
+    document.title = form.seoTitle || form.title || 'AQORA Form';
 
     // Meta Description
     let metaDesc = document.querySelector('meta[name="description"]');
@@ -178,7 +178,7 @@ const PublicForm = () => {
       document.head.appendChild(metaDesc);
     }
     const originalDesc = metaDesc.getAttribute('content');
-    metaDesc.setAttribute('content', form.seoDescription || form.description || 'A high-performance form built with Revox.');
+    metaDesc.setAttribute('content', form.seoDescription || form.description || 'A high-performance form built with AQORA.');
 
     // Meta Keywords
     let metaKeywords = document.querySelector('meta[name="keywords"]');
@@ -847,7 +847,7 @@ const PublicForm = () => {
 
           {/* Footer */}
           <div className="text-center mt-12">
-            <a href="https://revoxforms.vercel.app/" target="_blank"><p className="text-xs opacity-40 font-black uppercase tracking-[0.5em]">REVOX.</p></a>
+            <a href="https://AQORAforms.vercel.app/" target="_blank"><p className="text-xs opacity-40 font-black uppercase tracking-[0.5em]">AQORA.</p></a>
           </div>
         </div>
       </div>
@@ -1245,7 +1245,7 @@ const PublicForm = () => {
         {/* BRANDING */}
         <div className="mt-20 text-center border-t-2 border-current/20 pt-8">
           <p className="text-xs font-black uppercase tracking-[0.6em] opacity-90">
-            POWERED BY <a href="https://revoxforms.vercel.app" className="text-orange-500 font-bold">REVOX</a>
+            POWERED BY <a href="https://AQORAforms.vercel.app" className="text-orange-500 font-bold">AQORA</a>
           </p>
         </div>
       </div>

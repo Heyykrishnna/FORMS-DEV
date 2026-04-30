@@ -228,7 +228,7 @@ const FormBuilder = () => {
         <div className="container mx-auto flex items-center justify-between px-4 py-2 sm:py-3 gap-2">
           <div className="flex items-center gap-2 sm:gap-4 overflow-hidden">
             <Link to="/dashboard" className="text-base sm:text-lg font-bold tracking-widest flex-shrink-0">
-              REVOX<span className="text-accent">.</span>
+              AQORA<span className="text-accent">.</span>
             </Link>
             <span className="text-muted-foreground flex-shrink-0">|</span>
             <input

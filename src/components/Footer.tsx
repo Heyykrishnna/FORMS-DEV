@@ -16,7 +16,7 @@ const Footer = () => {
       
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden z-10">
         <h2 className="text-[25vw] font-black text-white px-4 text-center uppercase tracking-tighter leading-none opacity-90">
-          REVOX
+          AQORA
         </h2>
       </div>
 
@@ -29,7 +29,7 @@ const Footer = () => {
                 className="text-5xl font-black tracking-widest uppercase block mb-8 group"
                 onClick={scrollToTop}
               >
-                REVOX<span className="text-accent group-hover:animate-pulse">.</span>
+                AQORA<span className="text-accent group-hover:animate-pulse">.</span>
               </Link>
               <p className="text-sm font-bold uppercase text-foreground/60 tracking-[0.2em] leading-relaxed max-w-sm border-l-4 border-accent pl-6">
                 THE BRUTALIST FORM BUILDER FOR DEVELOPERS AND DESIGNERS WHO DEMAND SPEED AND STYLE. NO FLUFF, JUST FORMS.
@@ -73,7 +73,7 @@ const Footer = () => {
           <div className="pt-12 border-t-2 border-foreground/10 flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="flex flex-col gap-1">
               <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40">
-                © {new Date().getFullYear()} REVOX INC.
+                © {new Date().getFullYear()} AQORA INC.
               </span>
               <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40">
                 DESIGNED IN THE VOID / BUILT FOR THE BOLD
@@ -82,9 +82,9 @@ const Footer = () => {
             
             <div className="flex gap-12">
               {[
-                { name: 'TWITTER', url: 'https://twitter.com/revox_build' },
-                { name: 'GITHUB', url: 'https://github.com/revox-build' },
-                { name: 'DISCORD', url: 'https://discord.gg/revox' }
+                { name: 'TWITTER', url: 'https://twitter.com/AQORA_build' },
+                { name: 'GITHUB', url: 'https://github.com/AQORA-build' },
+                { name: 'DISCORD', url: 'https://discord.gg/AQORA' }
               ].map(platform => (
                 <a 
                   key={platform.name} 

@@ -615,13 +615,13 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                         </div>
                         <div className="bg-white p-6 border-2 border-foreground shadow-brutal-sm text-left font-sans group relative overflow-hidden">
                           <div className="text-[14px] text-[#1a0dab] group-hover:underline cursor-pointer font-normal mb-1 truncate">
-                            {form.seoTitle || form.title || 'Untitled Form'} | Revox
+                            {form.seoTitle || form.title || 'Untitled Form'} | AQORA
                           </div>
                           <div className="text-[12px] text-[#006621] mb-1 truncate">
                             {window.location.origin}/form/{form.id}
                           </div>
                           <div className="text-[13px] text-[#545454] line-clamp-2 leading-relaxed">
-                            {form.seoDescription || form.description || 'Fill out this form created on Revox - the high-performance form builder for data intelligence.'}
+                            {form.seoDescription || form.description || 'Fill out this form created on AQORA - the high-performance form builder for data intelligence.'}
                           </div>
                         </div>
                       </div>
@@ -641,12 +641,12 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                               <img src={form.style.bannerImageUrl} className="w-full h-full object-cover" alt="Banner" />
                             ) : (
                               <div className="text-center p-8">
-                                <span className="text-4xl font-black block mb-2 opacity-20">REVOX</span>
+                                <span className="text-4xl font-black block mb-2 opacity-20">AQORA</span>
                                 <span className="text-[10px] font-bold uppercase tracking-tighter opacity-40 italic font-mono">FORM PROTOCOL ACTIVATED</span>
                               </div>
                             )}
                             <div className="absolute inset-x-0 bottom-0 bg-black/60 p-2 text-[10px] font-black uppercase italic tracking-tighter backdrop-blur-sm">
-                              REVOXFORMS.VERCEL.APP
+                              AQORAFORMS.VERCEL.APP
                             </div>
                           </div>
                           <div className="p-4 space-y-1">

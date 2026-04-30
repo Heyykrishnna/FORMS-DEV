@@ -197,7 +197,7 @@ const AdminDashboard = () => {
       <nav className="border-b-4 border-foreground sticky top-0 bg-background z-50">
         <div className="container mx-auto flex items-center justify-between px-4 py-4">
           <Link to="/" className="text-3xl font-black tracking-tighter uppercase hover:text-accent transition-colors flex items-center gap-2">
-            REVOX<span className="text-accent">.</span>
+            AQORA<span className="text-accent">.</span>
           </Link>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 bg-foreground text-background px-3 py-1.5">
@@ -452,9 +452,9 @@ const AdminDashboard = () => {
       </main>
 
       <div className="container mx-auto px-4 pb-12 flex justify-between items-center opacity-30 text-[10px] font-black uppercase tracking-[0.2em]">
-        <span>REVOX ADMIN v1.0</span>
+        <span>AQORA ADMIN v1.0</span>
         <span>RESTRICTED ACCESS</span>
-        <span>2026 REVOX LABS</span>
+        <span>2026 AQORA LABS</span>
       </div>
     </div>
   );

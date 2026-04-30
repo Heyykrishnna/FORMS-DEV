@@ -13,16 +13,15 @@ import {
 const LOGOS = ['MERCOR', 'algolia', 'LINEAR', 'RAMP', 'VERCEL', 'SUPABASE', 'CURSOR', 'NOTION'];
 
 const Index = () => {
-  const [stats, setStats] = useState({ forms: 12000, responses: 1400000 });
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [forms, responses] = await Promise.all([
-          supabase.from('forms').select('*', { count: 'exact', head: true }),
-          supabase.from('responses').select('*', { count: 'exact', head: true }),
-        ]);
-        setStats({ forms: forms.count || 12000, responses: responses.count || 1400000 });
+        const { data, error } = await supabase.from('forms').select('*', { count: 'exact', head: true });
+        if (error) {
+          console.log(error);
+        }
+        console.log(data);
       } catch (error) {
         console.log(error);
       }
@@ -59,12 +58,8 @@ const Index = () => {
         <div className="max-w-7xl mx-auto px-6 pt-20 pb-24 relative">
           <div className="grid lg:grid-cols-[1fr_auto] gap-16 items-start">
             <div className="max-w-2xl">
-              <div className="hex-chip mb-8">
-                <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--hex-green)' }} />
-                Now with AI Forge — describe a form, get a form
-              </div>
               <h1 className="text-[64px] md:text-[84px] font-semibold leading-[0.96] tracking-[-0.04em]">
-                Forms, <em className="italic font-normal" style={{ fontFamily: "'Instrument Serif', serif" }}>thoughtfully</em><br />
+                Forms, <em className="italic font-normal" style={{ fontFamily: "'Poppins', serif" }}>thoughtfully</em><br />
                 built for teams<br />
                 that ship.
               </h1>
@@ -76,20 +71,10 @@ const Index = () => {
                 <Link to="/auth" className="hex-btn-primary">Start building →</Link>
                 <Link to="/learn-more" className="hex-btn-ghost">Take the tour</Link>
               </div>
-              <div className="mt-10 flex items-center gap-8 hex-mono text-[11px] uppercase tracking-wider" style={{ color: 'var(--hex-ink-muted)' }}>
-                <div><span className="text-[20px] font-semibold hex-mono" style={{ color: 'var(--hex-ink)' }}>{stats.forms.toLocaleString()}</span><br />forms shipped</div>
-                <div className="hex-divider w-px h-8" />
-                <div><span className="text-[20px] font-semibold hex-mono" style={{ color: 'var(--hex-ink)' }}>{(stats.responses/1000).toFixed(0)}k+</span><br />responses collected</div>
-                <div className="hex-divider w-px h-8" />
-                <div><span className="text-[20px] font-semibold hex-mono" style={{ color: 'var(--hex-ink)' }}>SOC 2</span><br />ready</div>
-              </div>
             </div>
 
             <div className="hidden lg:block pt-4">
               <GeoGlyph />
-              <div className="hex-mono text-[10px] mt-3 tracking-wider" style={{ color: 'var(--hex-ink-muted)' }}>
-                FIG.01 — REVOX SYSTEM
-              </div>
             </div>
           </div>
 
@@ -160,7 +145,6 @@ const Index = () => {
                 <GeoGlyph />
                 <span className="hex-mono text-[11px] tracking-wider" style={{ color: 'var(--hex-ink-muted)' }}>FIG.02</span>
               </div>
-              <div className="hex-chip mb-5">Live analytics</div>
               <h2 className="text-[40px] font-semibold tracking-[-0.035em] leading-[1.05]">
                 Beautiful dashboards, <em className="italic font-normal" style={{ fontFamily: "'Instrument Serif', serif" }}>for when you want to click around.</em>
               </h2>
@@ -200,9 +184,8 @@ const Index = () => {
         <div className="absolute inset-0 hex-grid opacity-50 pointer-events-none" />
         <div className="max-w-7xl mx-auto px-6 relative">
           <div className="max-w-2xl mb-16">
-            <div className="hex-chip mb-5">How it works</div>
             <h2 className="text-[44px] font-semibold tracking-[-0.035em] leading-[1.05]">
-              Three steps. <em className="italic font-normal" style={{ fontFamily: "'Instrument Serif', serif" }}>No ceremony.</em>
+              Three steps. <em className="italic font-normal" style={{ fontFamily: "'Poppins', serif" }}>No ceremony.</em>
             </h2>
           </div>
           <div className="grid md:grid-cols-3 gap-px" style={{ background: 'var(--hex-line-strong)' }}>
@@ -275,31 +258,12 @@ const Index = () => {
         </div>
       </section>
 
-
-      <section className="py-28 relative overflow-hidden">
-        <div className="absolute inset-0 hex-grid-fine opacity-50 pointer-events-none" />
-        <div className="max-w-4xl mx-auto px-6 text-center relative">
-          <GeoGlyph className="mx-auto mb-8" />
-          <h2 className="text-[56px] md:text-[72px] font-semibold tracking-[-0.04em] leading-[1.0]">
-            Ship the form. <br />
-            <em className="italic font-normal" style={{ fontFamily: "'Instrument Serif', serif" }}>Read the signal.</em>
-          </h2>
-          <p className="mt-6 text-[17px] max-w-xl mx-auto" style={{ color: 'var(--hex-ink-soft)' }}>
-            Free to start. No card. No catch. Build your first form in the next sixty seconds.
-          </p>
-          <div className="mt-9 flex justify-center gap-3">
-            <Link to="/auth" className="hex-btn-primary">Get started — it's free</Link>
-            <Link to="/about" className="hex-btn-ghost">Talk to us</Link>
-          </div>
-        </div>
-      </section>
-
       <Footer />
     </div>
   );
 };
 
-const FeatureBlock = ({ glyph, chip, title, body, cta, mock, reverse }: {
+const FeatureBlock = ({ glyph, title, body, cta, mock, reverse }: {
   glyph: string; chip: string; title: React.ReactNode; body: string; cta: string; mock: React.ReactNode; reverse?: boolean;
 }) => (
   <section className="border-b hex-line-soft py-24 relative overflow-hidden" style={{ borderBottomWidth: 1 }}>
@@ -310,7 +274,6 @@ const FeatureBlock = ({ glyph, chip, title, body, cta, mock, reverse }: {
             <GeoGlyph />
             <span className="hex-mono text-[11px] tracking-wider" style={{ color: 'var(--hex-ink-muted)' }}>FIG.{glyph}</span>
           </div>
-          <div className="hex-chip mb-5">{chip}</div>
           <h2 className="text-[40px] font-semibold tracking-[-0.035em] leading-[1.05]">{title}</h2>
           <p className="mt-6 text-[16px] leading-relaxed" style={{ color: 'var(--hex-ink-soft)' }}>{body}</p>
           <Link to="/learn-more" className="hex-btn-ghost mt-7">{cta} →</Link>

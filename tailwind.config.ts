@@ -15,6 +15,7 @@ export default {
     },
     extend: {
       fontFamily: {
+        sans: ['"Poppins"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'sans-serif'],
         mono: ['"Space Mono"', 'monospace'],
       },
       colors: {

@@ -227,7 +227,6 @@ const LearnMore = () => {
           </div>
         </section>
 
-        {/* ── HOW IT WORKS ── */}
         <section className="border-b-4 border-foreground py-24 bg-foreground text-background">
           <div className="container mx-auto px-4">
             <ScrollReveal direction="up">
