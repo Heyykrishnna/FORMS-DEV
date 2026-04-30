@@ -12,7 +12,7 @@ import {
   AIPromptMock,
   CanvasEditorMock,
   AnalyticsMock
-} from '@/components/landing/RevoxMockups';
+} from '@/components/landing/AqoraMockups';
 import { IntelligentExecutionGraph } from '@/components/landing/IntelligentExecutionGraph';
 import { cn } from '@/lib/utils';
 
@@ -61,7 +61,7 @@ const Index = () => {
       <nav className="sticky top-0 z-50 border-b hex-line-soft backdrop-blur-md" style={{ borderBottomWidth: 1, background: 'rgba(245,243,238,0.85)' }}>
         <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <Link to="/" className="text-[18px] font-semibold tracking-tight">revox</Link>
+            <Link to="/" className="text-[18px] font-semibold tracking-tight">aqora</Link>
             <div className="hidden md:flex items-center gap-6 text-[13px]" style={{ color: 'var(--hex-ink-soft)' }}>
               <Link to="/learn-more" className="hover:text-foreground">Platform</Link>
               <Link to="/learn-more" className="hover:text-foreground">Solutions</Link>
@@ -108,7 +108,7 @@ const Index = () => {
                   built for teams.
                 </h1>
                 <p className="mt-8 text-[18px] max-w-lg leading-relaxed text-muted-foreground">
-                  Revox is the calm form builder for product teams. Capture feedback, run research,
+                  Aqora is the calm form builder for product teams. Capture feedback, run research,
                   and qualify leads — without the chaos.
                 </p>
 
@@ -125,7 +125,7 @@ const Index = () => {
                 <div className="absolute -inset-4 blur-2xl opacity-0 group-hover:opacity-100 transition duration-1000" />
                 <img
                   src="https://ik.imagekit.io/yatharth/image%20(10).png"
-                  alt="Revox Premium Interface"
+                  alt="Aqora Premium Interface"
                   className="relative rounded-2xl w-full h-full transform transition-transform duration-500 select-none pointer-events-none"
                 />
               </div>
@@ -162,7 +162,7 @@ const Index = () => {
             <HorizontalScale className="absolute top-0 left-0 w-full h-10" />
             <div className="text-[15px] font-semibold tracking-wide mb-8">MERCOR</div>
             <p className="text-[22px] leading-[1.4] tracking-[-0.01em]">
-              &ldquo;If we didn&rsquo;t have Revox, <strong>we&rsquo;d still be wiring up Typeform exports to Slack at 2am</strong>, and shipping research half-blind.&rdquo;
+              &ldquo;If we didn&rsquo;t have Aqora, <strong>we&rsquo;d still be wiring up Typeform exports to Slack at 2am</strong>, and shipping research half-blind.&rdquo;
             </p>
             <div className="mt-10 text-center">
               <div className="text-[14px] font-medium">Dhaval P.</div>
@@ -172,7 +172,7 @@ const Index = () => {
           <div className="p-12 md:p-16">
             <div className="text-[15px] font-semibold tracking-wide mb-8">algolia</div>
             <p className="text-[22px] leading-[1.4] tracking-[-0.01em]">
-              &ldquo;Revox is the only form tool we use to ship product surveys. <strong>It makes our research loop 10x faster</strong> and the data is clean by default.&rdquo;
+              &ldquo;Aqora is the only form tool we use to ship product surveys. <strong>It makes our research loop 10x faster</strong> and the data is clean by default.&rdquo;
             </p>
             <div className="mt-10 text-center">
               <div className="text-[14px] font-medium">Tom C.</div>
@@ -186,7 +186,7 @@ const Index = () => {
         glyph="01"
         chip="AI Orchestration"
         title={<>AI Forge: The engine <br />behind the form.</>}
-        body="Describe your research goals in plain English. Revox handles the logical mapping, prompt chains, and validation steps. You get a production-ready agent workflow in seconds, not weeks."
+        body="Describe your research goals in plain English. Aqora handles the logical mapping, prompt chains, and validation steps. You get a production-ready agent workflow in seconds, not weeks."
         cta="Build with AI Forge"
         mock={<AIStudioMock />}
         reverse={false}
@@ -301,8 +301,8 @@ const Index = () => {
           <div className="border-t hex-line-soft" style={{ borderTopWidth: 1 }}>
             {[
               {
-                q: 'How is Revox different from Typeform or Google Forms?',
-                a: 'Revox is built for product teams, not marketing teams. You get AI-generated forms, a real response stream, live analytics, branching, quiz mode, and domain-locked sharing — without the agency-level pricing or the survey-tool bloat.',
+                q: 'How is Aqora different from Typeform or Google Forms?',
+                a: 'Aqora is built for product teams, not marketing teams. You get AI-generated forms, a real response stream, live analytics, branching, quiz mode, and domain-locked sharing — without the agency-level pricing or the survey-tool bloat.',
               },
               {
                 q: 'Do my respondents need an account?',
@@ -310,7 +310,7 @@ const Index = () => {
               },
               {
                 q: 'How does AI Forge actually work?',
-                a: 'Describe what you want to learn in plain English. Revox picks the right blocks, drafts the questions, adds branching where it makes sense, and hands you a working draft you can edit before publishing. You stay in control.',
+                a: 'Describe what you want to learn in plain English. Aqora picks the right blocks, drafts the questions, adds branching where it makes sense, and hands you a working draft you can edit before publishing. You stay in control.',
               },
               {
                 q: 'Where is my data stored, and is it secure?',

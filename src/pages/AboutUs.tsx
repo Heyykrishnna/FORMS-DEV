@@ -12,7 +12,7 @@ const AboutUs = () => {
               <ArrowLeft className="h-6 w-6" /> HOME
             </Link>
             <div className="text-2xl font-black tracking-widest uppercase">
-              ABOUT REVOX<span className="text-accent">.</span>
+              ABOUT AQORA<span className="text-accent">.</span>
             </div>
           </div>
         </nav>
@@ -40,7 +40,7 @@ const AboutUs = () => {
                   <span className="text-6xl font-black text-accent opacity-50">02</span>
                   <div>
                     <h2 className="text-3xl font-black uppercase mb-4 italic">RADICAL OWNERSHIP</h2>
-                    <p className="text-lg font-bold opacity-70">YOUR DATA BELONGS TO YOU. YOUR STYLE SHOULD BE YOUR OWN. WE PROVIDE THE ENGINE, YOU PROVIDE THE SOUL. REVOX IS THE ANTIDOTE TO CORPORATE BLANDNESS.</p>
+                    <p className="text-lg font-bold opacity-70">YOUR DATA BELONGS TO YOU. YOUR STYLE SHOULD BE YOUR OWN. WE PROVIDE THE ENGINE, YOU PROVIDE THE SOUL. AQORA IS THE ANTIDOTE TO CORPORATE BLANDNESS.</p>
                   </div>
                 </div>
               </div>
@@ -53,9 +53,9 @@ const AboutUs = () => {
               </h2>
               <div className="space-y-16 relative before:absolute before:left-[19px] before:top-4 before:bottom-4 before:w-1 before:bg-foreground/10">
                 {[
-                  { year: '2025 / Q4', title: 'THE SILICON SPARK', desc: 'FRUSTRATED WITH ROUNDED CORNERS AND SOFT INTERFACES, THE FIRST LINE OF REVOX WAS WRITTEN IN A DARK BASEMENT DURING A POWER OUTAGE.' },
-                  { year: '2026 / JAN', title: 'THE BRUTAL LAUNCH', desc: 'REVOX V1.0 GOES LIVE. THE DESIGN COMMUNITY IS SHOCKED. THE PURISTS ARE TERRIFIED. 10K+ FORMS BUILT IN THE FIRST 48 HOURS.' },
-                  { year: '2026 / FEB', title: 'THE ASCENSION', desc: 'IMPLEMENTED ADVANCED LOGIC, SECURITY SUITE, AND SEO ENGINE. REVOX BECOMES THE DEFAULT FOR THOSE WHO DEMAND SPEED AND STYLE.' },
+                  { year: '2025 / Q4', title: 'THE SILICON SPARK', desc: 'FRUSTRATED WITH ROUNDED CORNERS AND SOFT INTERFACES, THE FIRST LINE OF AQORA WAS WRITTEN IN A DARK BASEMENT DURING A POWER OUTAGE.' },
+                  { year: '2026 / JAN', title: 'THE BRUTAL LAUNCH', desc: 'AQORA V1.0 GOES LIVE. THE DESIGN COMMUNITY IS SHOCKED. THE PURISTS ARE TERRIFIED. 10K+ FORMS BUILT IN THE FIRST 48 HOURS.' },
+                  { year: '2026 / FEB', title: 'THE ASCENSION', desc: 'IMPLEMENTED ADVANCED LOGIC, SECURITY SUITE, AND SEO ENGINE. AQORA BECOMES THE DEFAULT FOR THOSE WHO DEMAND SPEED AND STYLE.' },
                 ].map((item, i) => (
                   <div key={i} className="relative pl-16 group">
                     <div className="absolute left-0 top-1 w-10 h-10 border-4 border-foreground bg-background flex items-center justify-center z-10 group-hover:bg-accent group-hover:border-accent transition-all">
@@ -101,7 +101,7 @@ const AboutUs = () => {
               <h2 className="text-4xl md:text-6xl font-black uppercase mb-8 italic">SEND A SIGNAL.</h2>
               <p className="text-xl font-bold uppercase mb-12 opacity-70">WANT TO JOIN THE REBELION? HAVE A FEATURE REQUEST THAT'S TOO BOLD FOR THE MAINSTREAM?</p>
               <a 
-                href="mailto:signals@revox.build"
+                href="mailto:signals@aqora.build"
                 className="inline-block bg-accent text-accent-foreground border-4 border-background px-12 py-5 text-2xl font-black uppercase shadow-[8px_8px_0px_#fff] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
               >
                 DEPLOY EMAIL →

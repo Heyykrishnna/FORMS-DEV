@@ -42,7 +42,7 @@ const NotFound = () => {
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none select-none overflow-hidden">
         {Array(20).fill(0).map((_, i) => (
           <div key={i} className="whitespace-nowrap text-[120px] font-black leading-none">
-            REVOX INTEL REVOX INTEL REVOX INTEL REVOX INTEL
+            AQORA INTEL AQORA INTEL AQORA INTEL AQORA INTEL
           </div>
         ))}
       </div>
@@ -124,7 +124,7 @@ const NotFound = () => {
 
         {/* FOOTER INTEL */}
         <div className="mt-12 flex justify-between items-center opacity-20 text-[10px] font-black uppercase tracking-[0.5em]">
-          <span>REVOX PROTOCOL v4.0.4</span>
+          <span>AQORA PROTOCOL v4.0.4</span>
           <span>© 2026 DEEP DATA SQUAD</span>
         </div>
       </div>

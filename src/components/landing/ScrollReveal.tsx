@@ -17,7 +17,6 @@ interface ScrollRevealProps {
   direction?: Direction;
   delay?: number;
   className?: string;
-  key?: React.Key;
 }
 
 export function ScrollReveal({

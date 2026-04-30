@@ -43,7 +43,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
     icon: 'UserPlus',
     data: {
       title: 'REGISTRATION_MODULE_v2',
-      description: 'ESTABLISH YOUR DIGITAL FOOTPRINT IN THE REVOX ECOSYSTEM.',
+      description: 'ESTABLISH YOUR DIGITAL FOOTPRINT IN THE AQORA ECOSYSTEM.',
       theme: 'monochrome',
       layout: 'single_page',
       style: {
@@ -250,9 +250,9 @@ export const FORM_TEMPLATES: FormTemplate[] = [
           { id: 'p1', label: 'FRONTEND_ENGINEER' },
           { id: 'p2', label: 'BACKEND_ENGINEER' },
           { id: 'p3', label: 'PRODUCT_DESIGNER' },
-          { id: 'p4', label: 'REVOX_OPERATIVE' },
+          { id: 'p4', label: 'AQORA_OPERATIVE' },
         ]},
-        { id: 'q5', type: 'long_text', title: 'WHY_REVOX?', required: true },
+        { id: 'q5', type: 'long_text', title: 'WHY_AQORA?', required: true },
         { id: 'q6', type: 'file_upload', title: 'CURRICULUM_VITAE (PDF Only)', required: true },
       ]
     }
@@ -278,7 +278,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
       },
       questions: [
         { id: 'q1', type: 'multiple_choice', title: 'PRODUCT_SELECT', required: true, options: [
-          { id: 'o1', label: 'REVOX_PRIME_ACCESS' },
+          { id: 'o1', label: 'AQORA_PRIME_ACCESS' },
           { id: 'o2', label: 'NEON_THEME_PACK' },
           { id: 'o3', label: 'ANALYTICS_ADDON' },
         ]},

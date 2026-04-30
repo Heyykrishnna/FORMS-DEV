@@ -1,8 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { cx } from "class-variance-authority";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import React from "react";
 import { useClickOutside } from "./use-click-outside";
@@ -16,6 +14,8 @@ const SPRING_STIFFNESS = 550;
 const SPRING_DAMPING = 45;
 const SPRING_MASS = 0.7;
 const CLOSE_DELAY = 0.08;
+const FEEDBACK_WIDTH = 360;
+const FEEDBACK_HEIGHT = 200;
 
 interface FooterContext {
   showFeedback: boolean;
@@ -28,17 +28,16 @@ interface FooterContext {
 const FooterContext = React.createContext({} as FooterContext);
 const useFooter = () => React.useContext(FooterContext);
 
-export function MorphSurface({ 
-  onSubmit, 
+export function MorphSurface({
+  onSubmit,
   isThinking = false,
-  placeholder = "Ask AI to build a form..."
-}: { 
-  onSubmit?: (message: string) => void; 
+  placeholder = "Ask AI to build a form...",
+}: {
+  onSubmit?: (message: string) => void;
   isThinking?: boolean;
   placeholder?: string;
 }) {
   const rootRef = React.useRef<HTMLDivElement>(null);
-
   const feedbackRef = React.useRef<HTMLTextAreaElement | null>(null);
   const [showFeedback, setShowFeedback] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
@@ -119,9 +118,9 @@ export function MorphSurface({
       >
         <FooterContext.Provider value={context}>
           <Dock />
-          <Feedback 
-            onSuccess={onFeedbackSuccess} 
-            ref={feedbackRef} 
+          <Feedback
+            onSuccess={onFeedbackSuccess}
+            ref={feedbackRef}
             onSubmitOverride={onSubmit}
             placeholder={placeholder}
           />
@@ -132,8 +131,7 @@ export function MorphSurface({
 }
 
 function Dock() {
-  const { showFeedback, openFeedback, isThinking } = useFooter();
-  const shouldReduceMotion = useReducedMotion();
+  const { openFeedback } = useFooter();
   return (
     <footer className="mt-auto flex h-[44px] select-none items-center justify-center whitespace-nowrap">
       <div className="flex items-center justify-center gap-2 px-3 max-sm:h-10 max-sm:px-2">
@@ -147,9 +145,6 @@ function Dock() {
     </footer>
   );
 }
-
-const FEEDBACK_WIDTH = 360;
-const FEEDBACK_HEIGHT = 200;
 
 function Feedback({
   ref,
@@ -267,6 +262,3 @@ function Kbd({
     </kbd>
   );
 }
-
-// Add default export for lazy loading
-export default MorphSurface;

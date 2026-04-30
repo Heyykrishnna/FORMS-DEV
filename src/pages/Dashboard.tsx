@@ -344,7 +344,7 @@ const Dashboard = () => {
       <nav className="border-b-4 border-foreground sticky top-0 bg-background z-50">
         <div className="container mx-auto flex items-center justify-between px-4 py-4">
           <Link to="/" className="text-3xl font-black tracking-tighter uppercase hover:text-accent transition-colors flex items-center gap-2">
-            REVOX<span className="text-accent decoration-4 underline-offset-4">.</span>
+            AQORA<span className="text-accent decoration-4 underline-offset-4">.</span>
           </Link>
           <div className="flex items-center gap-4">
             {isAdmin && (
@@ -368,7 +368,7 @@ const Dashboard = () => {
                         }}
                       />
                     ) : (
-                      <AgentAvatar seed={user?.email || 'revox'} size={32} />
+                      <AgentAvatar seed={user?.email || 'aqora'} size={32} />
                     )}
                 </div>
                 <span className="text-xs font-bold uppercase hidden md:inline-block opacity-50 group-hover:opacity-100 transition-opacity">
@@ -612,9 +612,9 @@ const Dashboard = () => {
       
       {/* Decorative Footer info */}
       <div className="container mx-auto px-4 pb-12 mt-12 flex justify-between items-center opacity-30 text-[10px] font-black uppercase tracking-[0.2em]">
-        <span>REVOX OS v4.2.0</span>
+        <span>AQORA OS v4.2.0</span>
         <span>CONNECTED TO SUPABASE</span>
-        <span>2026 REVOX LABS</span>
+        <span>2026 AQORA LABS</span>
       </div>
 
       <TemplateGallery 

@@ -215,7 +215,7 @@ const Profile = () => {
                                         }}
                                     />
                                 ) : (
-                                    <AgentAvatar seed={profile?.username || user?.email || 'revox'} size={128} />
+                                    <AgentAvatar seed={profile?.username || user?.email || 'aqora'} size={128} />
                                 )}
                             </div>
                             <div 
@@ -401,7 +401,7 @@ const Profile = () => {
                                             ) : editForm.avatar_url ? (
                                                 <img src={editForm.avatar_url} className="w-full h-full object-cover" alt="Custom avatar" />
                                             ) : (
-                                                <AgentAvatar seed={editForm.username || user?.email || 'revox'} size={64} />
+                                                <AgentAvatar seed={editForm.username || user?.email || 'aqora'} size={64} />
                                             )}
                                         </div>
                                         <div className="flex-1">

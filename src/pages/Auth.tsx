@@ -493,7 +493,7 @@ const Auth = () => {
         
         {/* Footer */}
         <div className="absolute bottom-4 text-[10px] font-black uppercase opacity-20">
-          SECURE SECTOR 7G • REVOX SYSTEMS © 2026
+          SECURE SECTOR 7G • AQORA SYSTEMS © 2026
         </div>
       </div>
       <ForgotPasswordModal 

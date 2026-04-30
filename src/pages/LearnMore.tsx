@@ -78,7 +78,7 @@ const manifesto = [
   'MONOSPACE IS NOT RETRO — IT IS HONEST.',
   'HIGH CONTRAST IS NOT AGGRESSIVE — IT IS ACCESSIBLE.',
   'BOLD IS NOT LOUD — IT IS CONFIDENT.',
-  'FORMS ARE NOT BORING — YOU JUST HAVEN\'T USED REVOX.',
+  'FORMS ARE NOT BORING — YOU JUST HAVEN\'T USED AQORA.',
 ];
 
 const useCases = [
@@ -133,7 +133,7 @@ const LearnMore = () => {
             </ScrollReveal>
             <ScrollReveal direction="left" delay={200}>
               <p className="text-xl md:text-2xl font-bold text-background/70 max-w-3xl leading-tight border-l-8 border-accent pl-6 py-2 uppercase">
-                REVOX is the antidote to soft, forgettable web forms. Built for creators who refuse to blend in. Powered by Neo-Brutalism. Engineered for results.
+                Aqora is the antidote to soft, forgettable web forms. Built for creators who refuse to blend in. Powered by Neo-Brutalism. Engineered for results.
               </p>
             </ScrollReveal>
           </div>
@@ -167,7 +167,7 @@ const LearnMore = () => {
                   <p className="text-xs font-black tracking-[0.4em] mb-6 opacity-60 uppercase">// VISION</p>
                   <h2 className="text-4xl font-black mb-6 uppercase italic leading-tight">WHY WE BUILT THIS.</h2>
                   <p className="text-lg leading-relaxed font-bold">
-                    Most form builders try to disappear into the background. We built REVOX to do the opposite.
+                    Most form builders try to disappear into the background. We built Aqora to do the opposite.
                     Every pixel is intentional. Every border is a statement. We believe the tools you use
                     should reflect the ambition of what you're building.
                   </p>

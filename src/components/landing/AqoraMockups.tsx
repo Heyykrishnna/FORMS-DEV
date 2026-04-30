@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { motion } from 'motion/react';
 
 export const GeoGlyph = ({ className = '' }: { className?: string }) => (
@@ -43,7 +43,6 @@ const MultiLineChart = ({ w = 480, h = 220 }: { w?: number; h?: number }) => {
           <text x={padL - 6} y={yFor(t) + 3} fontSize="9" textAnchor="end" fill="var(--hex-ink-muted)">{t}</text>
         </g>
       ))}
-      {/* lines */}
       {SERIES.map((s) => {
         const d = s.pts.map((v, i) => `${i === 0 ? 'M' : 'L'} ${xs[i]} ${yFor(v)}`).join(' ');
         const dim = hover && hover !== s.name;
@@ -53,7 +52,7 @@ const MultiLineChart = ({ w = 480, h = 220 }: { w?: number; h?: number }) => {
              onMouseLeave={() => setHover(null)}
              style={{ transition: 'opacity .2s', opacity: dim ? 0.18 : 1, cursor: 'pointer' }}>
             <path d={d} fill="none" stroke={s.color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
-                  className="hex-line-path" style={{ ['--len' as any]: 600 }} />
+                  className="hex-line-path" style={{ '--len': 600 } as CSSProperties} />
             {s.pts.map((v, i) => (
               <circle key={i} cx={xs[i]} cy={yFor(v)} r="2" fill={s.color} />
             ))}
@@ -152,7 +151,7 @@ export const DashboardMock = () => {
     <div className="hex-card overflow-hidden w-full">
       <div className="flex items-center justify-between px-4 py-2.5 border-b hex-line-soft" style={{ borderBottomWidth: 1 }}>
         <div className="flex items-center gap-2">
-          <span className="text-[12px] font-medium">Revox · Onboarding Survey</span>
+          <span className="text-[12px] font-medium">Aqora · Onboarding Survey</span>
         </div>
         <div className="flex items-center gap-2">
           <button className="text-[11px] px-2.5 py-1 border hex-line-soft rounded" style={{ borderWidth: 1 }}>Edit</button>
@@ -255,7 +254,7 @@ export const FormBuilderMock = () => {
             <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#ffbd2e' }} />
             <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#27c93f' }} />
           </div>
-          <span className="hex-mono text-[11px] opacity-60" style={{ color: 'var(--hex-ink-muted)' }}>revox.app/builder</span>
+          <span className="hex-mono text-[11px] opacity-60" style={{ color: 'var(--hex-ink-muted)' }}>aqora.app/builder</span>
         </div>
         <div className="flex items-center gap-3">
           <span className="hex-mono text-[10px] opacity-40">Draft</span>
@@ -391,7 +390,6 @@ const Sparkline = ({ pts, color, h = 24 }: { pts: number[]; color: string; h?: n
 export const ContextStudioMock = () => {
   return (
     <div className="hex-card overflow-hidden w-full max-w-[840px] bg-white relative">
-      {/* App Toolbar */}
       <div className="flex items-center justify-between px-4 py-2 border-b hex-line-soft bg-[#fafaf7]">
         <div className="flex items-center gap-3">
           <div className="flex gap-1.5">
@@ -401,7 +399,7 @@ export const ContextStudioMock = () => {
           </div>
           <div className="h-4 w-[1px] bg-black/10 mx-1" />
           <div className="flex items-center gap-2 text-[11px] font-medium opacity-80">
-            <span className="opacity-40">Revox /</span>
+            <span className="opacity-40">Aqora /</span>
             <span>Project: Galactic Sales Survey</span>
           </div>
         </div>
@@ -414,7 +412,6 @@ export const ContextStudioMock = () => {
       </div>
 
       <div className="flex h-[540px]">
-        {/* Left Sidebar */}
         <aside className="w-14 border-r hex-line-soft flex flex-col items-center py-4 gap-6 bg-[#fafaf7]">
           <div className="w-8 h-8 rounded bg-black flex items-center justify-center text-white text-[18px]">R</div>
           <div className="flex flex-col gap-5 opacity-40">
@@ -427,9 +424,7 @@ export const ContextStudioMock = () => {
           </div>
         </aside>
 
-        {/* Inner Content */}
         <div className="flex-grow flex flex-col overflow-hidden">
-          {/* Top Tabs / Nav */}
           <div className="px-6 py-3 border-b hex-line-soft flex items-center justify-between">
             <div className="flex gap-8 text-[12px] font-medium">
               <span className="text-black relative after:absolute after:-bottom-[13px] after:left-0 after:right-0 after:h-[2px] after:bg-black">Logic Workspace</span>
@@ -440,7 +435,6 @@ export const ContextStudioMock = () => {
           </div>
 
           <div className="p-6 flex-grow overflow-hidden flex flex-col">
-            {/* KPI Row */}
             <div className="grid grid-cols-3 gap-6 mb-8">
               {[
                 { l: 'Conversations', v: '1,429', pts: [10, 15, 12, 18, 22, 19, 25], c: 'var(--c-purple)' },
@@ -457,7 +451,6 @@ export const ContextStudioMock = () => {
               ))}
             </div>
 
-            {/* Editor Area */}
             <div className="flex-grow flex border hex-line-soft rounded-lg overflow-hidden bg-[#fcfcf9] shadow-sm">
               <div className="w-48 border-r hex-line-soft bg-[#fafaf7] p-3">
                 <div className="text-[10px] hex-mono opacity-40 mb-3">FILE SYSTEM</div>
@@ -489,8 +482,7 @@ export const ContextStudioMock = () => {
                     </span>
                   </div>
                 </div>
-                
-                {/* Floating "Node" Overlay */}
+
                 <div className="absolute bottom-6 right-6 w-48 bg-white border hex-line-strong rounded shadow-xl p-3 animate-lift">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-2 h-2 rounded-full bg-emerald-500" />
@@ -517,7 +509,6 @@ export const ContextStudioMock = () => {
 export const AIStudioMock = () => {
   return (
     <div className="hex-card overflow-hidden w-full max-w-[840px] bg-white relative">
-      {/* App Toolbar */}
       <div className="flex items-center justify-between px-4 py-2 border-b hex-line-soft bg-[#fafaf7]">
         <div className="flex items-center gap-3">
           <div className="flex gap-1.5">
@@ -527,7 +518,7 @@ export const AIStudioMock = () => {
           </div>
           <div className="h-4 w-[1px] bg-black/10 mx-1" />
           <div className="flex items-center gap-2 text-[11px] font-medium opacity-80">
-            <span className="opacity-40">Revox /</span>
+            <span className="opacity-40">Aqora /</span>
             <span>AI Agent: Feedback Analyzer</span>
           </div>
         </div>
@@ -541,7 +532,6 @@ export const AIStudioMock = () => {
       <div className="flex h-[540px]">
 
         <div className="flex-grow flex flex-col overflow-hidden">
-          {/* Header */}
           <div className="px-6 py-4 border-b hex-line-soft flex items-center justify-between bg-white/50 backdrop-blur-sm sticky top-0 z-20">
              <div>
                <h4 className="text-[16px] font-semibold">Agent Workflow: Survey Builder</h4>
@@ -557,13 +547,12 @@ export const AIStudioMock = () => {
           </div>
 
           <div className="p-6 flex-grow flex gap-6 overflow-hidden">
-            {/* Steps / Reasoning */}
             <div className="flex-grow flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar">
               {[
                 { s: 'Analyzing objectives', t: 'Identified core KPI: Net Promoter Score (NPS)', d: '14ms' },
                 { s: 'Structuring questions', t: 'Synthesized 6-question flow with conditional branching', d: '82ms' },
                 { s: 'Validating accessibility', t: 'WCAG 2.1 compliance check passed (AA)', d: '45ms' },
-                { s: 'Generating CSS tokens', t: 'Theme: "Revox Dark" applied via design tokens', d: '22ms' },
+                { s: 'Generating CSS tokens', t: 'Theme: "Aqora Dark" applied via design tokens', d: '22ms' },
               ].map((step, i) => (
                 <div key={i} className="flex gap-4 group">
                   <div className="flex flex-col items-center">
@@ -583,12 +572,10 @@ export const AIStudioMock = () => {
               ))}
             </div>
 
-            {/* Visualizer / Output Panel */}
             <div className="w-80 flex flex-col gap-4">
               <div className="flex-grow border hex-line-soft rounded-lg bg-[#fafaf7] p-4 relative overflow-hidden">
                 <div className="text-[10px] hex-mono opacity-40 mb-4 uppercase">Chain of Thought Visualizer</div>
-                
-                {/* Abstract Node Graph Illustration */}
+
                 <div className="relative h-40 w-full">
                   <svg className="w-full h-full" viewBox="0 0 200 120">
                     <circle cx="100" cy="60" r="30" fill="none" stroke="var(--c-purple)" strokeWidth="1" strokeDasharray="4 4" className="animate-spin-slow" style={{ transformOrigin: 'center' }} />
@@ -636,7 +623,7 @@ export const CanvasEditorMock = () => {
     <div className="hex-card overflow-hidden w-full max-w-[1180px] mx-auto min-w-0 group/canvas shadow-[0_32px_64px_-16px_rgba(26,29,41,0.1)] transition-all duration-500 hover:shadow-[0_32px_64px_-16px_rgba(26,29,41,0.2)]">
       <div className="flex items-center justify-between px-4 py-2.5 border-b hex-line-soft" style={{ borderBottomWidth: 1 }}>
         <div className="flex items-center gap-2">
-          <span className="text-[12px] font-medium">Revox · Customer Feedback Form</span>
+          <span className="text-[12px] font-medium">Aqora · Customer Feedback Form</span>
         </div>
         <div className="flex items-center gap-2">
           <button className="text-[11px] px-2.5 py-1 border hex-line-soft rounded cursor-pointer hover:bg-slate-50 transition-colors" style={{ borderWidth: 1 }}>Preview</button>
@@ -656,7 +643,6 @@ export const CanvasEditorMock = () => {
           ))}
         </div>
 
-        {/* Similar to KPIs in DashboardMock but for Editor */}
         <div className="grid grid-cols-3 gap-3 mt-4">
           {[
             { v: '12', l: 'Total Blocks', sub: '3 pages configured' },
@@ -671,13 +657,12 @@ export const CanvasEditorMock = () => {
           ))}
         </div>
 
-        {/* The visual canvas part */}
         <div className="mt-5 border hex-line-soft rounded-lg bg-[#fcfbf7] h-[420px] relative overflow-hidden flex shadow-sm min-h-0">
-          {/* Infinite Grid Background */}
-          <div className="absolute inset-0 opacity-[0.03] hex-grid-fine pointer-events-none" 
-               style={{ backgroundSize: '24px 24px' }} />
-          
-          {/* Toolbar (Left) */}
+          <div
+            className="absolute inset-0 opacity-[0.03] hex-grid-fine pointer-events-none"
+            style={{ backgroundSize: '24px 24px' }}
+          />
+
           <div className="w-14 shrink-0 border-r hex-line-soft flex flex-col items-center py-4 gap-3 bg-[#fafaf7] z-10">
              {[1, 2, 3, 4, 5].map((i) => (
                <div key={i} className={`w-8 h-8 rounded border hex-line-soft shadow-sm flex items-center justify-center hover:bg-black hover:text-white transition-all duration-300 cursor-pointer ${i === 2 ? 'bg-black text-white shadow-lg' : 'bg-white opacity-60 hover:opacity-100'}`}>
@@ -690,11 +675,9 @@ export const CanvasEditorMock = () => {
              ))}
           </div>
 
-          {/* Canvas Area — scrollable so blocks stay usable when tall */}
           <div className="flex-1 min-w-0 relative flex flex-col min-h-0">
             <div className="flex-1 overflow-y-auto overflow-x-auto custom-scrollbar px-6 py-6 pt-7">
              <div className="w-full max-w-[560px] mx-auto space-y-6">
-                {/* Block 1 */}
                 <motion.div 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -704,7 +687,7 @@ export const CanvasEditorMock = () => {
                       01
                    </div>
                    <div className="text-[11px] font-bold opacity-30 hex-mono mb-1.5 uppercase tracking-widest">NPS Selection</div>
-                   <div className="text-[13px] font-semibold mb-3 text-slate-800">How likely are you to recommend Revox?</div>
+                   <div className="text-[13px] font-semibold mb-3 text-slate-800">How likely are you to recommend Aqora?</div>
                    <div className="flex gap-1.5">
                       {[1, 2, 3, 4, 5].map(n => (
                         <div key={n} className="flex-grow h-8 rounded border hex-line-soft flex items-center justify-center text-[10px] font-medium opacity-60 hover:opacity-100 hover:bg-indigo-50 transition-all cursor-pointer">
@@ -714,12 +697,10 @@ export const CanvasEditorMock = () => {
                    </div>
                 </motion.div>
 
-                {/* Connection Line */}
                 <div className="h-6 ml-5 w-[1.5px] bg-indigo-500/20 relative">
                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
                 </div>
 
-                {/* Block 2 */}
                 <motion.div 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -742,7 +723,6 @@ export const CanvasEditorMock = () => {
             </div>
           </div>
 
-          {/* Properties Panel (Right) */}
           <div className="w-[272px] shrink-0 border-l hex-line-soft bg-white/95 backdrop-blur-sm z-10 flex flex-col min-h-0 min-w-0 transform transition-transform duration-500 shadow-[-10px_0_20px_rgba(0,0,0,0.02)]">
              <div className="p-3.5 shrink-0 border-b hex-line-soft bg-[#fafaf7] flex items-center justify-between">
                 <div className="text-[9px] font-bold uppercase tracking-widest opacity-40 hex-mono">Properties</div>
