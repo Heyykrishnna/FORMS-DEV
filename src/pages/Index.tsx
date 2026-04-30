@@ -13,6 +13,7 @@ import {
   CanvasEditorMock,
   AnalyticsMock
 } from '@/components/landing/RevoxMockups';
+import { IntelligentExecutionGraph } from '@/components/landing/IntelligentExecutionGraph';
 import { cn } from '@/lib/utils';
 
 const LOGOS = ['MERCOR', 'algolia', 'LINEAR', 'RAMP', 'VERCEL', 'SUPABASE', 'CURSOR', 'NOTION'];
@@ -76,6 +77,14 @@ const Index = () => {
         </div>
       </nav>
       <section className="relative overflow-hidden">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.3]"
+          style={{
+            backgroundImage: "url('https://ik.imagekit.io/yatharth/ChatGPT%20Image%20Apr%2030,%202026,%2007_52_59%20PM.png')",
+            backgroundSize: 'min(420px, 45vw) auto',
+          }}
+          aria-hidden
+        />
         <div className="absolute inset-0 hex-grid pointer-events-none opacity-70" />
         <div className="hex-corner top-6 left-6" style={{ borderRight: 0, borderBottom: 0 }} />
         <div className="hex-corner top-6 right-6" style={{ borderLeft: 0, borderBottom: 0 }} />
@@ -115,16 +124,16 @@ const Index = () => {
               <div className="relative group">
                 <div className="absolute -inset-4 blur-2xl opacity-0 group-hover:opacity-100 transition duration-1000" />
                 <img
-                  src="https://ik.imagekit.io/yatharth/ChatGPT_Image_Apr_30__2026__03_40_13_PM-removebg-preview.png"
+                  src="https://ik.imagekit.io/yatharth/image%20(10).png"
                   alt="Revox Premium Interface"
-                  className="relative rounded-2xl w-full transform transition-transform duration-500 select-none pointer-events-none"
+                  className="relative rounded-2xl w-full h-full transform transition-transform duration-500 select-none pointer-events-none"
                 />
               </div>
             </motion.div>
           </div>
 
 
-          <div className="mt-20 relative">
+          <div className="pt-20 relative">
             <div className="absolute inset-0 hex-grid-fine opacity-40 pointer-events-none -m-8" />
             <div className="relative grid lg:grid-cols-12 gap-6 items-end">
               <div className="lg:col-span-5"><AIPromptMock /></div>
@@ -150,6 +159,7 @@ const Index = () => {
       <section className="border-b hex-line-soft" style={{ borderBottomWidth: 1, borderTopWidth: 1 }}>
         <div className="max-w-7xl mx-auto grid md:grid-cols-2">
           <div className="p-12 md:p-16 md:border-r hex-line-soft" style={{ borderRightWidth: 1 }}>
+            <HorizontalScale className="absolute top-0 left-0 w-full h-10" />
             <div className="text-[15px] font-semibold tracking-wide mb-8">MERCOR</div>
             <p className="text-[22px] leading-[1.4] tracking-[-0.01em]">
               &ldquo;If we didn&rsquo;t have Revox, <strong>we&rsquo;d still be wiring up Typeform exports to Slack at 2am</strong>, and shipping research half-blind.&rdquo;
@@ -182,8 +192,9 @@ const Index = () => {
         reverse={false}
         noHover={true}
       />
-
-      <section className="border-b hex-line-soft py-32 relative overflow-hidden hex-vignette" style={{ borderBottomWidth: 1, background: 'var(--hex-bg-alt)' }}>
+        
+      <section className="border-b hex-line-soft pb-10 pt-32 relative overflow-hidden hex-vignette" style={{ borderBottomWidth: 1, background: 'var(--hex-bg-alt)' }}>
+        <HorizontalScale className="absolute top-0 left-0 w-full h-10" />
         <div className="absolute inset-0 hex-grid opacity-40 pointer-events-none" />
         <div className="max-w-7xl mx-auto px-6 relative">
           <div className="grid lg:grid-cols-[1fr_2.5fr] gap-20 items-start">
@@ -216,6 +227,32 @@ const Index = () => {
         reverse={true}
         noHover={true}
       />
+
+      <section className="border-b hex-line-soft relative overflow-hidden" style={{ borderBottomWidth: 1 }}>
+        <div className="absolute inset-0 hex-grid opacity-30 pointer-events-none" />
+        <div className="max-w-[1400px] mx-auto px-6 relative">
+          <div className="grid lg:grid-cols-[1.2fr_2fr] gap-0 items-center">
+            <div className="z-10 relative pr-12 lg:pl-16">
+              <div className="flex items-center gap-3 mb-6">
+                 <GeoGlyph />
+                 <span className="hex-mono text-[11px] tracking-wider text-slate-500">FIG.04</span>
+              </div>
+              <h2 className="text-[48px] font-semibold tracking-[-0.035em] leading-[1.05]">
+                Intelligent execution
+              </h2>
+              <p className="mt-6 text-[18px] leading-relaxed max-w-md" style={{ color: 'var(--hex-ink-soft)' }}>
+                Hex's graph-based execution model makes projects more reproducible, explainable, and performant than traditional data science notebooks.
+              </p>
+              <button className="mt-8 hex-btn-ghost text-[14px]">
+                Learn more →
+              </button>
+            </div>
+            <div className="relative -mr-32">
+               <IntelligentExecutionGraph />
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="border-y hex-line-soft py-32 relative overflow-hidden" style={{ borderTopWidth: 1, borderBottomWidth: 1 }}>
         <div className="absolute inset-0 hex-grid opacity-30 pointer-events-none" />
@@ -250,6 +287,7 @@ const Index = () => {
       </section>
 
       <section className="border-b hex-line-soft py-28 relative hex-vignette" style={{ borderBottomWidth: 1 }}>
+        <HorizontalScale className="absolute top-0 left-0 w-full h-10" />
         <div className="max-w-6xl mx-auto px-6 grid lg:grid-cols-[360px_1fr] gap-16">
           <div>
             <h2 className="text-[42px] font-semibold tracking-[-0.035em] leading-[1.05]">
@@ -432,8 +470,7 @@ const SignalIllustration = () => (
 const FeatureBlock = ({ glyph, title, body, cta, mock, reverse, noHover }: {
   glyph: string; chip: string; title: React.ReactNode; body: string; cta: string; mock: React.ReactNode; reverse?: boolean; noHover?: boolean;
 }) => (
-  <section className="border-b hex-line-soft py-40 relative overflow-hidden" style={{ borderBottomWidth: 1 }}>
-    {/* Subtle background glow for reverse sections */}
+  <section className="border-b hex-line-soft py-20 relative overflow-hidden" style={{ borderBottomWidth: 1 }}>
     {reverse && <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/5 blur-[120px] pointer-events-none" />}
     {!reverse && <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/5 blur-[120px] pointer-events-none" />}
     
