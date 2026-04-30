@@ -195,9 +195,41 @@
   .shadow-brutal-lg {
     box-shadow: 12px 12px 0px 0px hsl(var(--foreground));
   }
+
+  .animate-lift {
+    animation: lift 4s ease-in-out infinite;
+  }
+
+  @keyframes lift {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .animate-spin-slow {
+    animation: spin 8s linear infinite;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(26,29,41,0.1);
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(26,29,41,0.2);
+  }
 }
 
-/* PRINT STYLES - AQORA PROFESSIONAL REPORTS */
+/* PRINT STYLES - REVOX PROFESSIONAL REPORTS */
 @media print {
   /* Hide UI chrome */
   nav, aside, footer,

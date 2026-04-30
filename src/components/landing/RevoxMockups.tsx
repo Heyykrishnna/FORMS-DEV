@@ -246,42 +246,59 @@ export const DashboardMock = () => {
 export const FormBuilderMock = () => {
   const [active, setActive] = useState(0);
   return (
-    <div className="hex-card overflow-hidden w-full max-w-[560px]">
-      <div className="flex items-center justify-between px-4 py-2.5 border-b hex-line-soft" style={{ borderBottomWidth: 1 }}>
+    <div className="hex-card overflow-hidden w-full max-w-[560px] min-h-[480px] flex flex-col">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b hex-line-soft bg-[#fafaf7]" style={{ borderBottomWidth: 1 }}>
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#e5746a' }} />
-          <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#e8c547' }} />
-          <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#79c879' }} />
-          <span className="hex-mono text-[11px] ml-3" style={{ color: 'var(--hex-ink-muted)' }}>revox.app/builder</span>
+          <div className="flex gap-1.5 mr-2">
+            <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#ff5f56' }} />
+            <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#ffbd2e' }} />
+            <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#27c93f' }} />
+          </div>
+          <span className="hex-mono text-[11px] opacity-60" style={{ color: 'var(--hex-ink-muted)' }}>revox.app/builder</span>
         </div>
-        <span className="hex-mono text-[10px]" style={{ color: 'var(--hex-ink-muted)' }}>autosaved · 2s ago</span>
+        <div className="flex items-center gap-3">
+          <span className="hex-mono text-[10px] opacity-40">Draft</span>
+          <span className="hex-mono text-[10px]" style={{ color: 'var(--hex-ink-muted)' }}>autosaved · 2s ago</span>
+        </div>
       </div>
-      <div className="grid grid-cols-[150px_1fr]">
-        <aside className="border-r hex-line-soft p-3 text-[11px] space-y-1" style={{ borderRightWidth: 1, color: 'var(--hex-ink-soft)', background: '#fafaf7' }}>
-          <div className="text-[9px] uppercase tracking-wider opacity-60 mb-1.5 hex-mono">Blocks</div>
+      <div className="grid grid-cols-[160px_1fr] flex-grow">
+        <aside className="border-r hex-line-soft p-4 text-[11px] space-y-1" style={{ borderRightWidth: 1, color: 'var(--hex-ink-soft)', background: '#fafaf7' }}>
+          <div className="text-[9px] uppercase tracking-wider opacity-40 mb-3 hex-mono font-bold">Content Blocks</div>
           {['Short text','Long text','Multiple choice','Rating','NPS','Email','Date','File upload'].map((b,i)=>(
             <div key={i} onMouseEnter={() => setActive(i)}
-                 className="px-2 py-1.5 rounded flex items-center gap-2 hex-row-hover cursor-pointer"
-                 style={{ background: active === i ? 'rgba(26,29,41,0.06)' : 'transparent' }}>
-              <span className="w-1 h-1 rounded-full bg-current opacity-50" />{b}
+                 className={`px-2.5 py-2 rounded flex items-center gap-2.5 cursor-pointer transition-all ${active === i ? 'bg-black/5 text-black' : 'opacity-60'}`}>
+              <div className="w-4 h-4 border hex-line-strong rounded-sm flex items-center justify-center bg-white">
+                <div className="w-1.5 h-1.5 bg-black/10 rounded-full" />
+              </div>
+              {b}
             </div>
           ))}
-        </aside>
-        <div className="p-5 space-y-4" style={{ background: '#fcfbf7' }}>
-          <div>
-            <div className="text-[10px] hex-mono opacity-50 mb-1">Q1 · Short text</div>
-            <div className="text-[15px] font-medium leading-tight">What's the biggest pain in your workflow?</div>
-            <div className="border hex-line-soft rounded px-3 py-2 mt-2 text-[12px]" style={{ borderWidth: 1, color: 'var(--hex-ink-muted)', background: '#fff' }}>Type your answer…</div>
+          <div className="pt-6">
+            <div className="text-[9px] uppercase tracking-wider opacity-40 mb-3 hex-mono font-bold">Logic</div>
+            <div className="px-2.5 py-2 rounded flex items-center gap-2.5 opacity-60 italic">Conditional jump</div>
           </div>
-          <div className="hex-divider opacity-50" />
-          <div>
-            <div className="text-[10px] hex-mono opacity-50 mb-1">Q2 · Multiple choice</div>
-            <div className="text-[15px] font-medium leading-tight">How often does it slow you down?</div>
-            <div className="space-y-1.5 mt-2">
-              {['Daily','A few times a week','Rarely'].map((opt,i)=>(
-                <div key={i} className="flex items-center gap-2 border hex-line-soft rounded px-3 py-1.5 text-[12px]" style={{ borderWidth: 1, background: i===0?'#f0f4ff':'#fff' }}>
-                  <span className="w-3 h-3 rounded-full border" style={{ borderWidth: 1, borderColor: 'var(--hex-line-strong)', background: i===0?'var(--c-blue)':'transparent' }} />
-                  {opt}
+        </aside>
+        <div className="p-8 space-y-8 flex-grow" style={{ background: '#fcfbf7' }}>
+          <div className="group/q relative">
+            <div className="absolute -left-4 top-0 bottom-0 w-1 bg-indigo-500 opacity-0 group-hover/q:opacity-100 transition-opacity" />
+            <div className="text-[10px] hex-mono opacity-50 mb-1.5">Q1 · Short text</div>
+            <div className="text-[17px] font-semibold leading-tight tracking-tight">What's the biggest pain in your current workflow?</div>
+            <div className="border hex-line-soft rounded-md px-4 py-3 mt-3 text-[13px] shadow-sm" style={{ borderWidth: 1, color: 'var(--hex-ink-muted)', background: '#fff' }}>Type your answer…</div>
+          </div>
+          
+          <div className="hex-divider opacity-30" />
+          
+          <div className="group/q relative">
+            <div className="absolute -left-4 top-0 bottom-0 w-1 bg-indigo-500 opacity-0 group-hover/q:opacity-100 transition-opacity" />
+            <div className="text-[10px] hex-mono opacity-50 mb-1.5">Q2 · Multiple choice</div>
+            <div className="text-[17px] font-semibold leading-tight tracking-tight">How often does this friction occur?</div>
+            <div className="grid grid-cols-1 gap-2 mt-4">
+              {['Every single day','A few times per week','Only during month-end'].map((opt,i)=>(
+                <div key={i} className={`flex items-center gap-3 border hex-line-soft rounded-lg px-4 py-2.5 text-[13px] transition-colors ${i===0?'bg-indigo-50/50 border-indigo-200/50':'bg-white'}`} style={{ borderWidth: 1 }}>
+                  <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${i===0?'border-indigo-500 bg-indigo-500':'border-slate-200'}`}>
+                    {i===0 && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
+                  </div>
+                  <span className={i===0 ? 'font-medium text-indigo-900' : ''}>{opt}</span>
                 </div>
               ))}
             </div>
@@ -347,7 +364,7 @@ export const AIPromptMock = () => (
           'Set theme: minimal / light',
         ].map((s,i)=>(
           <div key={i} className="flex items-center gap-2 text-[11px]">
-            <span className="w-3 h-3 rounded-full flex items-center justify-center text-[8px] text-white" style={{ background: 'var(--c-teal)' }}>✓</span>
+            <span className="w-3 h-3 rounded-full flex items-center justify-center text-[8px] text-white" style={{ background: 'var(--hex-ink)' }}>✓</span>
             <span>{s}</span>
           </div>
         ))}
@@ -356,5 +373,257 @@ export const AIPromptMock = () => (
     </div>
   </div>
 );
+
+const Sparkline = ({ pts, color, h = 24 }: { pts: number[]; color: string; h?: number }) => {
+  const max = Math.max(...pts);
+  const min = Math.min(...pts);
+  const range = max - min || 1;
+  const w = 80;
+  const points = pts.map((v, i) => `${(i * w) / (pts.length - 1)},${h - ((v - min) / range) * h}`).join(' ');
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="overflow-visible">
+      <polyline points={points} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+};
+
+export const ContextStudioMock = () => {
+  return (
+    <div className="hex-card overflow-hidden w-full max-w-[840px] bg-white relative">
+      {/* App Toolbar */}
+      <div className="flex items-center justify-between px-4 py-2 border-b hex-line-soft bg-[#fafaf7]">
+        <div className="flex items-center gap-3">
+          <div className="flex gap-1.5">
+            <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f56]" />
+            <div className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />
+            <div className="w-2.5 h-2.5 rounded-full bg-[#27c93f]" />
+          </div>
+          <div className="h-4 w-[1px] bg-black/10 mx-1" />
+          <div className="flex items-center gap-2 text-[11px] font-medium opacity-80">
+            <span className="opacity-40">Revox /</span>
+            <span>Project: Galactic Sales Survey</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 px-2 py-0.5 rounded border hex-line-soft text-[10px] hex-mono">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Live
+          </div>
+          <button className="bg-black text-white px-3 py-1 rounded text-[11px] font-medium">Publish</button>
+        </div>
+      </div>
+
+      <div className="flex h-[540px]">
+        {/* Left Sidebar */}
+        <aside className="w-14 border-r hex-line-soft flex flex-col items-center py-4 gap-6 bg-[#fafaf7]">
+          <div className="w-8 h-8 rounded bg-black flex items-center justify-center text-white text-[18px]">R</div>
+          <div className="flex flex-col gap-5 opacity-40">
+            {[1,2,3,4,5].map(i => (
+              <div key={i} className="w-5 h-5 border-[1.5px] border-current rounded-sm" />
+            ))}
+          </div>
+          <div className="mt-auto opacity-20">
+            <div className="w-5 h-5 border-[1.5px] border-current rounded-full" />
+          </div>
+        </aside>
+
+        {/* Inner Content */}
+        <div className="flex-grow flex flex-col overflow-hidden">
+          {/* Top Tabs / Nav */}
+          <div className="px-6 py-3 border-b hex-line-soft flex items-center justify-between">
+            <div className="flex gap-8 text-[12px] font-medium">
+              <span className="text-black relative after:absolute after:-bottom-[13px] after:left-0 after:right-0 after:h-[2px] after:bg-black">Logic Workspace</span>
+              <span className="opacity-40">Data Schema</span>
+              <span className="opacity-40">Visualizer</span>
+            </div>
+            <div className="text-[11px] opacity-40 hex-mono">Last edit: 2m ago</div>
+          </div>
+
+          <div className="p-6 flex-grow overflow-hidden flex flex-col">
+            {/* KPI Row */}
+            <div className="grid grid-cols-3 gap-6 mb-8">
+              {[
+                { l: 'Conversations', v: '1,429', pts: [10, 15, 12, 18, 22, 19, 25], c: 'var(--c-purple)' },
+                { l: 'Conversion', v: '12.4%', pts: [30, 28, 35, 32, 40, 38, 42], c: 'var(--c-teal)' },
+                { l: 'Drop-off', v: '4.1%', pts: [12, 10, 11, 9, 8, 7, 5], c: 'var(--c-red)' },
+              ].map(k => (
+                <div key={k.l} className="flex flex-col gap-1">
+                  <div className="text-[11px] opacity-40 hex-mono uppercase tracking-wider">{k.l}</div>
+                  <div className="flex items-end justify-between">
+                    <span className="text-[24px] font-semibold leading-none">{k.v}</span>
+                    <Sparkline pts={k.pts} color={k.c} />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Editor Area */}
+            <div className="flex-grow flex border hex-line-soft rounded-lg overflow-hidden bg-[#fcfcf9] shadow-sm">
+              <div className="w-48 border-r hex-line-soft bg-[#fafaf7] p-3">
+                <div className="text-[10px] hex-mono opacity-40 mb-3">FILE SYSTEM</div>
+                <div className="space-y-1">
+                  {['form_logic.yml', 'user_flow.sql', 'theme_config.json', 'api_hooks.js'].map((f, i) => (
+                    <div key={f} className={`px-2 py-1.5 rounded text-[11px] flex items-center gap-2 ${i === 0 ? 'bg-black/5 font-medium' : 'opacity-60'}`}>
+                      <div className="w-1.5 h-1.5 rounded-full" style={{ background: i === 0 ? 'var(--c-purple)' : 'var(--hex-line-strong)' }} />
+                      {f}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex-grow p-4 relative">
+                <div className="text-[12px] font-mono leading-relaxed">
+                  <div className="text-purple-600">model:</div> <span className="text-slate-900">galactic_sales</span><br/>
+                  <div className="text-purple-600 mt-2">source:</div><br/>
+                  <div className="pl-4">
+                    <span className="text-blue-600">table:</span> <span className="text-slate-600">revenue_stream</span><br/>
+                    <span className="text-blue-600">primary_key:</span> <span className="text-slate-600">transaction_id</span>
+                  </div>
+                  <div className="text-purple-600 mt-2">logic:</div><br/>
+                  <div className="pl-4">
+                    <span className="text-blue-600">- question:</span> <span className="text-green-600">"How did you find us?"</span><br/>
+                    <span className="text-blue-600">  type:</span> <span className="text-slate-600">multiple_choice</span><br/>
+                    <span className="text-blue-600">  branch:</span><br/>
+                    <span className="pl-4">
+                      <span className="text-blue-600">if:</span> <span className="text-slate-600">"Social Media"</span><br/>
+                      <span className="text-blue-600">then:</span> <span className="text-slate-600">ask_platform</span>
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Floating "Node" Overlay */}
+                <div className="absolute bottom-6 right-6 w-48 bg-white border hex-line-strong rounded shadow-xl p-3 animate-lift">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span className="text-[10px] font-bold hex-mono">ACTIVE_BRANCH</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="h-1.5 w-full bg-slate-100 rounded" />
+                    <div className="h-1.5 w-3/4 bg-slate-100 rounded" />
+                    <div className="flex justify-between items-center mt-2 pt-2 border-t hex-line-soft">
+                      <span className="text-[9px] opacity-40">Success rate</span>
+                      <span className="text-[9px] font-bold">98.2%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const AIStudioMock = () => {
+  return (
+    <div className="hex-card overflow-hidden w-full max-w-[840px] bg-white relative">
+      {/* App Toolbar */}
+      <div className="flex items-center justify-between px-4 py-2 border-b hex-line-soft bg-[#fafaf7]">
+        <div className="flex items-center gap-3">
+          <div className="flex gap-1.5">
+            <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f56]" />
+            <div className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />
+            <div className="w-2.5 h-2.5 rounded-full bg-[#27c93f]" />
+          </div>
+          <div className="h-4 w-[1px] bg-black/10 mx-1" />
+          <div className="flex items-center gap-2 text-[11px] font-medium opacity-80">
+            <span className="opacity-40">Revox /</span>
+            <span>AI Agent: Feedback Analyzer</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 px-2 py-0.5 rounded bg-black text-white text-[10px] hex-mono">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> gpt-4o
+          </div>
+        </div>
+      </div>
+
+      <div className="flex h-[540px]">
+
+        <div className="flex-grow flex flex-col overflow-hidden">
+          {/* Header */}
+          <div className="px-6 py-4 border-b hex-line-soft flex items-center justify-between bg-white/50 backdrop-blur-sm sticky top-0 z-20">
+             <div>
+               <h4 className="text-[16px] font-semibold">Agent Workflow: Survey Builder</h4>
+               <div className="text-[11px] opacity-40 hex-mono mt-0.5 flex items-center gap-2">
+                 <span className="w-1 h-1 rounded-full bg-emerald-500 animate-ping" />
+                 Prompt Engineering & Logical Orchestration
+               </div>
+             </div>
+             <div className="flex gap-2">
+               <div className="px-3 py-1 rounded-full border hex-line-soft text-[10px] font-medium bg-[#fcfcf9]">Temperature: 0.7</div>
+               <div className="px-3 py-1 rounded-full border hex-line-soft text-[10px] font-medium bg-[#fcfcf9]">Top-p: 1.0</div>
+             </div>
+          </div>
+
+          <div className="p-6 flex-grow flex gap-6 overflow-hidden">
+            {/* Steps / Reasoning */}
+            <div className="flex-grow flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar">
+              {[
+                { s: 'Analyzing objectives', t: 'Identified core KPI: Net Promoter Score (NPS)', d: '14ms' },
+                { s: 'Structuring questions', t: 'Synthesized 6-question flow with conditional branching', d: '82ms' },
+                { s: 'Validating accessibility', t: 'WCAG 2.1 compliance check passed (AA)', d: '45ms' },
+                { s: 'Generating CSS tokens', t: 'Theme: "Revox Dark" applied via design tokens', d: '22ms' },
+              ].map((step, i) => (
+                <div key={i} className="flex gap-4 group">
+                  <div className="flex flex-col items-center">
+                    <div className="w-6 h-6 rounded-full border-2 border-indigo-500 bg-white flex items-center justify-center z-10">
+                      <div className="w-2 h-2 rounded-full bg-indigo-500" />
+                    </div>
+                    {i < 3 && <div className="w-[2px] flex-grow bg-slate-100 my-1" />}
+                  </div>
+                  <div className="flex-grow pb-4">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-[10px] font-bold hex-mono text-indigo-600 uppercase">{step.s}</span>
+                      <span className="text-[10px] opacity-30 hex-mono">{step.d}</span>
+                    </div>
+                    <div className="text-[13px] font-medium text-slate-800">{step.t}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Visualizer / Output Panel */}
+            <div className="w-80 flex flex-col gap-4">
+              <div className="flex-grow border hex-line-soft rounded-lg bg-[#fafaf7] p-4 relative overflow-hidden">
+                <div className="text-[10px] hex-mono opacity-40 mb-4 uppercase">Chain of Thought Visualizer</div>
+                
+                {/* Abstract Node Graph Illustration */}
+                <div className="relative h-40 w-full">
+                  <svg className="w-full h-full" viewBox="0 0 200 120">
+                    <circle cx="100" cy="60" r="30" fill="none" stroke="var(--c-purple)" strokeWidth="1" strokeDasharray="4 4" className="animate-spin-slow" style={{ transformOrigin: 'center' }} />
+                    <circle cx="100" cy="60" r="15" fill="var(--c-purple)" opacity="0.1" />
+                    <line x1="100" y1="60" x2="40" y2="30" stroke="var(--c-purple)" strokeWidth="1" opacity="0.3" />
+                    <line x1="100" y1="60" x2="160" y2="30" stroke="var(--c-purple)" strokeWidth="1" opacity="0.3" />
+                    <line x1="100" y1="60" x2="100" y2="100" stroke="var(--c-purple)" strokeWidth="1" opacity="0.3" />
+                    <circle cx="40" cy="30" r="4" fill="var(--c-purple)" />
+                    <circle cx="160" cy="30" r="4" fill="var(--c-teal)" />
+                    <circle cx="100" cy="100" r="4" fill="var(--c-yellow)" />
+                  </svg>
+                </div>
+
+                <div className="mt-4 p-3 rounded bg-white border hex-line-soft shadow-sm">
+                  <div className="text-[11px] font-semibold mb-1 italic">Generated prompt extension:</div>
+                  <div className="text-[10px] text-slate-500 leading-snug">"Ensure the NPS scale is presented in a horizontal row to minimize vertical scroll..."</div>
+                </div>
+              </div>
+              
+              <div className="h-24 border hex-line-soft rounded-lg bg-black p-4 flex flex-col justify-between overflow-hidden">
+                <div className="flex items-center justify-between">
+                   <div className="text-[9px] text-indigo-400 hex-mono uppercase tracking-widest">Latency Spectrum</div>
+                   <div className="text-[10px] text-white hex-mono">1.2s</div>
+                </div>
+                <div className="flex items-end gap-[2px] h-8">
+                  {[4,7,3,9,12,6,8,15,5,10,13,7,4,9,11].map((h, i) => (
+                    <div key={i} className="flex-grow bg-indigo-500/40 rounded-t-[1px]" style={{ height: `${h*4}%` }} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const AnalyticsMock = DashboardMock;
