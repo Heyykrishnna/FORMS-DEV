@@ -151,8 +151,7 @@ export const DashboardMock = () => {
     <div className="hex-card overflow-hidden w-full">
       <div className="flex items-center justify-between px-4 py-2.5 border-b hex-line-soft" style={{ borderBottomWidth: 1 }}>
         <div className="flex items-center gap-2">
-          <span className="w-4 h-4 rounded-sm bg-black flex items-center justify-center text-white text-[9px] font-bold">R</span>
-          <span className="text-[12px] font-medium">AQORA · Onboarding Survey</span>
+          <span className="text-[12px] font-medium">Revox · Onboarding Survey</span>
         </div>
         <div className="flex items-center gap-2">
           <button className="text-[11px] px-2.5 py-1 border hex-line-soft rounded" style={{ borderWidth: 1 }}>Edit</button>
@@ -247,13 +246,13 @@ export const DashboardMock = () => {
 export const FormBuilderMock = () => {
   const [active, setActive] = useState(0);
   return (
-    <div className="hex-card overflow-hidden w-full max-w-[650px] max-h-[650px]">
+    <div className="hex-card overflow-hidden w-full max-w-[560px]">
       <div className="flex items-center justify-between px-4 py-2.5 border-b hex-line-soft" style={{ borderBottomWidth: 1 }}>
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#e5746a' }} />
           <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#e8c547' }} />
           <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#79c879' }} />
-          <span className="hex-mono text-[11px] ml-3" style={{ color: 'var(--hex-ink-muted)' }}>AQORA.app/builder</span>
+          <span className="hex-mono text-[11px] ml-3" style={{ color: 'var(--hex-ink-muted)' }}>revox.app/builder</span>
         </div>
         <span className="hex-mono text-[10px]" style={{ color: 'var(--hex-ink-muted)' }}>autosaved · 2s ago</span>
       </div>
@@ -332,7 +331,6 @@ export const ResponseFeedMock = () => (
 export const AIPromptMock = () => (
   <div className="hex-card overflow-hidden w-full max-w-[480px]">
     <div className="px-4 py-2.5 border-b hex-line-soft flex items-center gap-2" style={{ borderBottomWidth: 1 }}>
-      <span className="w-4 h-4 rounded-sm bg-black flex items-center justify-center text-white text-[9px] font-bold">R</span>
       <span className="text-[12px] font-medium">AI Forge</span>
       <span className="ml-auto hex-mono text-[10px]" style={{ color: 'var(--hex-ink-muted)' }}>gpt-4o · ready</span>
     </div>
