@@ -193,7 +193,7 @@ const Index = () => {
         noHover={true}
       />
         
-      <section className="border-b hex-line-soft pb-10 pt-32 relative overflow-hidden hex-vignette" style={{ borderBottomWidth: 1, background: 'var(--hex-bg-alt)' }}>
+      <section className="border-b hex-line-soft py-32 relative overflow-hidden hex-vignette" style={{ borderBottomWidth: 1, background: 'var(--hex-bg-alt)' }}>
         <HorizontalScale className="absolute top-0 left-0 w-full h-10" />
         <div className="absolute inset-0 hex-grid opacity-40 pointer-events-none" />
         <div className="max-w-7xl mx-auto px-6 relative">
@@ -215,6 +215,7 @@ const Index = () => {
             <div><AnalyticsMock /></div>
           </div>
         </div>
+        <HorizontalScale className="absolute bottom-0 left-0 w-full h-10" />
       </section>
 
       <FeatureBlock
@@ -492,7 +493,6 @@ const FeatureBlock = ({ glyph, title, body, cta, mock, reverse, noHover }: {
           <p className="mt-8 text-[18px] leading-relaxed opacity-70" style={{ color: 'var(--hex-ink-soft)' }}>{body}</p>
           <div className="mt-12 flex items-center gap-6">
             <Link to="/auth" className="hex-btn-primary text-[14px] px-8 py-3">{cta} →</Link>
-            <Link to="/learn-more" className="text-[13px] font-bold hex-mono uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity">Documentation</Link>
           </div>
         </div>
         <div className="flex justify-center relative group min-w-0 w-full">

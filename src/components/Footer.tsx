@@ -3,103 +3,87 @@ import { Link } from 'react-router-dom';
 
 const Footer = () => {
   const scrollToTop = (e: React.MouseEvent) => {
-    e.preventDefault();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // If it's a hash link, let it behave normally or handle smoothly
+    // For now just scroll to top if it's the home link
+    const href = (e.currentTarget as HTMLAnchorElement).getAttribute('href');
+    if (href === '/') {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   return (
-    <footer className="relative min-h-[850px] flex flex-col justify-end overflow-hidden border-t-2 border-foreground bg-background">
-      <div 
-        className="absolute inset-0 z-0 bg-cover bg-bottom opacity-100 transition-opacity duration-1000"
-        style={{ backgroundImage: 'url(https://ik.imagekit.io/jbckhvkvo/ChatGPT%20Image%20Feb%2012,%202026,%2006_46_37%20PM.png)' }}
-      />
-      
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden z-10">
-        <h2 className="text-[25vw] font-black text-white px-4 text-center uppercase tracking-tighter leading-none opacity-90">
-          AQORA
-        </h2>
-      </div>
+    <footer className="relative bg-white text-[#2d5cf6] overflow-hidden flex flex-col font-sans border-t border-[#2d5cf6]">
+      <div className="mx-auto w-full max-w-[1600px] border-x border-[#2d5cf6] flex flex-col relative">
+        
+        {/* Horizontal grid line across the top */}
+        {/* <div className="w-full h-[1px] bg-[#2d5cf6] absolute top-0 left-0" /> */}
 
-      <div className="relative z-20 bg-background/80 backdrop-blur-xl border-t-2 border-foreground pt-20 pb-12">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-24">
-            <div className="md:col-span-2">
-              <Link 
-                to="/" 
-                className="text-5xl font-black tracking-widest uppercase block mb-8 group"
-                onClick={scrollToTop}
-              >
-                AQORA<span className="text-accent group-hover:animate-pulse">.</span>
-              </Link>
-              <p className="text-sm font-bold uppercase text-foreground/60 tracking-[0.2em] leading-relaxed max-w-sm border-l-4 border-accent pl-6">
-                THE BRUTALIST FORM BUILDER FOR DEVELOPERS AND DESIGNERS WHO DEMAND SPEED AND STYLE. NO FLUFF, JUST FORMS.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="text-[12px] font-black uppercase tracking-[0.4em] mb-8 text-accent italic">DIRECTORY</h4>
-              <ul className="space-y-4">
-                <li>
-                  <Link to="/dashboard" className="text-sm font-bold uppercase hover:text-accent transition-all hover:translate-x-1 inline-block">Dashboard</Link>
-                </li>
-                <li>
-                  <Link to="/learn-more" className="text-sm font-bold uppercase hover:text-accent transition-all hover:translate-x-1 inline-block">Examples</Link>
-                </li>
-                <li>
-                  <Link to="/#features" className="text-sm font-bold uppercase hover:text-accent transition-all hover:translate-x-1 inline-block">Themes</Link>
-                </li>
-                <li>
-                  <Link to="/about" className="text-sm font-bold uppercase hover:text-accent transition-all hover:translate-x-1 inline-block">About Us</Link>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-[12px] font-black uppercase tracking-[0.4em] mb-8 text-accent italic">PROTECOL</h4>
-              <ul className="space-y-4">
-                <li>
-                  <Link to="/privacy" className="text-sm font-bold uppercase hover:text-accent transition-all hover:translate-x-1 inline-block">Privacy Policy</Link>
-                </li>
-                <li>
-                  <Link to="/terms" className="text-sm font-bold uppercase hover:text-accent transition-all hover:translate-x-1 inline-block">Terms of Service</Link>
-                </li>
-                <li>
-                  <Link to="/security" className="text-sm font-bold uppercase hover:text-accent transition-all hover:translate-x-1 inline-block">Security</Link>
-                </li>
-              </ul>
-            </div>
+        {/* Links Section */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 p-8 lg:p-12 border-b border-[#2d5cf6]">
+          <div className="col-span-2 md:col-span-1">
+            <Link 
+              to="/" 
+              onClick={scrollToTop}
+              className="text-2xl font-bold tracking-tighter block mb-4 hover:opacity-80 transition-opacity"
+            >
+              AQORA
+            </Link>
+            <p className="text-sm font-medium leading-relaxed max-w-xs opacity-80">
+              The brutalist form builder for developers and designers who demand speed and style.
+            </p>
           </div>
-          
-          <div className="pt-12 border-t-2 border-foreground/10 flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40">
-                © {new Date().getFullYear()} AQORA INC.
-              </span>
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40">
-                DESIGNED IN THE VOID / BUILT FOR THE BOLD
-              </span>
-            </div>
-            
-            <div className="flex gap-12">
-              {[
-                { name: 'TWITTER', url: 'https://twitter.com/AQORA_build' },
-                { name: 'GITHUB', url: 'https://github.com/AQORA-build' },
-                { name: 'DISCORD', url: 'https://discord.gg/AQORA' }
-              ].map(platform => (
-                <a 
-                  key={platform.name} 
-                  href={platform.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-[10px] font-black uppercase tracking-[0.4em] hover:text-accent transition-all hover:-translate-y-1 block"
-                >
-                  {platform.name}
-                </a>
-              ))}
-            </div>
+
+          <div className="flex flex-col gap-3">
+            <h4 className="text-xs font-bold uppercase tracking-widest mb-2 opacity-60">Directory</h4>
+            <Link to="/dashboard" className="text-sm font-semibold hover:translate-x-1 transition-transform inline-block w-fit">Dashboard</Link>
+            <Link to="/learn-more" className="text-sm font-semibold hover:translate-x-1 transition-transform inline-block w-fit">Examples</Link>
+            <a href="/#features" className="text-sm font-semibold hover:translate-x-1 transition-transform inline-block w-fit">Themes</a>
+            <Link to="/about" className="text-sm font-semibold hover:translate-x-1 transition-transform inline-block w-fit">About Us</Link>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <h4 className="text-xs font-bold uppercase tracking-widest mb-2 opacity-60">Protocol</h4>
+            <Link to="/privacy" className="text-sm font-semibold hover:translate-x-1 transition-transform inline-block w-fit">Privacy Policy</Link>
+            <Link to="/terms" className="text-sm font-semibold hover:translate-x-1 transition-transform inline-block w-fit">Terms of Service</Link>
+            <Link to="/security" className="text-sm font-semibold hover:translate-x-1 transition-transform inline-block w-fit">Security</Link>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <h4 className="text-xs font-bold uppercase tracking-widest mb-2 opacity-60">Social</h4>
+            <a href="https://twitter.com/AQORA_build" target="_blank" rel="noopener noreferrer" className="text-sm font-semibold hover:translate-x-1 transition-transform inline-block w-fit">Twitter</a>
+            <a href="https://github.com/AQORA-build" target="_blank" rel="noopener noreferrer" className="text-sm font-semibold hover:translate-x-1 transition-transform inline-block w-fit">GitHub</a>
+            <a href="https://discord.gg/AQORA" target="_blank" rel="noopener noreferrer" className="text-sm font-semibold hover:translate-x-1 transition-transform inline-block w-fit">Discord</a>
           </div>
         </div>
+
+        {/* Top Huge Text */}
+        <div className="w-full border-b border-[#2d5cf6] flex items-center justify-center p-4 lg:p-8 overflow-hidden">
+          <h1 className="text-[16vw] lg:text-[14vw] leading-[0.8] font-medium tracking-tight whitespace-nowrap">
+            Aqora—Forms
+          </h1>
+        </div>
+
+        {/* Middle Huge Abstract Shapes (Cut off text) */}
+        <div className="w-full border-b border-[#2d5cf6] overflow-hidden relative flex items-end justify-center h-[35vw] lg:h-[25vw] bg-white text-[#2d5cf6]">
+           {/* Abstract massive text resembling the image layout, using AQORA */}
+           <h1 className="text-[55vw] lg:text-[45vw] leading-[0.65] font-black tracking-tighter whitespace-nowrap -mb-[8vw] select-none">
+             AQORA
+           </h1>
+        </div>
+
+        {/* Bottom Footer bar */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 lg:p-6 gap-4">
+          <span className="text-5xl font-black tracking-tighter leading-none">A</span>
+          <span className="text-xs sm:text-sm font-mono uppercase tracking-widest">
+            Created by Aqora-Studio 20—26
+          </span>
+        </div>
+
       </div>
+      
+      {/* Global horizontal line at the very bottom just in case */}
+      {/* <div className="w-full h-[1px] bg-[#2d5cf6]" /> */}
     </footer>
   );
 };
