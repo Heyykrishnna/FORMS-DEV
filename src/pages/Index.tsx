@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { Star } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Footer from '@/components/Footer';
+import Navbar from '@/components/Navbar';
 import {
   GeoGlyph,
   FormBuilderMock,
@@ -58,24 +59,7 @@ const Index = () => {
         <VerticalScale className="absolute inset-y-0 left-0 mx-auto" />
         <VerticalScale className="absolute inset-y-0 right-0 mx-auto" />
       </div>
-      <nav className="sticky top-0 z-50 border-b hex-line-soft backdrop-blur-md" style={{ borderBottomWidth: 1, background: 'rgba(245,243,238,0.85)' }}>
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <Link to="/" className="text-[18px] font-semibold tracking-tight">aqora</Link>
-            <div className="hidden md:flex items-center gap-6 text-[13px]" style={{ color: 'var(--hex-ink-soft)' }}>
-              <Link to="/learn-more" className="hover:text-foreground">Platform</Link>
-              <Link to="/learn-more" className="hover:text-foreground">Solutions</Link>
-              <Link to="/learn-more" className="hover:text-foreground">Enterprise</Link>
-              <Link to="/about" className="hover:text-foreground">Resources</Link>
-              <Link to="/about" className="hover:text-foreground">About</Link>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link to="/auth" className="text-[13px]" style={{ color: 'var(--hex-ink-soft)' }}>Log in</Link>
-            <Link to="/auth" className="hex-btn-primary text-[13px]" style={{ padding: '0.45rem 0.95rem' }}>Get started</Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
       <section className="relative overflow-hidden">
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.3]"
