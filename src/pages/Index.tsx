@@ -191,12 +191,12 @@ const Index = () => {
         noHover={true}
       />
         
-      <section className="border-b hex-line-soft py-32 relative overflow-hidden hex-vignette" style={{ borderBottomWidth: 1, background: 'var(--hex-bg-alt)' }}>
+      <section className="border-b hex-line-soft py-32 relative overflow-hidden hex-vignette" style={{ borderBottomWidth: 1 }}>
         <HorizontalScale className="absolute top-0 left-0 w-full h-10" />
         <div
-          className="pointer-events-none absolute inset-0 opacity-[0.2]"
+          className="pointer-events-none absolute inset-0 opacity-[0.1]"
           style={{
-            backgroundImage: "url('https://ik.imagekit.io/yatharth/ChatGPT%20Image%20Apr%2030,%202026,%2007_52_59%20PM.png')",
+            backgroundImage: "url('https://ik.imagekit.io/yatharth/BG-SECTION-.png')",
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}

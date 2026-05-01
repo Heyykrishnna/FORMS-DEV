@@ -1,5 +1,5 @@
-import { useState, type CSSProperties } from 'react';
-import { motion } from 'motion/react';
+import { useState, useRef, type CSSProperties } from 'react';
+import { motion, useInView } from 'motion/react';
 
 export const GeoGlyph = ({ className = '' }: { className?: string }) => (
   <div className={`hex-glyph inline-flex items-center gap-2 ${className}`}>
@@ -147,8 +147,11 @@ const StackedBars = () => (
 export const DashboardMock = () => {
   const [tab, setTab] = useState('Summary');
   const tabs = ['Summary', 'Responses', 'Drop-off', 'Segments'];
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
   return (
-    <div className="hex-card overflow-hidden w-full">
+    <div ref={ref} className="hex-card overflow-hidden w-full">
       <div className="flex items-center justify-between px-4 py-2.5 border-b hex-line-soft" style={{ borderBottomWidth: 1 }}>
         <div className="flex items-center gap-2">
           <span className="text-[12px] font-medium">Aqora · Onboarding Survey</span>
@@ -205,7 +208,7 @@ export const DashboardMock = () => {
         <div className="grid grid-cols-2 gap-5 mt-5">
           <div>
             <div className="text-[12px] font-medium mb-1">Responses by form · Q1–Q3</div>
-            <MultiLineChart />
+            <MultiLineChart key={isInView ? 'visible' : 'hidden'} />
             <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2">
               {SERIES.map((s) => (
                 <span key={s.name} className="text-[10px] flex items-center gap-1.5" style={{ color: 'var(--hex-ink-soft)' }}>
@@ -216,7 +219,7 @@ export const DashboardMock = () => {
           </div>
           <div>
             <div className="text-[12px] font-medium mb-1">Completion vs time-to-finish</div>
-            <ScatterChart />
+            <ScatterChart key={isInView ? 'visible' : 'hidden'} />
             <div className="flex gap-3 mt-2">
               {['Mobile', 'Desktop', 'Embed'].map((g, i) => (
                 <span key={g} className="text-[10px] flex items-center gap-1.5" style={{ color: 'var(--hex-ink-soft)' }}>
@@ -229,7 +232,7 @@ export const DashboardMock = () => {
 
         <div className="mt-5">
           <div className="text-[12px] font-medium mb-2">Sentiment by question</div>
-          <StackedBars />
+          <StackedBars key={isInView ? 'visible' : 'hidden'} />
           <div className="flex gap-3 mt-2">
             {['Loved it', 'Neutral', 'Friction', 'Confused'].map((g, i) => (
               <span key={g} className="text-[10px] flex items-center gap-1.5" style={{ color: 'var(--hex-ink-soft)' }}>
