@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Star } from 'lucide-react';
@@ -36,6 +36,7 @@ const VerticalScale = ({className} : {className?: string}) => {
 }
 
 const Index = () => {
+  const [prompt, setPrompt] = useState("");
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -55,7 +56,6 @@ const Index = () => {
   return (
     <div className="hex-theme hex-paper relative min-h-screen">
       <div className="pointer-events-none absolute inset-0">
-        <HorizontalScale className="absolute top-14 left-0 right-0 mx-auto" />
         <VerticalScale className="absolute inset-y-0 left-0 mx-auto" />
         <VerticalScale className="absolute inset-y-0 right-0 mx-auto" />
       </div>
@@ -91,10 +91,37 @@ const Index = () => {
                   </span><br />
                   built for teams.
                 </h1>
-                <p className="mt-8 text-[18px] max-w-lg leading-relaxed text-muted-foreground">
-                  Aqora is the calm form builder for product teams. Capture feedback, run research,
-                  and qualify leads — without the chaos.
-                </p>
+                <div className="mt-10 relative max-w-[540px] group">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500/5 to-blue-500/5 rounded-2xl blur-md opacity-0 group-hover:opacity-100 transition duration-700 pointer-events-none" />
+                  
+                  <div className="relative flex flex-col sm:flex-row items-stretch bg-[#fdfcfb] border hex-line-strong rounded-xl p-1.5 shadow-sm focus-within:shadow-md focus-within:border-indigo-400/50 transition-all z-10">
+                    <input 
+                      type="text" 
+                      value={prompt}
+                      onChange={(e) => setPrompt(e.target.value)}
+                      placeholder="Describe the form you want to build..."
+                      className="w-full sm:flex-1 bg-transparent border-none focus:outline-none text-[15px] placeholder:text-muted-foreground/60 px-4 py-3"
+                    />
+                    <Link to="/auth" className="w-full sm:w-auto bg-foreground text-background px-6 py-2.5 rounded-xl text-[13px] font-medium hover:bg-foreground/90 transition-all shadow-sm flex items-center justify-center gap-2">
+                      Generate
+                    </Link>
+                  </div>
+                  
+                  <div className="mt-5 relative z-10">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="mr-2 hex-mono uppercase tracking-[0.1em] text-[10px] font-bold opacity-50">Try:</span>
+                      {['Customer feedback', 'Event registration', 'Lead qualification'].map((s) => (
+                        <button 
+                          key={s}
+                          onClick={() => setPrompt(s)}
+                          className="text-[12px] font-medium border border-black/5 hover:border-black/10 bg-black/[0.02] hover:bg-black/[0.04] px-3 py-1.5 rounded-full transition-all text-foreground/80 hover:text-foreground"
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
 
               </motion.div>
             </div>
@@ -126,19 +153,6 @@ const Index = () => {
           </div>
         </div>
       </section>
-
-      {/* <section className="border-y hex-line-soft py-10" style={{ borderTopWidth: 1, borderBottomWidth: 1, background: 'var(--hex-bg-alt)' }}>
-        <div className="max-w-7xl mx-auto px-6">
-          <p className="text-center hex-mono text-[11px] uppercase tracking-[0.25em] mb-6" style={{ color: 'var(--hex-ink-muted)' }}>
-            Trusted by builders at
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-4">
-            {LOGOS.map((l) => (
-              <span key={l} className="text-[15px] font-semibold tracking-wide" style={{ color: 'var(--hex-ink-soft)', opacity: 0.7 }}>{l}</span>
-            ))}
-          </div>
-        </div>
-      </section> */}
 
       <section className="border-b hex-line-soft" style={{ borderBottomWidth: 1, borderTopWidth: 1 }}>
         <div className="max-w-7xl mx-auto grid md:grid-cols-2">
@@ -179,6 +193,15 @@ const Index = () => {
         
       <section className="border-b hex-line-soft py-32 relative overflow-hidden hex-vignette" style={{ borderBottomWidth: 1, background: 'var(--hex-bg-alt)' }}>
         <HorizontalScale className="absolute top-0 left-0 w-full h-10" />
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.2]"
+          style={{
+            backgroundImage: "url('https://ik.imagekit.io/yatharth/ChatGPT%20Image%20Apr%2030,%202026,%2007_52_59%20PM.png')",
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+          aria-hidden
+        />
         <div className="absolute inset-0 hex-grid opacity-40 pointer-events-none" />
         <div className="max-w-7xl mx-auto px-6 relative">
           <div className="grid lg:grid-cols-[1fr_2.5fr] gap-20 items-start">
@@ -335,11 +358,9 @@ const FeatureStepCard = ({ n, t, d, illustration }: { n: string; t: string; d: s
     whileHover={{ y: -5 }}
     className="group relative flex flex-col hex-card overflow-hidden transition-all duration-500 hover:bg-[#eae8e2] hover:shadow-[0_32px_64px_-16px_rgba(26,29,41,0.2)]"
   >
-    {/* Local Noise Overlay - Opacity increases on hover */}
     <div className="absolute inset-0 pointer-events-none opacity-[0.05] group-hover:opacity-[0.15] transition-opacity duration-500 mix-blend-multiply" 
          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
     
-    {/* Illustration Container */}
     <div className="h-64 flex items-center justify-center bg-[#fdfdfb] border-b hex-line-soft group-hover:bg-transparent transition-colors duration-500 relative">
       <div className="absolute inset-0 opacity-[0.03] hex-grid-fine pointer-events-none" />
       <div className="relative z-10 transform group-hover:scale-110 transition-transform duration-700 ease-out">
@@ -347,7 +368,6 @@ const FeatureStepCard = ({ n, t, d, illustration }: { n: string; t: string; d: s
       </div>
     </div>
 
-    {/* Card Content */}
     <div className="p-10 flex-grow flex flex-col relative z-20">
       <div className="flex items-center gap-3 mb-5">
         <div className="w-1 h-1 rounded-full bg-foreground opacity-20" />
@@ -371,11 +391,9 @@ const FeatureStepCard = ({ n, t, d, illustration }: { n: string; t: string; d: s
 
 const BuildIllustration = () => (
   <div className="relative w-56 h-40 flex items-center justify-center">
-    {/* Background Grid */}
     <div className="absolute inset-0 flex items-center justify-center opacity-10">
       <div className="w-full h-full border hex-line-soft" style={{ background: 'radial-gradient(circle, currentColor 1px, transparent 1px)', backgroundSize: '12px 12px' }} />
     </div>
-    {/* Prompt Interface */}
     <div className="relative w-44 h-12 border hex-line-strong bg-white rounded shadow-lg p-2 flex items-center gap-2 overflow-hidden">
       <div className="absolute left-0 top-0 w-1 h-full bg-emerald-500" />
       <span className="hex-mono text-[10px] font-bold opacity-30">›</span>
@@ -387,7 +405,6 @@ const BuildIllustration = () => (
         <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
       </div>
     </div>
-    {/* Decorative Elements */}
     <div className="absolute top-6 right-4 w-10 h-10 border border-indigo-100 rounded-lg rotate-12 flex items-center justify-center">
       <div className="w-4 h-4 border border-indigo-200 rounded-sm" />
     </div>
@@ -399,7 +416,6 @@ const BuildIllustration = () => (
 
 const ShareIllustration = () => (
   <div className="relative w-56 h-40 flex items-center justify-center">
-    {/* Perspective Grid */}
     <svg className="absolute inset-0 w-full h-full opacity-[0.07]" viewBox="0 0 200 150">
       <path d="M0 100 L200 100 M0 120 L200 120 M0 140 L200 140" stroke="currentColor" strokeWidth="1" />
       <path d="M20 150 L80 80 M60 150 L100 80 M100 150 L120 80 M140 150 L140 80 M180 150 L160 80" stroke="currentColor" strokeWidth="1" />
@@ -418,7 +434,6 @@ const ShareIllustration = () => (
         <div className="w-8 h-4 bg-slate-100 rounded-[4px]" />
       </div>
     </div>
-    {/* Orbiting nodes */}
     <div className="absolute top-8 right-10 w-3 h-3 rounded-full bg-indigo-100 border border-indigo-200" />
     <div className="absolute bottom-10 left-12 w-2 h-2 rounded-full bg-slate-200" />
   </div>
@@ -439,14 +454,12 @@ const SignalIllustration = () => (
         </defs>
         <path d="M0 45 Q 15 40, 25 30 T 50 25 T 75 15 T 100 5 L 100 60 L 0 60 Z" fill="url(#waveGrad)" />
         <path d="M0 45 Q 15 40, 25 30 T 50 25 T 75 15 T 100 5" fill="none" stroke="#2d5cf6" strokeWidth="2" strokeLinecap="round" className="hex-line-path" />
-        {/* Floating data dots */}
         <circle cx="20" cy="35" r="1.5" fill="#10b981" />
         <circle cx="45" cy="28" r="1.5" fill="#f59e0b" />
         <circle cx="70" cy="18" r="1.5" fill="#ef4444" />
         <circle cx="90" cy="8" r="1.5" fill="#6366f1" />
       </svg>
     </div>
-    {/* Floating labels */}
     <div className="absolute -top-2 right-12 px-1.5 py-0.5 bg-white border hex-line-soft rounded text-[8px] hex-mono font-bold shadow-sm">REALTIME</div>
     <div className="absolute bottom-6 left-8 px-1.5 py-0.5 bg-white border hex-line-soft rounded text-[8px] hex-mono font-bold shadow-sm">98.2%</div>
   </div>
