@@ -18,6 +18,10 @@ import {
  Clock,
  Sparkles, 
  Bot, 
+ CornerDownLeft,
+ Settings2,
+ ArrowUpRight,
+ MessageSquare,
 } from 'lucide-react';
 import { createBlankForm, createFormFromTemplate } from '@/lib/formStore';
 import { FormData, Question } from '@/types/form';
@@ -116,6 +120,7 @@ const Dashboard = () => {
  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
  const [view, setView] = useState<'grid' | 'list'>('grid');
  const [isAIModalOpen, setIsAIModalOpen] = useState(false);
+ const [aiPrompt, setAiPrompt] = useState('');
  
  const navigate = useNavigate();
  const { user, isAdmin } = useAuth();
@@ -498,19 +503,83 @@ const Dashboard = () => {
      </div>
     </div>
 
-    {/* STATS OVERVIEW */}
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-     {[
-      { label: 'TOTAL FORMS', value: stats.totalForms, icon: Layers, color: 'bg-white' },
-      { label: 'TOTAL RESPONSES', value: stats.totalResponses, icon: Activity, color: 'bg-[#c6c5c3]' },
-      { label: 'TOTAL VIEWS', value: stats.totalViews, icon: ExternalLink, color: 'bg-foreground/60 text-background' },
-     ].map((stat, i) => (
-      <div key={i} className={cn("border border-foreground p-8 shadow-sm relative overflow-hidden rounded-xl", stat.color)}>
-       <stat.icon className="absolute -right-4 -bottom-4 h-24 w-24 opacity-10 rotate-12" />
-       <p className="text-xs font-bold tracking-widest mb-2 font-sans opacity-70">{stat.label}</p>
-       <p className="text-5xl font-medium tracking-tight">{stat.value}</p>
+    {/* AI CHAT MODULE */}
+    <div className="mb-16 relative py-12">
+      {/* Decorative masked dotted background */}
+      <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-0">
+        <div 
+          className="absolute inset-0 opacity-[0.3]" 
+          style={{ 
+            backgroundImage: 'radial-gradient(#000 2px, transparent 2px)', 
+            backgroundSize: '24px 24px',
+            maskImage: 'radial-gradient(ellipse at center, black 20%, transparent 70%)',
+            WebkitMaskImage: 'radial-gradient(ellipse at center, black 20%, transparent 70%)'
+          }} 
+        />
       </div>
-     ))}
+
+      <div className="bg-[#15161c] border border-white/10 rounded-2xl overflow-hidden shadow-2xl relative font-sans flex flex-col max-w-5xl mx-auto w-full z-10">
+        {/* Inner dotted/line subtle pattern matching the theme */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.02]" style={{ backgroundImage: 'linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+        
+        <div className="p-5 md:p-6 relative z-10 flex flex-col">
+          <div className="flex items-start gap-4">
+            <textarea 
+              value={aiPrompt}
+              onChange={(e) => setAiPrompt(e.target.value)}
+              placeholder="Ask a question and chat in a thread or build a new form..."
+              className="w-full bg-transparent text-[#e2e8f0] placeholder-[#64748b] text-[15px] md:text-[16px] font-sans resize-none outline-none min-h-[50px] mt-1"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  if (aiPrompt.trim()) {
+                    setIsAIModalOpen(true);
+                  }
+                }
+              }}
+            />
+          </div>
+          
+          <div className="flex items-center justify-between mt-6">
+            <div className="flex items-center gap-2">
+              <div className="flex bg-[#1f2029] rounded-lg border border-white/10 p-1">
+                <button className="flex items-center gap-2 px-3 py-1.5 bg-[#2a2c3a] text-[#e2e8f0] text-xs font-medium rounded-md shadow-sm">
+                  <MessageSquare className="w-3.5 h-3.5" /> Ask
+                </button>
+              </div>
+            </div>
+            
+            <button 
+              onClick={() => {
+                if (aiPrompt.trim()) {
+                  setIsAIModalOpen(true);
+                }
+              }}
+              className="p-1.5 rounded-lg hover:bg-white/5 text-[#64748b] hover:text-[#e2e8f0] transition-colors"
+            >
+              <CornerDownLeft className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+        
+        {/* Context Footer */}
+        <div className="border-t border-white/10 bg-[#121319] p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs gap-4 relative z-10">
+          <div className="flex items-center gap-2 text-[#64748b]">
+            <Settings2 className="w-4 h-4" />
+            Guide the Aqora agent to generate forms accurately.
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[#64748b] hidden md:inline-block mr-1">Suggestions:</span>
+            <button onClick={() => setAiPrompt("Event Registration")} className="px-3 py-1.5 rounded-md bg-[#1f2029] hover:bg-[#2a2c3a] text-[#94a3b8] border border-white/5 transition-colors">
+              Event Registration
+            </button>
+            <button onClick={() => setAiPrompt("User Feedback")} className="px-3 py-1.5 rounded-md bg-[#1f2029] hover:bg-[#2a2c3a] text-[#94a3b8] border border-white/5 transition-colors">
+              User Feedback
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     {/* FORMS LIST */}
