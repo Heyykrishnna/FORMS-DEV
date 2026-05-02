@@ -248,8 +248,7 @@ const FormBuilder = () => {
         </div>
       </header>
 
-      {/* TABS */}
-      <div className="border-b border-border bg-card/50">
+      <div className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-12 z-40">
         <div className="container mx-auto flex px-4 gap-6">
           {TABS.map((tab) => (
             <button
