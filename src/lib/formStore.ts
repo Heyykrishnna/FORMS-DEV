@@ -1,7 +1,7 @@
 import { FormData, FormResponse } from '@/types/form';
 
-const FORMS_KEY = 'revox_forms';
-const RESPONSES_KEY = 'revox_responses';
+const FORMS_KEY = 'Aqora_forms';
+const RESPONSES_KEY = 'Aqora_responses';
 
 export function getForms(): FormData[] {
   const raw = localStorage.getItem(FORMS_KEY);

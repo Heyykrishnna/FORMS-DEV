@@ -845,10 +845,6 @@ const PublicForm = () => {
             </div>
           )}
 
-          {/* Footer */}
-          <div className="text-center mt-12">
-            <a href="https://AQORAforms.vercel.app/" target="_blank"><p className="text-xs opacity-40 font-black uppercase tracking-[0.5em]">AQORA.</p></a>
-          </div>
         </div>
       </div>
     );
@@ -1240,13 +1236,6 @@ const PublicForm = () => {
               </button>
             </>
           )}
-        </div>
-
-        {/* BRANDING */}
-        <div className="mt-20 text-center border-t-2 border-current/20 pt-8">
-          <p className="text-xs font-black uppercase tracking-[0.6em] opacity-90">
-            POWERED BY <a href="https://AQORAforms.vercel.app" className="text-orange-500 font-bold">AQORA</a>
-          </p>
         </div>
       </div>
     </div>

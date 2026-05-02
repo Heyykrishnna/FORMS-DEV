@@ -193,7 +193,6 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-[#F0F0F0] text-foreground font-mono">
       <div className="fixed inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
 
-      {/* NAV */}
       <nav className="border-b-4 border-foreground sticky top-0 bg-background z-50">
         <div className="container mx-auto flex items-center justify-between px-4 py-4">
           <Link to="/" className="text-3xl font-black tracking-tighter uppercase hover:text-accent transition-colors flex items-center gap-2">
@@ -450,12 +449,6 @@ const AdminDashboard = () => {
           </div>
         </div>
       </main>
-
-      <div className="container mx-auto px-4 pb-12 flex justify-between items-center opacity-30 text-[10px] font-black uppercase tracking-[0.2em]">
-        <span>AQORA ADMIN v1.0</span>
-        <span>RESTRICTED ACCESS</span>
-        <span>2026 AQORA LABS</span>
-      </div>
     </div>
   );
 };
