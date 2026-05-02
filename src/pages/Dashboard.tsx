@@ -30,7 +30,7 @@ import {
  Crown
 } from 'lucide-react';
 import { createBlankForm, createFormFromTemplate } from '@/lib/formStore';
-import { FormData } from '@/types/form';
+import { FormData, Question } from '@/types/form';
 import TemplateGallery from '@/components/dashboard/TemplateGallery';
 import { FormTemplate } from '@/lib/templates';
 import {
@@ -46,6 +46,65 @@ import AgentAvatar from '@/components/ui/smoothui/agent-avatar';
 import AIFormCreator from '@/components/dashboard/AIFormCreator';
 import React from 'react';
 
+const FormPreviewVisual = ({ form, view }: { form: FormData, view: 'grid' | 'list' }) => {
+  const isDark = form.theme === 'brutalist_dark' || form.theme === 'cyber_toxic' || form.theme === 'midnight_vampire' || form.theme === 'deep_ocean' || form.theme === 'monochrome';
+  const accentColor = form.style?.customAccentColor || (isDark ? '#ffffff' : '#000000');
+
+  // fallback empty state if no questions
+  const questions = form.questions?.length ? form.questions : [
+    { type: 'short_text' },
+    { type: 'long_text' },
+    { type: 'multiple_choice' }
+  ];
+
+  return (
+    <div className={cn(
+      "absolute inset-0 flex items-start justify-center pointer-events-none transition-transform duration-700 ease-out group-hover:scale-[1.05]",
+      view === 'list' && "scale-[0.5] origin-top mt-2"
+    )}>
+      {/* The Paper/Card */}
+      <div className={cn(
+        "w-[65%] mt-8 rounded-t-lg shadow-2xl flex flex-col p-4 gap-4 border-x border-t transition-all duration-700 ease-out group-hover:-translate-y-4",
+        isDark ? "bg-[#111111] border-white/10 shadow-black/50" : "bg-white border-black/10 shadow-black/5",
+        view === 'list' ? "h-[200px]" : "h-[120%]"
+      )}>
+        {/* Banner area if form has banner (mocked) */}
+        <div className={cn("h-8 w-full rounded-md opacity-50", isDark ? "bg-white/5" : "bg-black/5")} style={{ backgroundColor: accentColor + '20' }} />
+
+        {/* Title Area */}
+        <div className="space-y-2 mb-2">
+          <div className={cn("h-4 w-3/4 rounded-sm", isDark ? "bg-white/80" : "bg-black/80")} />
+          <div className={cn("h-2 w-1/2 rounded-sm", isDark ? "bg-white/30" : "bg-black/30")} />
+        </div>
+
+        {/* Form Fields */}
+        <div className="space-y-4">
+          {questions.slice(0, 3).map((q: Question, i: number) => (
+            <div key={i} className="space-y-2">
+              <div className={cn("h-2 w-1/3 rounded-sm", isDark ? "bg-white/50" : "bg-black/50")} />
+              {q.type === 'long_text' ? (
+                <div className={cn("h-12 w-full rounded-md border", isDark ? "border-white/10 bg-white/5" : "border-black/10 bg-black/5")} />
+              ) : q.type === 'multiple_choice' || q.type === 'single_choice' ? (
+                <div className="space-y-2 pl-1">
+                  <div className="flex items-center gap-2">
+                    <div className={cn(q.type === 'single_choice' ? "h-3 w-3 rounded-full" : "h-3 w-3 rounded-sm", isDark ? "border border-white/20" : "border border-black/20")} />
+                    <div className={cn("h-2 w-1/4 rounded-sm", isDark ? "bg-white/30" : "bg-black/30")} />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className={cn(q.type === 'single_choice' ? "h-3 w-3 rounded-full" : "h-3 w-3 rounded-sm", isDark ? "border border-white/20" : "border border-black/20")} />
+                    <div className={cn("h-2 w-1/5 rounded-sm", isDark ? "bg-white/30" : "bg-black/30")} />
+                  </div>
+                </div>
+              ) : (
+                <div className={cn("h-7 w-full rounded-md border", isDark ? "border-white/10 bg-white/5" : "border-black/10 bg-black/5")} />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
 const Dashboard = () => {
  const [forms, setForms] = useState<FormData[]>([]);
  const [responseCounts, setResponseCounts] = useState<Record<string, number>>({});
@@ -544,13 +603,12 @@ const Dashboard = () => {
           form.acceptingResponses ? "bg-accent" : "bg-muted-foreground"
          )} />
 
-         {/* Icon / Image Placeholder */}
          <div className={cn(
           "bg-secondary border-foreground flex items-center justify-center relative overflow-hidden",
-          view === 'grid' ? "h-48 border-b" : "w-24 h-full border-r self-stretch"
+          view === 'grid' ? "h-48 border-b" : "w-24 h-full border-r self-stretch shrink-0"
          )}>
            <div className={`absolute inset-0 opacity-10 ${form.theme === 'brutalist_dark' ? 'bg-black' : 'bg-white'}`} style={{ backgroundImage: 'radial-gradient(currentColor 1px, transparent 1px)', backgroundSize: '4px 4px' }} />
-           <FileText size={view === 'grid' ? 48 : 24} className="opacity-20 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" />
+           <FormPreviewVisual form={form} view={view} />
          </div>
 
          <div className="p-8 flex-1 min-w-0">
@@ -562,7 +620,7 @@ const Dashboard = () => {
            <div onClick={(e) => e.stopPropagation()}>
             <DropdownMenu>
              <DropdownMenuTrigger asChild>
-              <button className="p-2 border border-foreground hover:bg-muted transition-colors -mt-2 -mr-2">
+              <button className="p-2 border border-foreground hover:bg-muted transition-colors -mt-2 -mr-2 relative z-20">
                <MoreVertical className="h-4 w-4" />
               </button>
              </DropdownMenuTrigger>
@@ -591,7 +649,7 @@ const Dashboard = () => {
            {form.description || 'No description provided.'}
           </p>
 
-          <div className="flex gap-4">
+          <div className="flex gap-4 flex-wrap">
             <span className="flex items-center gap-1 text-[10px] font-medium opacity-60">
              <Users size={12} /> {responseCount} Responses
             </span>
