@@ -41,6 +41,7 @@ import AIFormCreator from '@/components/dashboard/AIFormCreator';
 import { MorphSurface } from '@/components/ui/smoothui/ai-input';
 import React from 'react';
 import Footer from '@/components/Footer';
+import { generateFormFromPrompt } from '@/services/groq';
 
 const FormPreviewVisual = ({ form, view }: { form: FormData, view: 'grid' | 'list' }) => {
   const isDark = form.theme === 'brutalist_dark' || form.theme === 'cyber_toxic' || form.theme === 'midnight_vampire' || form.theme === 'deep_ocean' || form.theme === 'monochrome';
@@ -121,6 +122,7 @@ const Dashboard = () => {
  const [view, setView] = useState<'grid' | 'list'>('grid');
  const [isAIModalOpen, setIsAIModalOpen] = useState(false);
  const [aiPrompt, setAiPrompt] = useState('');
+ const [isGenerating, setIsGenerating] = useState(false);
  
  const navigate = useNavigate();
  const { user, isAdmin } = useAuth();
@@ -329,6 +331,33 @@ const Dashboard = () => {
   }
  };
 
+ const handleGenerateFromPrompt = async (promptText: string) => {
+   if (!promptText.trim() || isGenerating) return;
+   
+   setIsGenerating(true);
+   const toastId = toast.loading("AI is brainstorming your form...", {
+     description: "Analyzing objective and designing structure...",
+   });
+   
+   try {
+     const generatedForm = await generateFormFromPrompt(promptText);
+     toast.success("Form Generated!", {
+       id: toastId,
+       description: `Created "${generatedForm.title}" with ${generatedForm.questions?.length} steps.`,
+     });
+     await handleAISuccess(generatedForm);
+     setAiPrompt('');
+   } catch (error: any) {
+     console.error(error);
+     toast.error("Generation Failed", {
+       id: toastId,
+       description: error.message || "Something went wrong during generation.",
+     });
+   } finally {
+     setIsGenerating(false);
+   }
+ };
+
  const handleDelete = async (id: string, e: React.MouseEvent) => {
   e.stopPropagation();
   if (confirm('Are you sure you want to delete this form?')) {
@@ -533,10 +562,11 @@ const Dashboard = () => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
                   if (aiPrompt.trim()) {
-                    setIsAIModalOpen(true);
+                    handleGenerateFromPrompt(aiPrompt);
                   }
                 }
               }}
+              disabled={isGenerating}
             />
           </div>
           
@@ -552,9 +582,10 @@ const Dashboard = () => {
             <button 
               onClick={() => {
                 if (aiPrompt.trim()) {
-                  setIsAIModalOpen(true);
+                  handleGenerateFromPrompt(aiPrompt);
                 }
               }}
+              disabled={isGenerating}
               className="p-1.5 rounded-lg hover:bg-white/5 text-[#64748b] hover:text-[#e2e8f0] transition-colors"
             >
               <CornerDownLeft className="w-4 h-4" />
