@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogDescription 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription
 } from '@/components/ui/dialog';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { Skull, AlertTriangle, Send, X, Brain, Ghost } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { AlertTriangle, X } from 'lucide-react';
 
 interface ForgotPasswordModalProps {
   isOpen: boolean;

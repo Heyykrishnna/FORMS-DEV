@@ -53,108 +53,102 @@ export const IntelligentExecutionGraph = () => {
       </svg>
 
       <div className="absolute left-[0px] top-[300px] w-48 bg-white rounded-md shadow-lg border border-slate-200 p-3 z-10 flex flex-col gap-2">
-        <div className="text-[10px] text-slate-400 font-medium mb-1">Pivot cell</div>
-        <div className="border border-slate-100 rounded grid grid-cols-2 text-[8px] bg-slate-50 overflow-hidden">
+        <div className="text-[10px] text-slate-400 font-normal mb-1">Logic Router</div>
+        <div className="border border-slate-100 rounded grid grid-cols-2 text-[8px] bg-slate-50 overflow-hidden font-normal">
           <div className="p-1 border-b border-r border-slate-100 bg-slate-100/50">
-            Rows
+            Rule 1
             <br />
-            ORDER_DATE_YEAR
+            SCORE &lt; 5
           </div>
           <div className="p-1 border-b border-slate-100">
             <div className="h-1 w-full bg-slate-200 rounded mb-1" />
             <div className="h-1 w-3/4 bg-slate-200 rounded" />
           </div>
           <div className="p-1 border-b border-r border-slate-100 bg-slate-100/50">
-            Columns
+            Rule 2
             <br />
-            ORDER_STATUS
+            SENTIMENT
           </div>
           <div className="p-1 border-b border-slate-100">
             <div className="h-1 w-full bg-slate-200 rounded mb-1" />
             <div className="h-1 w-5/6 bg-slate-200 rounded" />
           </div>
           <div className="p-1 border-r border-slate-100 bg-slate-100/50">
-            Values
+            Default
             <br />
-            ORDER_ID_COUNT
+            CONTINUE
           </div>
           <div className="p-1">
             <div className="h-1 w-full bg-slate-200 rounded mb-1" />
             <div className="h-1 w-1/2 bg-slate-200 rounded" />
           </div>
         </div>
-        <Badge text="pivoted_dataframe" className="bg-emerald-50 border border-emerald-100 text-emerald-700" />
+        <Badge text="branch_path" className="bg-emerald-50 border border-emerald-100 text-emerald-700 font-normal" />
       </div>
 
       <div className="absolute left-[150px] top-[430px] w-48 bg-white rounded-md shadow-lg border border-slate-200 p-3 z-10">
-        <div className="text-[10px] text-slate-400 font-medium mb-2">Filter cell</div>
+        <div className="text-[10px] text-slate-400 font-normal mb-2">Validation Check</div>
         <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-1 text-[9px] font-mono text-slate-600 bg-slate-50 border border-slate-100 p-1.5 rounded">
-            <span>ORDER_STATUS</span> <span className="opacity-50">=</span>{' '}
-            <span className="bg-[#e0e7ff] text-[#4f46e5] px-1 rounded">order_status</span>
+          <div className="flex items-center gap-1 text-[9px] font-mono text-slate-500 p-1 rounded font-normal">
+            <span>SCORE</span> <span className="opacity-40">&lt;</span>{' '}
+            <span className="text-slate-500">5</span>
           </div>
-          <div className="flex items-center gap-1 text-[9px] font-mono text-slate-600 bg-slate-50 border border-slate-100 p-1.5 rounded">
-            <span className="opacity-50">+</span> <span>ORDER_DATE</span>{' '}
-            <span className="text-slate-400">is before</span> <span>Yesterday</span>
+          <div className="flex items-center gap-1 text-[9px] font-mono text-slate-500 p-1 rounded font-normal">
+            <span className="opacity-40">AND</span> <span>SENTIMENT</span>{' '}
+            <span className="text-slate-400">is</span> <span>Negative</span>
           </div>
         </div>
-        <Badge text="filtered_dataframe" className="bg-emerald-50 border border-emerald-100 text-emerald-700" />
+        <Badge text="routing_condition" className="bg-emerald-50 border border-emerald-100 text-emerald-700 font-normal" />
       </div>
 
       <div className="absolute left-[250px] top-[280px] w-56 bg-white rounded-md shadow-lg border border-slate-200 p-3 z-10">
-        <div className="text-[10px] text-slate-400 font-medium mb-2">SQL cell</div>
-        <div className="text-[9px] font-mono leading-[1.6]">
-          <span className="text-[#3b82f6]">select</span> channel, account_age, lifetime_
+        <div className="text-[10px] text-slate-400 font-normal mb-2">AI Prompt Engine</div>
+        <div className="text-[9px] font-mono leading-[1.6] font-normal">
+          <span className="text-[#3b82f6]">generate</span> follow_up_questions
           <br />
-          &nbsp;&nbsp;<span className="text-[#3b82f6]">count</span>(
-          <span className="text-[#ec4899]">distinct</span> usage.event_id){' '}
-          <span className="text-[#3b82f6]">as</span>
+          &nbsp;&nbsp;<span className="text-[#3b82f6]">from</span> (
+          <span className="text-[#ec4899]">context</span> session_data){' '}
           <br />
-          <span className="text-[#3b82f6]">from</span> users
-          <br />
-          <span className="text-[#3b82f6]">left join</span> usage_events <span className="text-[#3b82f6]">as</span> usage{' '}
-          <span className="text-[#3b82f6]">on</span> users.
-          <br />
-          <span className="text-[#3b82f6]">where</span> usage.event_type = ((
-          <span className="bg-[#e0e7ff] text-[#4f46e5] px-0.5 rounded">event_cf_</span>
+          <span className="text-[#3b82f6]">where</span> sentiment = ((
+          <span className="text-[#4f46e5]">negative</span>
           ))
           <br />
-          <span className="text-[#3b82f6]">group by</span> 1,2,3
+          <span className="text-[#3b82f6]">using</span> prompt_template(<span className="text-[#10b981]">'churn_risk'</span>)
         </div>
-        <Badge text="dataframe" className="bg-emerald-50 border border-emerald-100 text-emerald-700" />
+        <Badge text="ai_response" className="bg-emerald-50 border border-emerald-100 text-emerald-700 font-normal" />
       </div>
 
       <div className="absolute left-[400px] top-[320px] w-32 bg-white/95 backdrop-blur-md rounded-md shadow-md border hex-line-soft p-3 z-10">
-        <div className="text-[10px] text-slate-400 font-medium mb-2">Input cell</div>
-        <div className="flex items-center justify-between bg-slate-50 border hex-line-soft text-slate-900 text-[10px] px-2 py-1.5 rounded">
-          Shipped
-          <span className="opacity-50 text-[8px]">▼</span>
+        <div className="text-[10px] text-slate-400 font-normal mb-2">User Input</div>
+        <div className="flex items-center justify-between bg-slate-50 border hex-line-soft text-slate-700 font-normal text-[10px] px-2 py-1.5 rounded">
+          Very Dissatisfied
+          <span className="opacity-40 text-[8px]">▼</span>
         </div>
-        <Badge text="order_status" className="bg-[#e0e7ff] text-[#4f46e5]" />
+        <Badge text="user_score" className="bg-slate-100 border border-slate-200 text-slate-600 font-normal" />
       </div>
 
       <div className="absolute left-[380px] top-[100px] w-48 bg-white/95 backdrop-blur-md rounded-md shadow-md border hex-line-soft p-4 z-10">
-        <div className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mb-3 text-center">
-          CONNECT TO ANYTHING
+        <div className="text-[8px] font-medium text-slate-400 uppercase tracking-widest mb-3 text-center">
+          SYNC DESTINATIONS
         </div>
         <div className="flex items-center justify-center gap-3">
-          <div className="w-5 h-5 rounded-full bg-[#38bdf8] flex items-center justify-center text-white text-[10px] font-bold">
+          <div className="w-5 h-5 rounded-full bg-[#38bdf8] flex items-center justify-center text-white text-[10px] font-normal">
             S
           </div>
-          <div className="w-5 h-5 rounded-full bg-[#1d4ed8] flex items-center justify-center text-white text-[10px] font-bold">
+          <div className="w-5 h-5 rounded-full bg-[#1d4ed8] flex items-center justify-center text-white text-[10px] font-normal">
             B
           </div>
-          <div className="w-5 h-5 rounded-full bg-[#f59e0b] flex items-center justify-center text-white text-[10px] font-bold">
+          <div className="w-5 h-5 rounded-full bg-slate-400 flex items-center justify-center text-white text-[10px] font-normal">
             A
           </div>
-          <div className="w-5 h-5 rounded-full bg-[#ec4899] flex items-center justify-center text-white text-[10px] font-bold">
+          <div className="w-5 h-5 rounded-full bg-[#ec4899] flex items-center justify-center text-white text-[10px] font-normal">
             D
           </div>
-          <div className="w-5 h-5 rounded-full bg-[#f97316] flex items-center justify-center text-white text-[10px] font-bold">
+          <div className="w-5 h-5 rounded-full bg-slate-500 flex items-center justify-center text-white text-[10px] font-normal">
             X
           </div>
         </div>
-        <div className="text-[9px] text-slate-400 text-center mt-3">And more...</div>
+        <div className="text-[9px] text-slate-400 text-center mt-3 font-normal">And more...</div>
       </div>
 
       <div className="absolute left-[500px] top-[240px] w-24 h-12 bg-slate-50/80 border hex-line-soft rounded shadow-sm z-0" />

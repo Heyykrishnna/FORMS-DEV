@@ -246,13 +246,13 @@ const Index = () => {
                  <span className="hex-mono text-[11px] tracking-wider text-slate-500">FIG.04</span>
               </div>
               <h2 className="text-[48px] font-semibold tracking-[-0.035em] leading-[1.05]">
-                Intelligent execution
+                Intelligent routing
               </h2>
               <p className="mt-6 text-[18px] leading-relaxed max-w-md" style={{ color: 'var(--hex-ink-soft)' }}>
-                Hex's graph-based execution model makes projects more reproducible, explainable, and performant than traditional data science notebooks.
+                Aqora's AI-driven execution model makes forms more conversational, adaptive, and performant than traditional survey builders.
               </p>
               <button className="mt-8 hex-btn-ghost text-[14px]">
-                Learn more →
+                Explore logic →
               </button>
             </div>
             <div className="relative -mr-32">
@@ -408,8 +408,8 @@ const BuildIllustration = () => (
     <div className="absolute top-6 right-4 w-10 h-10 border border-indigo-100 rounded-lg rotate-12 flex items-center justify-center">
       <div className="w-4 h-4 border border-indigo-200 rounded-sm" />
     </div>
-    <div className="absolute bottom-4 left-6 w-8 h-8 border border-amber-100 rounded-full -rotate-12 flex items-center justify-center">
-      <div className="w-3 h-3 bg-amber-50 rounded-full" />
+    <div className="absolute bottom-4 left-6 w-8 h-8 border border-slate-200 rounded-full -rotate-12 flex items-center justify-center">
+      <div className="w-3 h-3 bg-slate-100 rounded-full" />
     </div>
   </div>
 );
@@ -455,7 +455,7 @@ const SignalIllustration = () => (
         <path d="M0 45 Q 15 40, 25 30 T 50 25 T 75 15 T 100 5 L 100 60 L 0 60 Z" fill="url(#waveGrad)" />
         <path d="M0 45 Q 15 40, 25 30 T 50 25 T 75 15 T 100 5" fill="none" stroke="#2d5cf6" strokeWidth="2" strokeLinecap="round" className="hex-line-path" />
         <circle cx="20" cy="35" r="1.5" fill="#10b981" />
-        <circle cx="45" cy="28" r="1.5" fill="#f59e0b" />
+        <circle cx="45" cy="28" r="1.5" fill="#94a3b8" />
         <circle cx="70" cy="18" r="1.5" fill="#ef4444" />
         <circle cx="90" cy="8" r="1.5" fill="#6366f1" />
       </svg>
