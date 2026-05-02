@@ -78,24 +78,24 @@ const TemplateGallery = ({ isOpen, onClose, onSelect }: Props) => {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8 md:p-12">
-      {/* Backdrop */}
+
       <div 
         className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-500"
         onClick={onClose}
       />
       
-      {/* Modal Container */}
+
       <div className="relative w-full max-w-[1400px] h-full max-h-[90vh] bg-[#0c0d0f] border border-white/10 rounded-xl overflow-hidden flex flex-row shadow-2xl animate-in zoom-in-95 duration-300">
         
-        {/* Background Grid & Lines */}
+
         <div className="absolute inset-0 pointer-events-none z-0">
-           {/* Dots/Grid pattern */}
+
            <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:32px_32px]" />
-           {/* Horizontal Line below header */}
+
            <div className="absolute top-[160px] left-0 right-0 h-px bg-white/5" />
         </div>
 
-        {/* Close button */}
+
         <button 
           onClick={onClose} 
           className="absolute top-6 right-6 p-2 text-white/30 hover:text-white z-50 transition-colors bg-white/5 rounded-md hover:bg-white/10"
@@ -103,7 +103,7 @@ const TemplateGallery = ({ isOpen, onClose, onSelect }: Props) => {
           <X className="w-5 h-5" />
         </button>
 
-        {/* Sidebar */}
+
         <div className="w-[280px] flex-shrink-0 border-r border-white/5 flex flex-col h-full overflow-y-auto relative z-10 py-10 px-4">
           <div className="flex flex-col space-y-1">
             {CATEGORIES.map(cat => (
@@ -123,10 +123,10 @@ const TemplateGallery = ({ isOpen, onClose, onSelect }: Props) => {
           </div>
         </div>
 
-        {/* Main Content Area */}
+
         <div className="flex-1 overflow-y-auto relative z-10 p-10 md:p-16">
           <div className="max-w-5xl">
-            {/* Header Content */}
+
             <div className="mb-14">
               <h4 className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/30 mb-4 font-sans">Templates</h4>
               <h2 className="text-4xl md:text-5xl font-medium font-sans text-white tracking-tight mb-5">{activeCategory}</h2>
@@ -135,10 +135,10 @@ const TemplateGallery = ({ isOpen, onClose, onSelect }: Props) => {
               </p>
             </div>
 
-            {/* Templates Grid */}
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-12">
               
-              {/* AI Magic Card */}
+
               {(activeCategory === 'All' || activeCategory === 'Data Science' || activeCategory === 'Natural Language Processing') && (
               <div 
                 onClick={() => onSelect({ id: 'ai-magic', name: 'AI Generation', description: 'Describe your objective and let our models generate the perfect starting point.', data: {}, icon: '' } as any)}
@@ -162,7 +162,7 @@ const TemplateGallery = ({ isOpen, onClose, onSelect }: Props) => {
               </div>
               )}
 
-              {/* Blank Template Card */}
+
               {(activeCategory === 'All' || activeCategory === 'Exploratory Analysis' || activeCategory === 'Data Modeling') && (
               <div 
                 onClick={() => onSelect({ id: 'blank', name: 'Blank Template', description: 'Start from absolute zero. No rules. No limits.', data: {}, icon: 'Ghost' } as any)}
@@ -185,7 +185,7 @@ const TemplateGallery = ({ isOpen, onClose, onSelect }: Props) => {
               </div>
               )}
 
-              {/* Mapped Templates */}
+
               {filteredTemplates.map((template) => {
                 const Icon = ICON_MAP[template.icon] || Sparkles;
                 return (
@@ -202,7 +202,7 @@ const TemplateGallery = ({ isOpen, onClose, onSelect }: Props) => {
                     <div className="aspect-[16/9] bg-[#0a0a0c] mb-6 relative overflow-hidden flex items-center justify-center border border-white/5 p-6">
                         <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:12px_12px]" />
                         
-                        {/* Abstract UI Mockup Inside Card */}
+
                         <div className="w-full h-full border border-white/5 bg-[#121316] rounded flex flex-col p-3 relative z-10 shadow-2xl opacity-70 group-hover:opacity-100 transition-opacity duration-500 group-hover:-translate-y-1 transform">
                           <div className="flex items-center gap-2 mb-3">
                              <Icon className="w-3.5 h-3.5 text-white/40" />
