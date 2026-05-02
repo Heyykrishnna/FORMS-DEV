@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { FORM_TEMPLATES, FormTemplate } from '@/lib/templates';
 import { 
   X, ArrowRight, Zap, Ghost, Eye, Mail, UserPlus, LogIn, 
@@ -39,6 +39,18 @@ interface Props {
 
 const TemplateGallery = ({ isOpen, onClose, onSelect }: Props) => {
   const [activeCategory, setActiveCategory] = useState('All');
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   const filteredTemplates = useMemo(() => {
     if (activeCategory === 'All') return FORM_TEMPLATES;
