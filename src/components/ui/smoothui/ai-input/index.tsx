@@ -3,13 +3,14 @@
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import React from "react";
+import { Sparkles } from "lucide-react";
 import { useClickOutside } from "./use-click-outside";
 
 const SPEED = 1;
 const SUCCESS_DURATION = 1500;
-const DOCK_HEIGHT = 44;
-const FEEDBACK_BORDER_RADIUS = 0;
-const DOCK_BORDER_RADIUS = 0;
+const DOCK_HEIGHT = 40;
+const FEEDBACK_BORDER_RADIUS = 12;
+const DOCK_BORDER_RADIUS = 12;
 const SPRING_STIFFNESS = 550;
 const SPRING_DAMPING = 45;
 const SPRING_MASS = 0.7;
@@ -32,10 +33,12 @@ export function MorphSurface({
   onSubmit,
   isThinking = false,
   placeholder = "Ask AI to build a form...",
+  className,
 }: {
   onSubmit?: (message: string) => void;
   isThinking?: boolean;
   placeholder?: string;
+  className?: string;
 }) {
   const rootRef = React.useRef<HTMLDivElement>(null);
   const feedbackRef = React.useRef<HTMLTextAreaElement | null>(null);
@@ -78,7 +81,7 @@ export function MorphSurface({
 
   return (
     <div
-      className="flex items-center justify-center"
+      className={cn("flex items-start justify-center pointer-events-none", className)}
       style={{
         width: FEEDBACK_WIDTH,
         height: FEEDBACK_HEIGHT,
@@ -97,8 +100,8 @@ export function MorphSurface({
               }
         }
         className={cn(
-          "relative bottom-8 z-3 flex flex-col items-center overflow-hidden border-2 border-foreground bg-background max-sm:bottom-5 shadow-brutal",
-          showFeedback ? "shadow-brutal-lg" : "shadow-brutal"
+          "relative z-[100] flex flex-col items-center overflow-hidden border border-foreground bg-background transition-shadow pointer-events-auto",
+          showFeedback ? "shadow-md" : "shadow-sm hover:translate-y-[1px] hover:translate-x-[1px]"
         )}
         data-footer
         initial={false}
@@ -133,16 +136,14 @@ export function MorphSurface({
 function Dock() {
   const { openFeedback } = useFooter();
   return (
-    <footer className="mt-auto flex h-[44px] select-none items-center justify-center whitespace-nowrap">
-      <div className="flex items-center justify-center gap-2 px-3 max-sm:h-10 max-sm:px-2">
-        <div
-          className="flex h-fit flex-1 justify-end rounded-none px-2 py-0.5 font-bold uppercase tracking-tight cursor-pointer"
-          onClick={openFeedback}
-        >
-          <span className="truncate">Ask AQORA AI</span>
-        </div>
-      </div>
-    </footer>
+    <button 
+      type="button"
+      className="flex h-10 w-full select-none items-center justify-center whitespace-nowrap cursor-pointer px-6 hover:bg-black/5 dark:hover:bg-white/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      onClick={openFeedback}
+      aria-label="Open Ask Aqora AI"
+    >
+      <span className="font-medium md:text-sm text-[10px]">Ask Aqora AI</span>
+    </button>
   );
 }
 
@@ -215,9 +216,9 @@ function Feedback({
                   }
             }
           >
-            <div className="flex justify-between items-center py-2 px-3 border-b-2 border-foreground bg-muted/30">
-              <p className="flex select-none items-center gap-[6px] text-xs font-black uppercase tracking-widest text-foreground">
-                AI_ENGINE_v4.2
+            <div className="flex justify-between items-center py-3 px-4 border-b border-foreground/10 bg-background/80 backdrop-blur-md relative z-10">
+              <p className="flex select-none items-center gap-[6px] text-sm font-medium text-foreground">
+                Aqora AI
               </p>
               <button
                 className="right-4 mt-1 flex -translate-y-[3px] cursor-pointer select-none items-center justify-center gap-1 rounded-[12px] bg-transparent pr-1 text-center text-foreground"
@@ -254,7 +255,7 @@ function Kbd({
   return (
     <kbd
       className={cn(
-        "flex h-6 w-fit items-center justify-center rounded-none border-2 border-foreground bg-accent px-[6px] font-mono text-[10px] font-black uppercase text-accent-foreground shadow-brutal-sm",
+        "flex h-6 w-fit items-center justify-center rounded-md border border-foreground/20 bg-muted px-2 font-sans text-[10px] font-medium text-muted-foreground shadow-sm",
         className
       )}
     >

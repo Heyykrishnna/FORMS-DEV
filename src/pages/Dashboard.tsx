@@ -13,21 +13,11 @@ import {
  BarChart3, 
  Layers, 
  Activity,
- ArrowUpRight,
  ExternalLink,
  Users,
  Clock,
- LayoutGrid,
- List,
- Filter,
- Sparkles,
- FileText,
- Ghost, 
+ Sparkles, 
  Bot, 
- Skull, 
- Pizza, 
- Zap, 
- Crown
 } from 'lucide-react';
 import { createBlankForm, createFormFromTemplate } from '@/lib/formStore';
 import { FormData, Question } from '@/types/form';
@@ -44,7 +34,9 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import AgentAvatar from '@/components/ui/smoothui/agent-avatar';
 import AIFormCreator from '@/components/dashboard/AIFormCreator';
+import { MorphSurface } from '@/components/ui/smoothui/ai-input';
 import React from 'react';
+import Footer from '@/components/Footer';
 
 const FormPreviewVisual = ({ form, view }: { form: FormData, view: 'grid' | 'list' }) => {
   const isDark = form.theme === 'brutalist_dark' || form.theme === 'cyber_toxic' || form.theme === 'midnight_vampire' || form.theme === 'deep_ocean' || form.theme === 'monochrome';
@@ -105,6 +97,15 @@ const FormPreviewVisual = ({ form, view }: { form: FormData, view: 'grid' | 'lis
     </div>
   )
 }
+
+const VerticalScale = ({className} : {className?: string}) => {
+  return (
+  <div
+      className={cn("w-10 h-full bg-[repeating-linear-gradient(315deg,_#d4d4d4_0px,_#d4d4d4_1px,_transparent_1px,_transparent_10px)] bg-[length:14px_14px] border-x border-[var(--pattern)]", className)}
+    />
+  )
+}
+
 const Dashboard = () => {
  const [forms, setForms] = useState<FormData[]>([]);
  const [responseCounts, setResponseCounts] = useState<Record<string, number>>({});
@@ -395,15 +396,17 @@ const Dashboard = () => {
  }
 
  return (
-  <div className="min-h-screen bg-[#F0F0F0] text-foreground font-mono selection:bg-accent selection:text-accent-foreground">
+  <div className="relative min-h-screen bg-[#F0F0F0] text-foreground font-mono selection:bg-accent selection:text-accent-foreground">
    {/* Background Pattern */}
+    <VerticalScale className="absolute inset-y-0 left-0 mx-auto" />
+    <VerticalScale className="absolute inset-y-0 right-0 mx-auto" />
    <div className="fixed inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
 
    {/* NAV */}
    <nav className="border-b border-foreground sticky top-0 bg-background z-50">
     <div className="container mx-auto flex items-center justify-between px-4 py-4">
-     <Link to="/" className="text-3xl font-medium tracking-tight hover:text-accent transition-colors flex items-center gap-2">
-      AQORA<span className="text-accent decoration-4 underline-offset-4">.</span>
+     <Link to="/" className="text-[24px] font-sans font-medium tracking-tight hover:text-accent transition-colors flex items-center gap-2">
+      aqora
      </Link>
      <div className="flex items-center gap-4">
       {isAdmin && (
@@ -434,17 +437,14 @@ const Dashboard = () => {
          {user?.email}
         </span>
       </Link>
-      <button
-       onClick={() => setIsAIModalOpen(true)}
-       className="relative group border rounded-xl bg-foreground px-6 py-2 md:text-sm text-[10px] hidden md:flex font-medium text-background shadow-sm hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all items-center gap-2 overflow-hidden"
-      >
-       {/* Animated Glow Effect */}
-       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-       <span className="relative z-10">Create with AI</span>
-      </button>
+      <div className="relative w-[130px] h-10 hidden md:block">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 z-[100]">
+          <MorphSurface />
+        </div>
+      </div>
       <button
        onClick={handleCreate}
-       className="border rounded-xl bg-accent px-6 py-2 md:text-sm text-[10px] font-medium text-accent-foreground shadow-sm hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all flex items-center gap-2"
+       className="h-10 border rounded-xl bg-accent px-6 md:text-sm text-[10px] font-medium text-accent-foreground shadow-sm hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all flex items-center gap-2"
       >
        <Plus className="h-5 w-5" />
        New Form
@@ -460,7 +460,7 @@ const Dashboard = () => {
       <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-sans leading-none mb-4">
        ARCHITECT<span className="text-accent">.</span>
       </h1>
-      <p className="text-lg font-light opacity-60 max-w-md border-l-2 border-accent pl-4">
+      <p className="text-lg font-light opacity-60 max-w-md">
        Design, deploy, and decode your information workflows.
       </p>
      </div>
@@ -550,7 +550,7 @@ const Dashboard = () => {
          onClick={() => setIsAIModalOpen(true)}
          className="flex-1 border rounded-xl bg-foreground px-12 py-5 text-xl font-medium text-background shadow-md hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all flex items-center justify-center gap-3"
         >
-         Create with AI
+         Ask Aqora AI
         </button>
         <button
          onClick={handleCreate}
@@ -651,13 +651,6 @@ const Dashboard = () => {
      </div>
     )}
    </main>
-   
-   {/* Decorative Footer info */}
-   <div className="container mx-auto px-4 pb-12 mt-12 flex justify-between items-center opacity-30 text-[10px] font-medium tracking-[0.2em]">
-    <span>AQORA OS v4.2.0</span>
-    <span>CONNECTED TO SUPABASE</span>
-    <span>2026 AQORA LABS</span>
-   </div>
 
    <TemplateGallery 
     isOpen={isGalleryOpen} 
@@ -670,6 +663,8 @@ const Dashboard = () => {
     onClose={() => setIsAIModalOpen(false)}
     onSuccess={handleAISuccess}
    />
+
+   <Footer />
   </div>
  );
 };
