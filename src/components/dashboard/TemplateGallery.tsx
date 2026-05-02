@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { FORM_TEMPLATES, FormTemplate } from '@/lib/templates';
 import { 
   X, ArrowRight, Zap, Ghost, Eye, Mail, UserPlus, LogIn, 
@@ -38,7 +38,29 @@ interface Props {
 }
 
 const TemplateGallery = ({ isOpen, onClose, onSelect }: Props) => {
-  const [activeCategory, setActiveCategory] = useState('Data Clustering');
+  const [activeCategory, setActiveCategory] = useState('All');
+
+  const filteredTemplates = useMemo(() => {
+    if (activeCategory === 'All') return FORM_TEMPLATES;
+    
+    return FORM_TEMPLATES.filter(template => {
+      if (activeCategory === 'Data Clustering') return ['survey', 'feedback'].includes(template.id);
+      if (activeCategory === 'Data Modeling') return ['registration', 'order'].includes(template.id);
+      if (activeCategory === 'Data Science') return ['survey', 'job', 'feedback'].includes(template.id);
+      if (activeCategory === 'Data Visualization') return ['survey', 'order', 'feedback'].includes(template.id);
+      if (activeCategory === 'Exploratory Analysis') return ['survey', 'complaint'].includes(template.id);
+      if (activeCategory === 'Feature Selection') return ['survey', 'registration'].includes(template.id);
+      if (activeCategory === 'KPI Dashboards') return ['order', 'payment', 'feedback'].includes(template.id);
+      if (activeCategory === 'Natural Language Processing') return ['complaint', 'support', 'feedback'].includes(template.id);
+      if (activeCategory === 'Parameterized Queries') return ['login', 'signup'].includes(template.id);
+      if (activeCategory === 'Reporting') return ['contact', 'support', 'feedback'].includes(template.id);
+      if (activeCategory === 'Sentiment Analysis') return ['feedback', 'complaint'].includes(template.id);
+      if (activeCategory === 'Snowpark') return ['order', 'survey'].includes(template.id);
+      if (activeCategory === 'Time Series') return ['rsvp', 'booking', 'leave'].includes(template.id);
+      
+      return false;
+    });
+  }, [activeCategory]);
 
   if (!isOpen) return null;
 
@@ -77,7 +99,7 @@ const TemplateGallery = ({ isOpen, onClose, onSelect }: Props) => {
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
                   className={cn(
-                    "text-left px-4 py-2.5 text-sm transition-colors rounded-md",
+                    "text-left px-4 py-2.5 text-sm transition-colors rounded-md font-sans",
                     activeCategory === cat 
                       ? "bg-white/[0.04] text-white font-medium" 
                       : "text-white/40 hover:text-white/80 hover:bg-white/[0.02]"
@@ -94,9 +116,9 @@ const TemplateGallery = ({ isOpen, onClose, onSelect }: Props) => {
           <div className="max-w-5xl">
             {/* Header Content */}
             <div className="mb-14">
-              <h4 className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/30 mb-4">Templates</h4>
-              <h2 className="text-4xl md:text-5xl font-medium text-white tracking-tight mb-5">{activeCategory}</h2>
-              <p className="text-white/40 text-lg max-w-2xl leading-relaxed font-light">
+              <h4 className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/30 mb-4 font-sans">Templates</h4>
+              <h2 className="text-4xl md:text-5xl font-medium font-sans text-white tracking-tight mb-5">{activeCategory}</h2>
+              <p className="text-white/40 text-lg max-w-2xl leading-relaxed font-light font-sans">
                 Unleash the power of {activeCategory.toLowerCase()}—an unsupervised machine learning technique that uncovers patterns and groups similar data together without the need for labeled data.
               </p>
             </div>
@@ -105,6 +127,7 @@ const TemplateGallery = ({ isOpen, onClose, onSelect }: Props) => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-12">
               
               {/* AI Magic Card */}
+              {(activeCategory === 'All' || activeCategory === 'Data Science' || activeCategory === 'Natural Language Processing') && (
               <div 
                 onClick={() => onSelect({ id: 'ai-magic', name: 'AI Generation', description: 'Describe your objective and let our models generate the perfect starting point.', data: {}, icon: '' } as any)}
                 className="relative border border-white/5 bg-[#121316]/50 p-4 flex flex-col group hover:bg-white/[0.02] hover:border-white/20 transition-all cursor-pointer overflow-hidden backdrop-blur-sm"
@@ -117,16 +140,18 @@ const TemplateGallery = ({ isOpen, onClose, onSelect }: Props) => {
                 <div className="aspect-[16/9] bg-[#0a0a0c] mb-6 relative overflow-hidden flex flex-col items-center justify-center border border-white/5">
                    <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(49,91,232,0.1),transparent)] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                    <Sparkles className="w-8 h-8 text-[#315be8] mb-3 opacity-80" />
-                   <span className="text-[#315be8]/80 text-xs font-medium tracking-wide uppercase">Ask Aqora AI</span>
+                   <span className="text-[#315be8]/80 text-xs font-sans font-medium tracking-wide uppercase">Ask Aqora AI</span>
                 </div>
-                <h3 className="text-white text-xl font-medium mb-1 tracking-tight group-hover:text-[#315be8] transition-colors">AI Magic Create</h3>
-                <p className="text-xs text-white/30 mb-3 uppercase tracking-wider">Aqora Systems</p>
-                <p className="text-sm text-white/40 leading-relaxed font-light">
+                <h3 className="text-white font-sans text-xl font-medium mb-1 tracking-tight group-hover:text-[#315be8] transition-colors">AI Magic Create</h3>
+                <p className="text-xs font-sans text-white/30 mb-3 uppercase tracking-wider">Aqora Systems</p>
+                <p className="text-sm font-sans text-white/40 leading-relaxed font-light">
                   Describe your objective, and watch as the system architects a production-ready protocol in seconds.
                 </p>
               </div>
+              )}
 
               {/* Blank Template Card */}
+              {(activeCategory === 'All' || activeCategory === 'Exploratory Analysis' || activeCategory === 'Data Modeling') && (
               <div 
                 onClick={() => onSelect({ id: 'blank', name: 'Blank Template', description: 'Start from absolute zero. No rules. No limits.', data: {}, icon: 'Ghost' } as any)}
                 className="relative border border-white/5 bg-[#121316]/50 p-4 flex flex-col group hover:bg-white/[0.02] hover:border-white/20 transition-all cursor-pointer overflow-hidden backdrop-blur-sm"
@@ -138,17 +163,18 @@ const TemplateGallery = ({ isOpen, onClose, onSelect }: Props) => {
                 
                 <div className="aspect-[16/9] bg-[#0a0a0c] mb-6 relative overflow-hidden flex flex-col items-center justify-center border border-white/5">
                    <Ghost className="w-8 h-8 text-white/20 mb-3" />
-                   <span className="text-white/30 text-xs font-medium tracking-wide uppercase">Empty Canvas</span>
+                   <span className="text-white/30 font-sans text-xs font-medium tracking-wide uppercase">Empty Canvas</span>
                 </div>
-                <h3 className="text-white text-xl font-medium mb-1 tracking-tight transition-colors group-hover:text-white/90">Build from Scratch</h3>
-                <p className="text-xs text-white/30 mb-3 uppercase tracking-wider">System Default</p>
-                <p className="text-sm text-white/40 leading-relaxed font-light">
+                <h3 className="text-white font-sans text-xl font-medium mb-1 tracking-tight transition-colors group-hover:text-white/90">Build from Scratch</h3>
+                <p className="text-xs font-sans text-white/30 mb-3 uppercase tracking-wider">System Default</p>
+                <p className="text-sm font-sans text-white/40 leading-relaxed font-light">
                   Start from absolute zero. No rules. No limits. Pure creativity.
                 </p>
               </div>
+              )}
 
               {/* Mapped Templates */}
-              {FORM_TEMPLATES.map((template) => {
+              {filteredTemplates.map((template) => {
                 const Icon = ICON_MAP[template.icon] || Sparkles;
                 return (
                   <div 
@@ -180,11 +206,11 @@ const TemplateGallery = ({ isOpen, onClose, onSelect }: Props) => {
                           </div>
                         </div>
                     </div>
-                    <h3 className="text-white text-xl font-medium mb-1 tracking-tight transition-colors group-hover:text-white/90">
+                    <h3 className="text-white font-sans text-xl font-medium mb-1 tracking-tight transition-colors group-hover:text-white/90">
                       {template.name.split('_').join(' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase())}
                     </h3>
-                    <p className="text-xs text-white/30 mb-3 uppercase tracking-wider">Aqora Community</p>
-                    <p className="text-sm text-white/40 leading-relaxed font-light line-clamp-2">
+                    <p className="text-xs font-sans text-white/30 mb-3 uppercase tracking-wider">Aqora Community</p>
+                    <p className="text-sm font-sans text-white/40 leading-relaxed font-light line-clamp-2">
                       {template.description.toLowerCase().replace(/^\w/, c => c.toUpperCase())}
                     </p>
                   </div>
