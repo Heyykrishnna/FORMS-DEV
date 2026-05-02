@@ -463,5 +463,117 @@ export const FORM_TEMPLATES: FormTemplate[] = [
         { id: 'q5', type: 'yes_no', title: 'WANT_OFFICIAL_FOLLOW_UP?', required: true },
       ]
     }
+  },
+  {
+    id: 'customer_segmentation',
+    name: 'CUSTOMER SEGMENTATION DATA',
+    description: 'COLLECT DEMOGRAPHIC AND BEHAVIORAL DATA FOR CLUSTERING ALGORITHMS.',
+    icon: 'UserPlus',
+    data: {
+      title: 'SEGMENTATION_INPUT_PROTOCOL',
+      description: 'GATHER DATA POINTS FOR K-MEANS CLUSTERING.',
+      theme: 'deep_ocean',
+      layout: 'single_page',
+      style: { fontFamily: 'sans', fontSize: 'medium', bgPattern: 'grid', borderRadius: 8, cardOpacity: 90, shadowDepth: 4, borderWidth: 2 },
+      questions: [
+        { id: 'q1', type: 'single_choice', title: 'PRIMARY_INDUSTRY', required: true, options: [{id: '1', label: 'TECHNOLOGY'}, {id: '2', label: 'HEALTHCARE'}, {id: '3', label: 'FINANCE'}] },
+        { id: 'q2', type: 'number', title: 'ANNUAL_REVENUE_ESTIMATE', required: true },
+        { id: 'q3', type: 'linear_scale', title: 'TECH_ADOPTION_RATE', required: true, minScale: 1, maxScale: 10, minLabel: 'LAGGARD', maxLabel: 'INNOVATOR' },
+        { id: 'q4', type: 'multiple_choice', title: 'KEY_CHALLENGES', required: false, options: [{id: '1', label: 'RETENTION'}, {id: '2', label: 'ACQUISITION'}, {id: '3', label: 'SCALING'}] },
+      ]
+    }
+  },
+  {
+    id: 'sentiment_analysis',
+    name: 'SENTIMENT DATA COLLECTION',
+    description: 'RAW TEXT INGESTION FOR NLP AND SENTIMENT SCORING PIPELINES.',
+    icon: 'MessageSquare',
+    data: {
+      title: 'SENTIMENT_INGESTION_NODE',
+      description: 'SUBMIT TEXT CORPUS FOR EMOTION AND INTENT ANALYSIS.',
+      theme: 'midnight_vampire',
+      layout: 'notebook',
+      style: { fontFamily: 'mono', fontSize: 'medium', bgPattern: 'dots', borderRadius: 0, cardOpacity: 100, shadowDepth: 0, borderWidth: 2 },
+      questions: [
+        { id: 'q1', type: 'long_text', title: 'RAW_USER_FEEDBACK', required: true },
+        { id: 'q2', type: 'dropdown', title: 'SOURCE_CHANNEL', required: true, options: [{id: '1', label: 'TWITTER_FIREHOSE'}, {id: '2', label: 'SUPPORT_TICKETS'}, {id: '3', label: 'APP_REVIEWS'}] },
+        { id: 'q3', type: 'linear_scale', title: 'MANUAL_SENTIMENT_OVERRIDE', required: false, minScale: 1, maxScale: 5, minLabel: 'NEGATIVE', maxLabel: 'POSITIVE' },
+      ]
+    }
+  },
+  {
+    id: 'daily_kpi',
+    name: 'DAILY KPI TRACKER',
+    description: 'INPUT CRITICAL METRICS FOR REAL-TIME EXECUTIVE DASHBOARDS.',
+    icon: 'Activity',
+    data: {
+      title: 'KPI_TELEMETRY_LOG',
+      description: 'DAILY METRICS UPLOAD PROTOCOL.',
+      theme: 'neon_industrial',
+      layout: 'single_page',
+      style: { fontFamily: 'sans', fontSize: 'medium', bgPattern: 'none', borderRadius: 4, cardOpacity: 100, shadowDepth: 8, borderWidth: 1 },
+      questions: [
+        { id: 'q1', type: 'date', title: 'REPORTING_DATE', required: true },
+        { id: 'q2', type: 'number', title: 'ACTIVE_USERS_DAU', required: true },
+        { id: 'q3', type: 'number', title: 'REVENUE_PROCESSED_USD', required: true },
+        { id: 'q4', type: 'short_text', title: 'SYSTEM_ANOMALIES', required: false },
+      ]
+    }
+  },
+  {
+    id: 'time_series_log',
+    name: 'TIME SERIES TELEMETRY',
+    description: 'TIMESTAMPED DATA COLLECTION FOR FORECASTING MODELS.',
+    icon: 'Clock',
+    data: {
+      title: 'TEMPORAL_DATA_INGEST',
+      description: 'LOG DATA POINTS WITH PRECISE TIMESTAMPS.',
+      theme: 'retro_paper',
+      layout: 'single_page',
+      style: { fontFamily: 'mono', fontSize: 'small', bgPattern: 'grid', borderRadius: 0, cardOpacity: 100, shadowDepth: 2, borderWidth: 4 },
+      questions: [
+        { id: 'q1', type: 'time', title: 'EVENT_TIMESTAMP', required: true },
+        { id: 'q2', type: 'number', title: 'SENSOR_READING_ALPHA', required: true },
+        { id: 'q3', type: 'number', title: 'SENSOR_READING_BETA', required: true },
+        { id: 'q4', type: 'dropdown', title: 'ENVIRONMENT_STATE', required: true, options: [{id: '1', label: 'NOMINAL'}, {id: '2', label: 'DEGRADED'}, {id: '3', label: 'CRITICAL'}] },
+      ]
+    }
+  },
+  {
+    id: 'nlp_training',
+    name: 'NLP TRAINING CORPUS',
+    description: 'ANNOTATION FORM FOR TRAINING CUSTOM LANGUAGE MODELS.',
+    icon: 'Search',
+    data: {
+      title: 'MODEL_TRAINING_ANNOTATION',
+      description: 'HUMAN-IN-THE-LOOP CLASSIFICATION INTERFACE.',
+      theme: 'clean_light',
+      layout: 'notebook',
+      style: { fontFamily: 'sans', fontSize: 'large', bgPattern: 'none', borderRadius: 12, cardOpacity: 100, shadowDepth: 4, borderWidth: 2 },
+      questions: [
+        { id: 'q1', type: 'long_text', title: 'SOURCE_UTTERANCE', required: true },
+        { id: 'q2', type: 'single_choice', title: 'INTENT_CLASSIFICATION', required: true, options: [{id: '1', label: 'GREETING'}, {id: '2', label: 'SUPPORT_REQUEST'}, {id: '3', label: 'PURCHASE_INTENT'}, {id: '4', label: 'CHURN_RISK'}] },
+        { id: 'q3', type: 'short_text', title: 'EXTRACTED_ENTITIES (JSON)', required: false },
+      ]
+    }
+  },
+  {
+    id: 'predictive_modeling',
+    name: 'PREDICTIVE PIPELINE',
+    description: 'GATHER HISTORICAL DATA FEATURES FOR MACHINE LEARNING INGESTION.',
+    icon: 'Briefcase',
+    data: {
+      title: 'FEATURE_INGESTION_SYS',
+      description: 'SUBMIT VERIFIED FEATURES FOR MODEL INFERENCE.',
+      theme: 'cyber_toxic',
+      layout: 'single_page',
+      style: { fontFamily: 'mono', fontSize: 'medium', bgPattern: 'grid', borderRadius: 0, cardOpacity: 90, shadowDepth: 12, borderWidth: 6 },
+      questions: [
+        { id: 'q1', type: 'short_text', title: 'ENTITY_ID', required: true },
+        { id: 'q2', type: 'number', title: 'HISTORICAL_VALUE_X', required: true },
+        { id: 'q3', type: 'number', title: 'HISTORICAL_VALUE_Y', required: true },
+        { id: 'q4', type: 'yes_no', title: 'TARGET_VARIABLE_REACHED', required: true },
+      ]
+    }
   }
 ];
