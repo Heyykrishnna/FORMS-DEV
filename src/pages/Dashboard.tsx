@@ -411,7 +411,7 @@ const Dashboard = () => {
         <Activity className="w-3 h-3" /> ADMIN
        </Link>
       )}
-      <Link to="/profile" className="flex items-center gap-2 hover:bg-black/5 px-3 py-1 transition-all rounded-sm group">
+      <Link to="/profile" className="flex items-center gap-2 hover:bg-black/5 px-3 py-1 transition-all rounded-xl group">
         <div className="w-8 h-8 flex items-center justify-center border border-black group-hover:border-accent transition-colors overflow-hidden rounded-full">
           {profile?.avatar_url && AVATARS[profile.avatar_url as keyof typeof AVATARS] ? (
            <div className="w-full h-full bg-black text-white flex items-center justify-center">
@@ -436,7 +436,7 @@ const Dashboard = () => {
       </Link>
       <button
        onClick={() => setIsAIModalOpen(true)}
-       className="relative group border rounded-md bg-foreground px-6 py-2 md:text-sm text-[10px] hidden md:flex font-medium text-background shadow-sm hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all items-center gap-2 overflow-hidden"
+       className="relative group border rounded-xl bg-foreground px-6 py-2 md:text-sm text-[10px] hidden md:flex font-medium text-background shadow-sm hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all items-center gap-2 overflow-hidden"
       >
        {/* Animated Glow Effect */}
        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
@@ -444,7 +444,7 @@ const Dashboard = () => {
       </button>
       <button
        onClick={handleCreate}
-       className="border rounded-md bg-accent px-6 py-2 md:text-sm text-[10px] font-medium text-accent-foreground shadow-sm hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all flex items-center gap-2"
+       className="border rounded-xl bg-accent px-6 py-2 md:text-sm text-[10px] font-medium text-accent-foreground shadow-sm hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all flex items-center gap-2"
       >
        <Plus className="h-5 w-5" />
        New Form
@@ -473,13 +473,13 @@ const Dashboard = () => {
          placeholder="Search forms..."
          value={searchQuery}
          onChange={(e) => setSearchQuery(e.target.value)}
-         className="pl-12 py-6 border border-foreground bg-background text-lg font-bold rounded-md shadow-sm active:scale-[0.98] transition-all focus-visible:ring-0 focus-visible:border-accent"
+         className="pl-12 py-6 border border-foreground font-sans bg-background text-lg font-bold rounded-xl shadow-sm active:scale-[0.98] transition-all focus-visible:ring-0 focus-visible:border-accent"
         />
        </div>
        <select 
         value={statusFilter}
         onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'inactive')}
-        className="border border-foreground bg-background px-4 py-2 font-medium text-sm outline-none focus:border-accent shadow-sm cursor-pointer"
+        className="border border-foreground font-sans bg-background px-4 py-2 font-medium text-sm outline-none focus:border-accent shadow-sm cursor-pointer rounded-xl"
        >
         <option value="all">ALL STATUS</option>
         <option value="active">ACTIVE ONLY</option>
@@ -488,28 +488,12 @@ const Dashboard = () => {
        <select 
         value={sortBy}
         onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest' | 'responses')}
-        className="border border-foreground bg-background px-4 py-2 font-medium text-sm outline-none focus:border-accent shadow-sm cursor-pointer"
+        className="border border-foreground font-sans bg-background px-4 py-2 font-medium text-sm outline-none focus:border-accent shadow-sm cursor-pointer rounded-xl"
        >
         <option value="newest">NEWEST</option>
         <option value="oldest">OLDEST</option>
         <option value="responses">POPULAR</option>
        </select>
-      </div>
-      
-      {/* View Toggle */}
-      <div className="flex justify-end mt-4 gap-2">
-       <button 
-        onClick={() => setView('grid')}
-        className={cn("p-2 border border-foreground transition-all", view === 'grid' ? "bg-foreground text-background" : "bg-transparent")}
-       >
-        <LayoutGrid size={16} />
-       </button>
-       <button 
-        onClick={() => setView('list')}
-        className={cn("p-2 border border-foreground transition-all", view === 'list' ? "bg-foreground text-background" : "bg-transparent")}
-       >
-        <List size={16} />
-       </button>
       </div>
      </div>
     </div>
@@ -521,7 +505,7 @@ const Dashboard = () => {
       { label: 'TOTAL RESPONSES', value: stats.totalResponses, icon: Activity, color: 'bg-[#c6c5c3]' },
       { label: 'TOTAL VIEWS', value: stats.totalViews, icon: ExternalLink, color: 'bg-foreground/60 text-background' },
      ].map((stat, i) => (
-      <div key={i} className={cn("border border-foreground p-8 shadow-sm relative overflow-hidden", stat.color)}>
+      <div key={i} className={cn("border border-foreground p-8 shadow-sm relative overflow-hidden rounded-xl", stat.color)}>
        <stat.icon className="absolute -right-4 -bottom-4 h-24 w-24 opacity-10 rotate-12" />
        <p className="text-xs font-bold tracking-widest mb-2 font-sans opacity-70">{stat.label}</p>
        <p className="text-5xl font-medium tracking-tight">{stat.value}</p>
@@ -540,7 +524,7 @@ const Dashboard = () => {
     </div>
 
     {forms.length === 0 ? (
-     <div className="border border-foreground bg-background p-12 md:p-24 text-center shadow-md relative overflow-hidden group">
+     <div className="border border-foreground bg-background p-12 md:p-24 text-center shadow-md relative overflow-hidden group rounded-xl">
       {/* Animated Background Splatter */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 rounded-full -mr-32 -mt-32 blur-[100px] group-hover:bg-accent/10 transition-colors" />
       
@@ -564,13 +548,13 @@ const Dashboard = () => {
        <div className="flex flex-col sm:flex-row gap-6">
         <button
          onClick={() => setIsAIModalOpen(true)}
-         className="flex-1 border rounded-md bg-foreground px-12 py-5 text-xl font-medium text-background shadow-md hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all flex items-center justify-center gap-3"
+         className="flex-1 border rounded-xl bg-foreground px-12 py-5 text-xl font-medium text-background shadow-md hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all flex items-center justify-center gap-3"
         >
          Create with AI
         </button>
         <button
          onClick={handleCreate}
-         className="flex-1 border rounded-md bg-accent px-12 py-5 text-xl font-medium text-accent-foreground shadow-md hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all"
+         className="flex-1 border rounded-xl bg-accent px-12 py-5 text-xl font-medium text-accent-foreground shadow-md hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all"
         >
          New Form →
         </button>
@@ -578,7 +562,7 @@ const Dashboard = () => {
       </div>
      </div>
     ) : filteredForms.length === 0 ? (
-     <div className="border border-foreground bg-background p-24 text-center">
+     <div className="border border-foreground bg-background p-24 text-center rounded-xl">
       <Search className="h-16 w-16 mx-auto mb-6 opacity-20" />
       <p className="text-2xl font-medium tracking-tight">No forms found.</p>
       <button onClick={() => setSearchQuery('')} className="mt-4 text-accent font-medium underline underline-offset-4">CLEAR SEARCH</button>
@@ -593,7 +577,7 @@ const Dashboard = () => {
          key={form.id} 
          onClick={() => navigate(`/builder/${form.id}`)}
          className={cn(
-          "border border-foreground bg-background flex group hover:shadow-md transition-all relative cursor-pointer",
+          "border border-foreground bg-background flex group hover:shadow-md transition-all relative cursor-pointer rounded-xl overflow-hidden",
           view === 'grid' ? "flex-col" : "flex-row items-center"
          )}
         >
@@ -620,24 +604,24 @@ const Dashboard = () => {
            <div onClick={(e) => e.stopPropagation()}>
             <DropdownMenu>
              <DropdownMenuTrigger asChild>
-              <button className="p-2 border border-foreground hover:bg-muted transition-colors -mt-2 -mr-2 relative z-20">
+              <button className="p-2 border border-foreground hover:bg-muted transition-colors -mt-2 -mr-2 relative z-20 rounded-xl">
                <MoreVertical className="h-4 w-4" />
               </button>
              </DropdownMenuTrigger>
-             <DropdownMenuContent className="bg-background border border-foreground rounded-md shadow-sm p-2 min-w-[160px] z-[100]">
-              <DropdownMenuItem onClick={() => navigate(`/builder/${form.id}`)} className="font-bold flex items-center py-3 cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors rounded-md">
+             <DropdownMenuContent className="bg-background border border-foreground rounded-xl shadow-sm p-2 min-w-[160px] z-[100]">
+              <DropdownMenuItem onClick={() => navigate(`/builder/${form.id}`)} className="font-bold flex items-center py-3 cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors rounded-xl">
                <Pencil className="h-4 w-4 mr-3" /> EDIT
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => window.open(`/f/${form.id}`, '_blank')} className="font-bold flex items-center py-3 cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors rounded-md">
+              <DropdownMenuItem onClick={() => window.open(`/f/${form.id}`, '_blank')} className="font-bold flex items-center py-3 cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors rounded-xl">
                <ExternalLink className="h-4 w-4 mr-3" /> PREVIEW
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate(`/builder/${form.id}?tab=responses`)} className="font-bold flex items-center py-3 cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors rounded-md">
+              <DropdownMenuItem onClick={() => navigate(`/builder/${form.id}?tab=responses`)} className="font-bold flex items-center py-3 cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors rounded-xl">
                <BarChart3 className="h-4 w-4 mr-3" /> ANALYTICS
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={(e) => handleDuplicate(form.id, e)} className="font-bold flex items-center py-3 cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors rounded-md border-t-2 border-foreground/10 pt-4 mt-2">
+              <DropdownMenuItem onClick={(e) => handleDuplicate(form.id, e)} className="font-bold flex items-center py-3 cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors rounded-xl border-t-2 border-foreground/10 pt-4 mt-2">
                <Copy className="h-4 w-4 mr-3" /> DUPLICATE
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={(e) => handleDelete(form.id, e)} className="font-bold flex items-center py-3 cursor-pointer bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors rounded-md mt-2">
+              <DropdownMenuItem onClick={(e) => handleDelete(form.id, e)} className="font-bold flex items-center py-3 cursor-pointer bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors rounded-xl mt-2">
                <Trash2 className="h-4 w-4 mr-3" /> TERMINATE
               </DropdownMenuItem>
              </DropdownMenuContent>
