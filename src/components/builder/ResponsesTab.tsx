@@ -1008,7 +1008,7 @@ const ResponsesTab = ({ form }: Props) => {
               if (!isChoice) {
                 return (
                   <div key={q.id} className="border-4 border-foreground p-8 bg-white shadow-brutal flex flex-col h-auto"
-                  data-lenis-prevent
+                  
                   >
                     <div className="flex items-start justify-between mb-8 pb-4 border-b-2 border-foreground/10">
                       <div>
@@ -1151,7 +1151,7 @@ const ResponsesTab = ({ form }: Props) => {
             </div>
             
             <div className="overflow-y-auto flex-1 p-10 bg-white scrollbar-thin"
-            data-lenis-prevent
+            
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 pb-8 border-b-4 border-foreground/10">
                 <div className="space-y-4">
@@ -1373,7 +1373,7 @@ const ResponsesTab = ({ form }: Props) => {
             </div>
             
             {/* Content Body */}
-            <div className="flex-1 overflow-y-auto bg-white" data-lenis-prevent>
+            <div className="flex-1 overflow-y-auto bg-white" >
                {isAnalyzing ? (
                  <div className="h-full w-full flex flex-col items-center justify-center p-12 text-center relative overflow-hidden">
                    {/* Scanning background effect */}

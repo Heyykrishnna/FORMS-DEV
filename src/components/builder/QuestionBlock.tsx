@@ -61,22 +61,23 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
 
   return (
     <div 
+      id={`question-${question.id}`}
       ref={setNodeRef} 
       style={style} 
       className={cn(
-        "transition-all duration-300",
+        "transition-all duration-300 rounded-xl overflow-hidden",
         isSectionHeader 
-          ? "border-4 border-accent bg-accent/5 shadow-brutal mt-12 first:mt-0" 
-          : "border-4 border-foreground bg-background",
-        isDragging ? "shadow-2xl scale-[1.02] z-50 ring-4 ring-accent" : isSectionHeader ? "shadow-brutal" : "shadow-brutal-sm hover:shadow-brutal hover:-translate-x-1 hover:-translate-y-1"
+          ? "border border-accent/20 bg-accent/5 shadow-sm mt-12 first:mt-0" 
+          : "border border-border bg-card shadow-sm hover:shadow-md",
+        isDragging ? "shadow-2xl scale-[1.02] z-50 ring-2 ring-primary" : ""
       )}
     >
       {/* Header bar */}
       <div className={cn(
-        "flex flex-col sm:flex-row sm:items-center justify-between px-4 py-3 border-b-4 gap-3",
+        "flex flex-col sm:flex-row sm:items-center justify-between px-4 py-3 border-b gap-3",
         isSectionHeader 
-          ? "bg-accent text-accent-foreground border-accent" 
-          : "bg-primary-foreground/50 border-foreground"
+          ? "bg-accent/10 border-accent/20 text-accent" 
+          : "bg-muted/30 border-border"
       )}>
         <div className="flex items-center gap-2 overflow-hidden">
           <button 
@@ -88,8 +89,8 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
             <GripVertical className={cn("h-4 w-4", isSectionHeader ? "text-accent-foreground/60" : "text-muted-foreground")} />
           </button>
           <span className={cn(
-            "text-[10px] sm:text-xs font-black uppercase select-none truncate",
-            isSectionHeader ? "text-accent-foreground/80 tracking-widest" : "text-foreground/60"
+            "text-[10px] sm:text-xs font-medium uppercase select-none truncate tracking-wider",
+            isSectionHeader ? "text-accent" : "text-muted-foreground"
           )}>
             {isSectionHeader ? '§ SECTION' : `${String(index + 1).padStart(2, '0')} — ${QUESTION_TYPE_LABELS[question.type]}`}
           </span>
@@ -120,9 +121,8 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
                 onChange={(e) => onUpdate({ title: e.target.value })}
                 placeholder="DESCRIPTION TEXT"
                 className={cn(
-                  "w-full bg-transparent font-black uppercase outline-none border-b-4 border-transparent pb-2 placeholder:text-muted-foreground/30 transition-all resize-none min-h-[80px] text-xl focus:border-accent"
+                  "w-full bg-transparent font-medium outline-none border-b border-border pb-2 placeholder:text-muted-foreground/30 transition-all resize-none min-h-[80px] text-lg focus:border-primary"
                 )}
-                data-lenis-prevent
               />
             ) : (
               <input
@@ -130,28 +130,17 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
                 onChange={(e) => onUpdate({ title: e.target.value })}
                 placeholder={isLayout ? (question.type === 'section_header' ? 'SECTION TITLE' : 'DESCRIPTION TEXT') : 'QUESTION TITLE'}
                 className={cn(
-                  "w-full bg-transparent font-black uppercase outline-none border-b-4 border-transparent pb-2 placeholder:text-muted-foreground/30 transition-all",
-                  isSectionHeader ? "text-2xl focus:border-accent tracking-tight" : "text-xl focus:border-accent"
+                  "w-full bg-transparent font-medium outline-none border-b border-border pb-2 placeholder:text-muted-foreground/30 transition-all",
+                  isSectionHeader ? "text-xl focus:border-primary" : "text-lg focus:border-primary"
                 )}
               />
             )}
             {isSectionHeader && (
-              <p className="text-[10px] font-black uppercase text-accent mt-1 tracking-widest">
+              <p className="text-[10px] font-medium text-muted-foreground mt-2">
                 All questions below this header belong to this section until the next section
               </p>
             )}
           </div>
-          
-          {!isLayout && (
-            <div className="w-full md:w-48 shrink-0">
-              <label className="text-[9px] font-black uppercase text-accent mb-1 block">ID / REFERENCE</label>
-              <input
-                value={question.id.slice(0, 8)}
-                readOnly
-                className="w-full bg-secondary/50 border-2 border-foreground/10 px-2 py-1 text-[10px] font-mono font-bold uppercase cursor-default rounded-none"
-              />
-            </div>
-          )}
         </div>
 
         {!isLayout && (
@@ -179,7 +168,7 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
                 </button>
               </div>
             ))}
-            <button onClick={addOption} className="text-xs font-bold uppercase text-accent hover:underline flex items-center gap-1">
+            <button onClick={addOption} className="text-xs font-medium text-primary hover:underline flex items-center gap-1">
               <Plus className="h-3 w-3" /> ADD OPTION
             </button>
           </div>
@@ -187,20 +176,20 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
 
         {/* Logic mapping for logic_mcq */}
         {question.type === 'logic_mcq' && sections.length > 0 && (
-          <div className="pt-6 border-t-2 border-foreground/5 space-y-4">
+          <div className="pt-6 border-t border-border space-y-4">
             <div className="flex items-center gap-2">
-              <Sliders className="h-3 w-3 text-accent" />
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-foreground/40 text-left">Step Navigation Logic (Conditional Branching)</h4>
+              <Sliders className="h-4 w-4 text-primary" />
+              <h4 className="text-xs font-medium text-muted-foreground text-left">Step Navigation Logic (Conditional Branching)</h4>
             </div>
             
             <div className="grid grid-cols-1 gap-3">
               {(question.options || []).map(opt => (
-                <div key={opt.id} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 bg-secondary/20 p-3 sm:p-4 border-2 border-foreground/5 transition-all hover:border-accent/20">
-                  <div className="w-full sm:w-1/3 text-[10px] sm:text-[11px] font-black uppercase truncate border-l-4 border-accent pl-3">
-                    IF USER SELECTS <span className="text-accent">"{opt.label}"</span>
+                <div key={opt.id} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 bg-muted/30 p-3 sm:p-4 border border-border rounded-lg transition-all hover:border-primary/20">
+                  <div className="w-full sm:w-1/3 text-xs sm:text-sm font-medium truncate border-l-2 border-primary pl-3">
+                    If user selects <span className="text-primary">"{opt.label}"</span>
                   </div>
                   <div className="flex-1 flex items-center gap-2 sm:gap-3">
-                    <span className="text-[9px] sm:text-[10px] font-bold opacity-30 whitespace-nowrap">THEN JUMP TO →</span>
+                    <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">Then jump to →</span>
                     <select
                       value={opt.navigateToSectionId || ''}
                       onChange={(e) => {
@@ -209,18 +198,18 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
                           options: (question.options || []).map(o => o.id === opt.id ? { ...o, navigateToSectionId: targetId } : o)
                         });
                       }}
-                      className="flex-1 min-w-0 bg-background border-2 border-foreground/10 px-2 sm:px-3 py-1.5 sm:py-2 text-[9px] sm:text-[10px] font-black uppercase outline-none focus:border-accent transition-colors"
+                      className="flex-1 min-w-0 bg-background border border-border px-2 sm:px-3 py-1.5 sm:py-2 text-xs font-medium outline-none focus:border-primary transition-colors rounded-md"
                     >
-                      <option value="">FOLLOW NORMAL FLOW</option>
+                      <option value="">Follow normal flow</option>
                       {sections.map(s => (
-                        <option key={s.id} value={s.id}>SECTION: {s.title || 'UNTITLED'}</option>
+                        <option key={s.id} value={s.id}>Section: {s.title || 'Untitled'}</option>
                       ))}
                     </select>
                   </div>
                 </div>
               ))}
             </div>
-            <p className="text-[9px] font-bold opacity-30 uppercase">* BRANCHING ONLY WORKS IN "NOTEBOOK MODE" LAYOUT.</p>
+            <p className="text-xs font-medium text-muted-foreground">* Branching only works in "Notebook mode" layout.</p>
           </div>
         )}
 
@@ -277,10 +266,10 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
 
         {/* Validation & Settings */}
         {!isLayout && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-6 border-t-2 border-foreground/5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-6 border-t border-border">
             {/* Required Toggle */}
-            <div className="flex items-center justify-between bg-secondary/30 p-3 border-2 border-foreground/5">
-              <span className="text-[10px] font-black uppercase tracking-tight">REQUIRED FIELD</span>
+            <div className="flex items-center justify-between bg-muted/30 p-3 border border-border rounded-lg">
+              <span className="text-xs font-medium">Required field</span>
               <Switch
                 checked={question.required}
                 onCheckedChange={(checked) => onUpdate({ required: checked })}
@@ -289,9 +278,9 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
 
             {/* Include in Quiz Toggle - Only show if form is quiz mode */}
             {isQuiz && (
-              <div className="flex items-center justify-between bg-accent/10 p-3 border-2 border-accent/20">
+              <div className="flex items-center justify-between bg-primary/5 p-3 border border-primary/20 rounded-lg">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-tight text-accent">QUIZ QUESTION</span>
+                  <span className="text-xs font-medium text-primary">Quiz question</span>
                 </div>
                 <Switch
                   checked={question.includeInQuiz || false}
@@ -302,21 +291,21 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
 
             {/* Max Length for Text inputs */}
             {(question.type === 'short_text' || question.type === 'long_text') && (
-              <div className="flex items-center justify-between bg-secondary/30 p-3 border-2 border-foreground/5">
-                <span className="text-[10px] font-black uppercase tracking-tight">CHAR LIMIT</span>
+              <div className="flex items-center justify-between bg-muted/30 p-3 border border-border rounded-lg">
+                <span className="text-xs font-medium">Character limit</span>
                 <input
                   type="number"
                   placeholder="∞"
-                  className="w-16 bg-transparent border-b-2 border-foreground/20 text-center font-black text-xs outline-none focus:border-accent"
+                  className="w-16 bg-transparent border-b border-border text-center font-medium text-sm outline-none focus:border-primary"
                 />
               </div>
             )}
 
             {/* Placeholder Context */}
             {['short_text', 'long_text', 'email', 'number', 'phone'].includes(question.type) && (
-              <div className="flex items-center justify-between bg-secondary/30 p-3 border-2 border-foreground/5">
-                <span className="text-[10px] font-black uppercase tracking-tight">DATA MAPPING</span>
-                <span className="text-[9px] font-black opacity-30 italic">AUTO_SLUG</span>
+              <div className="flex items-center justify-between bg-muted/30 p-3 border border-border rounded-lg">
+                <span className="text-xs font-medium">Data mapping</span>
+                <span className="text-xs font-medium text-muted-foreground italic">Auto slug</span>
               </div>
             )}
           </div>
@@ -324,35 +313,35 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
 
         {/* Quiz: Correct Answer & Points - Show by default unless opted-out */}
         {isQuiz && !isLayout && question.includeInQuiz !== false && (
-          <div className="pt-6 border-t-2 border-accent/20 space-y-4">
+          <div className="pt-6 border-t border-primary/20 space-y-4">
             <div className="flex items-center gap-2 mb-2">
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-accent">Quiz Settings</h4>
+              <h4 className="text-xs font-medium text-primary">Quiz Settings</h4>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Points */}
-              <div className="bg-accent/5 border-2 border-accent/20 p-3">
-                <label className="text-[9px] font-black uppercase text-accent block mb-1 tracking-widest">POINTS</label>
+              <div className="bg-primary/5 border border-primary/20 p-3 rounded-lg">
+                <label className="text-xs font-medium text-primary block mb-1">Points</label>
                 <Input
                   type="number"
                   min={0}
                   value={question.points ?? 1}
                   onChange={(e) => onUpdate({ points: parseInt(e.target.value) || 0 })}
-                  className="w-full h-8 text-sm border-accent/30 bg-transparent font-black"
+                  className="w-full h-8 text-sm border-primary/30 bg-transparent font-medium rounded-md"
                   placeholder="1"
                 />
               </div>
 
               {/* Correct Answer */}
-              <div className="bg-accent/5 border-2 border-accent/20 p-3">
-                <label className="text-[9px] font-black uppercase text-accent block mb-1 tracking-widest">CORRECT ANSWER</label>
+              <div className="bg-primary/5 border border-primary/20 p-3 rounded-lg">
+                <label className="text-xs font-medium text-primary block mb-1">Correct Answer</label>
                 {(question.type === 'single_choice' || question.type === 'dropdown' || question.type === 'yes_no' || question.type === 'logic_mcq') ? (
                   <select
                     value={String(question.correctAnswer || '')}
                     onChange={(e) => onUpdate({ correctAnswer: e.target.value })}
-                    className="w-full bg-transparent border-2 border-accent/20 px-2 py-1 text-[10px] font-black uppercase outline-none focus:border-accent transition-all"
+                    className="w-full bg-transparent border border-primary/20 px-2 py-1.5 text-sm font-medium outline-none focus:border-primary transition-all rounded-md"
                   >
-                    <option value="">NOT SET</option>
+                    <option value="">Not set</option>
                     {question.type === 'yes_no' 
                       ? ['Yes', 'No'].map(v => <option key={v} value={v}>{v}</option>)
                       : (question.options || []).map(opt => (
@@ -361,12 +350,12 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
                     }
                   </select>
                 ) : question.type === 'multiple_choice' ? (
-                  <div className="space-y-1 max-h-32 overflow-y-auto">
+                  <div className="space-y-1 max-h-32 overflow-y-auto mt-2">
                     {(question.options || []).map(opt => {
                       const currentCorrect: string[] = Array.isArray(question.correctAnswer) ? question.correctAnswer : [];
                       const isChecked = currentCorrect.includes(opt.label);
                       return (
-                        <label key={opt.id} className="flex items-center gap-2 text-[10px] font-black uppercase cursor-pointer hover:text-accent transition-colors">
+                        <label key={opt.id} className="flex items-center gap-2 text-sm font-medium cursor-pointer hover:text-primary transition-colors">
                           <input
                             type="checkbox"
                             checked={isChecked}
@@ -376,9 +365,9 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
                                 : [...currentCorrect, opt.label];
                               onUpdate({ correctAnswer: updated });
                             }}
-                            className="accent-accent"
+                            className="accent-primary"
                           />
-                          <CheckCircle2 className={cn("h-3 w-3", isChecked ? "text-accent" : "text-muted-foreground/30")} />
+                          <CheckCircle2 className={cn("h-4 w-4", isChecked ? "text-primary" : "text-muted-foreground/30")} />
                           {opt.label}
                         </label>
                       );
@@ -389,14 +378,14 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
                     type="number"
                     value={question.correctAnswer !== undefined ? Number(question.correctAnswer) : ''}
                     onChange={(e) => onUpdate({ correctAnswer: parseInt(e.target.value) || 0 })}
-                    className="w-full h-8 text-sm border-accent/30 bg-transparent font-black"
+                    className="w-full h-8 text-sm border-primary/30 bg-transparent font-medium rounded-md mt-1"
                     placeholder="Correct value"
                   />
                 ) : (
                   <Input
                     value={String(question.correctAnswer || '')}
                     onChange={(e) => onUpdate({ correctAnswer: e.target.value })}
-                    className="w-full h-8 text-sm border-accent/30 bg-transparent font-black"
+                    className="w-full h-8 text-sm border-primary/30 bg-transparent font-medium rounded-md mt-1"
                     placeholder="Correct text answer"
                   />
                 )}

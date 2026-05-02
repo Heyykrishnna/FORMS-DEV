@@ -104,7 +104,7 @@ const AIFormCreator: React.FC<AIFormCreatorProps> = ({ isOpen, onClose, onSucces
           )}
         </AnimatePresence>
 
-        <div className="p-10" data-lenis-prevent>
+        <div className="p-10" >
           <DialogHeader className="mb-10 text-left">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">

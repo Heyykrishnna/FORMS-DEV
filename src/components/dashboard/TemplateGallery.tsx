@@ -65,7 +65,7 @@ const TemplateGallery = ({ isOpen, onClose, onSelect }: Props) => {
         {/* Templates Grid */}
         <div 
           className="flex-1 overflow-y-auto p-6 md:p-8 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:24px_24px] [background-position:0_0]"
-          data-lenis-prevent
+          
         >
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-12">
             <div 

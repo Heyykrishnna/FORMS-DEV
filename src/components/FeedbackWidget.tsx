@@ -65,7 +65,7 @@ const FeedbackWidget = () => {
           isOpen && "hidden"
         )}
         title="Report Issue / Feedback"
-        data-lenis-prevent
+        
       >
         <MessageSquareWarning size={24} />
       </button>
@@ -73,7 +73,7 @@ const FeedbackWidget = () => {
       {/* Panel */}
       {isOpen && (
         <div className="fixed bottom-6 right-6 z-50 w-[360px] max-h-[520px] border-4 border-foreground bg-background shadow-brutal-lg flex flex-col font-mono animate-in slide-in-from-bottom-10 fade-in zoom-in-95 duration-300"
-          data-lenis-prevent
+          
         >
           {/* Header */}
           <div className="bg-foreground text-background p-4 flex items-center justify-between">

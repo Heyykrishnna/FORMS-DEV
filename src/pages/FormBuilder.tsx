@@ -201,8 +201,8 @@ const FormBuilder = () => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-black border-t-transparent rounded-full animate-spin" />
-          <p className="font-mono font-bold uppercase animate-pulse">LOADING PROTOCOL...</p>
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="font-medium text-muted-foreground text-sm">Loading form...</p>
         </div>
       </div>
     );
@@ -211,10 +211,10 @@ const FormBuilder = () => {
   if (!form) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="border-brutal-3 p-8 text-center">
-          <p className="font-bold uppercase text-lg">FORM NOT FOUND</p>
-          <Link to="/dashboard" className="mt-4 inline-block border-brutal bg-accent px-6 py-2 text-sm font-bold uppercase text-accent-foreground">
-            ← BACK TO DASHBOARD
+        <div className="border border-border rounded-xl bg-card p-8 text-center shadow-sm max-w-sm w-full mx-4">
+          <p className="font-medium text-lg">Form Not Found</p>
+          <Link to="/dashboard" className="mt-4 inline-block bg-primary text-primary-foreground px-6 py-2 text-sm font-medium rounded-lg hover:opacity-90 transition-opacity">
+            ← Back to Dashboard
           </Link>
         </div>
       </div>
@@ -224,41 +224,41 @@ const FormBuilder = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* TOP BAR */}
-      <header className="border-b-2 border-foreground sticky top-0 bg-background z-50">
-        <div className="container mx-auto flex items-center justify-between px-4 py-2 sm:py-3 gap-2">
-          <div className="flex items-center gap-2 sm:gap-4 overflow-hidden">
-            <Link to="/dashboard" className="text-base sm:text-lg font-bold tracking-widest flex-shrink-0">
-              AQORA<span className="text-accent">.</span>
+      <header className="border-b border-border sticky top-0 bg-background/80 backdrop-blur-sm z-50">
+        <div className="container mx-auto flex items-center justify-between px-4 py-3 gap-4">
+          <div className="flex items-center gap-3 sm:gap-6 overflow-hidden flex-1">
+            <Link to="/dashboard" className="text-base font-bold tracking-tight flex-shrink-0 flex items-center gap-2">
+              <span className="hidden sm:inline-block font-sans">aqora</span>
             </Link>
-            <span className="text-muted-foreground flex-shrink-0">|</span>
+            <div className="w-px h-5 bg-border flex-shrink-0" />
             <input
               value={form.title}
               onChange={(e) => handleUpdate({ title: e.target.value })}
-              className="bg-transparent text-sm sm:text-lg font-bold uppercase outline-none border-b-2 border-transparent focus:border-accent w-full min-w-0 truncate underline decoration-dotted"
-              placeholder="FORM TITLE"
+              className="bg-transparent text-sm sm:text-base font-medium outline-none border-b border-transparent focus:border-primary w-full max-w-[300px] truncate transition-colors"
+              placeholder="Form title"
             />
           </div>
           <Link
             to={`/form/${form.id}`}
             target="_blank"
-            className="border-brutal bg-accent px-3 sm:px-4 py-1.5 text-[10px] sm:text-xs font-bold uppercase text-accent-foreground hover:shadow-brutal-sm transition-shadow whitespace-nowrap"
+            className="bg-primary text-primary-foreground px-4 py-1.5 text-xs font-medium rounded-md hover:opacity-90 transition-opacity whitespace-nowrap shadow-sm"
           >
-            PREVIEW
+            Preview
           </Link>
         </div>
       </header>
 
       {/* TABS */}
-      <div className="border-b-2 border-foreground">
-        <div className="container mx-auto flex px-4">
+      <div className="border-b border-border bg-card/50">
+        <div className="container mx-auto flex px-4 gap-6">
           {TABS.map((tab) => (
             <button
               key={tab}
               onClick={() => switchTab(tab)}
-              className={`px-6 py-3 text-sm font-bold uppercase border-r border-foreground/20 transition-colors ${
+              className={`py-3 text-sm font-medium transition-colors border-b-2 capitalize ${
                 activeTab === tab
-                  ? 'bg-accent text-accent-foreground'
-                  : 'hover:bg-secondary'
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
               }`}
             >
               {tab}

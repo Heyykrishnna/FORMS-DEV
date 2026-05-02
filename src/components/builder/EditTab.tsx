@@ -124,11 +124,45 @@ const EditTab = ({ form, onUpdate }: Props) => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
+    <div className="container mx-auto px-4 py-8 max-w-7xl flex items-start gap-8 relative">
+      {/* SIDEBAR NAVIGATION */}
+      <div className="w-64 sticky top-32 shrink-0 hidden lg:block border border-border bg-card p-4 rounded-xl shadow-sm max-h-[calc(100vh-10rem)] overflow-y-auto">
+        <h3 className="font-medium text-sm text-foreground mb-4 border-b border-border pb-2 flex items-center gap-2">
+          <AlignLeft className="w-4 h-4" /> Outline
+        </h3>
+        <div className="space-y-1">
+          {form.questions.length === 0 ? (
+            <p className="text-[10px] font-medium text-muted-foreground opacity-50">No questions yet</p>
+          ) : (
+            form.questions.map((q, idx) => {
+              const Icon = QUESTION_ICONS[q.type] || CircleDot;
+              const isSection = q.type === 'section_header';
+              return (
+                <button
+                  key={q.id}
+                  onClick={() => {
+                    const el = document.getElementById(`question-${q.id}`);
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                  }}
+                  className={`w-full text-left flex items-center gap-2 px-2 py-1.5 hover:bg-foreground hover:text-background text-[10px] sm:text-xs font-medium truncate transition-colors ${isSection ? 'mt-2 border-l-2 border-primary text-primary' : ''}`}
+                >
+                  <Icon className="w-3.5 h-3.5 shrink-0 opacity-60" />
+                  <span className="truncate flex-1">{q.title || `Q${idx + 1} — ${QUESTION_TYPE_LABELS[q.type]}`}</span>
+                </button>
+              );
+            })
+          )}
+        </div>
+      </div>
+
+      {/* MAIN CONTENT */}
+      <div className="flex-1 max-w-3xl mx-auto w-full">
       {/* Form Header Preview (Logo) */}
       {form.style?.logoUrl && (
         <div className="mb-6 flex justify-center">
-          <div className="border-brutal p-2 bg-secondary">
+          <div className="border border-border p-2 bg-card rounded-xl shadow-sm">
             <img 
               src={form.style.logoUrl} 
               alt="Logo Preview" 
@@ -139,14 +173,14 @@ const EditTab = ({ form, onUpdate }: Props) => {
       )}
 
       {/* Description */}
-      <div className="border-brutal p-4 mb-6"
+      <div className="border border-border bg-card p-4 rounded-xl shadow-sm mb-6"
       >
         <textarea
           value={form.description}
           onChange={(e) => onUpdate({ description: e.target.value })}
-          placeholder="FORM DESCRIPTION (OPTIONAL)"
-          className="w-full bg-transparent text-sm font-mono outline-none resize-none min-h-[60px] placeholder:text-muted-foreground"
-          data-lenis-prevent
+          placeholder="Form description (optional)"
+          className="w-full bg-transparent text-sm font-sans font-medium outline-none resize-none min-h-[60px] placeholder:text-muted-foreground"
+          
         />
       </div>
 
@@ -183,11 +217,11 @@ const EditTab = ({ form, onUpdate }: Props) => {
       {/* Add Question */}
       <div className="mt-6">
         <DropdownMenu>
-          <DropdownMenuTrigger className="border-brutal-3 bg-accent text-accent-foreground px-6 py-3 font-bold uppercase text-sm shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all flex items-center gap-2 w-full justify-center">
+          <DropdownMenuTrigger className="border border-border bg-primary text-primary-foreground rounded-lg px-6 py-3 font-medium text-sm shadow-sm hover:opacity-90 transition-all flex items-center gap-2 w-full justify-center">
             <Plus className="h-4 w-4" />
-            ADD QUESTION
+            Add Question
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-popover border-brutal z-50 w-64 max-h-[400px] overflow-y-auto" data-lenis-prevent>
+          <DropdownMenuContent className="bg-popover border border-border rounded-xl shadow-lg z-50 w-64 max-h-[400px] overflow-y-auto" >
             {GROUPS.map((group) => (
               <div key={group.label}>
                 <DropdownMenuLabel className="text-xs uppercase tracking-wider text-muted-foreground">
@@ -210,12 +244,13 @@ const EditTab = ({ form, onUpdate }: Props) => {
       </div>
 
       {form.questions.length === 0 && (
-        <div className="border-brutal p-12 text-center mt-6">
-          <p className="text-muted-foreground text-sm uppercase">
-            NO QUESTIONS YET. CLICK "ADD QUESTION" TO START BUILDING.
+        <div className="border border-border rounded-xl p-12 text-center mt-6 bg-card shadow-sm">
+          <p className="text-muted-foreground text-sm font-medium">
+            No questions yet. Click "Add Question" to start building.
           </p>
         </div>
       )}
+      </div>
     </div>
   );
 };
