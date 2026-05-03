@@ -215,6 +215,14 @@ const FormBuilder = () => {
     );
   }
 
+  const handlePreview = () => {
+    if (!form) return;
+    // The form is already being saved on every change via handleUpdate,
+    // but we can add a small toast to confirm the latest version is being opened.
+    toast.info('Opening preview...');
+    window.open(`/form/${form.id}`, '_blank');
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       
@@ -232,13 +240,12 @@ const FormBuilder = () => {
               placeholder="Form title"
             />
           </div>
-          <Link
-            to={`/form/${form.id}`}
-            target="_blank"
-            className="bg-primary text-primary-foreground px-4 py-1.5 text-xs font-medium rounded-md hover:opacity-90 transition-opacity whitespace-nowrap shadow-sm"
+          <button
+            onClick={handlePreview}
+            className="bg-primary text-primary-foreground px-4 py-1.5 text-xs font-medium rounded-md hover:opacity-90 transition-opacity whitespace-nowrap shadow-sm cursor-pointer"
           >
             Preview
-          </Link>
+          </button>
         </div>
       </header>
 
