@@ -199,6 +199,96 @@ const THEME_STYLES: Record<FormTheme, { wrapper: string; card: string; accent: s
     button: 'bg-[#4f7942] text-[#f0f7f4] border-2 border-[#f0f7f4] px-8 py-3 font-bold uppercase hover:bg-[#3d5c33]',
     label: 'text-[10px] font-black uppercase tracking-[0.4em] text-[#4f7942]',
   },
+  electric_violet: {
+    wrapper: 'bg-[#1a0033] text-[#cc99ff]',
+    card: 'border-2 border-[#cc99ff] p-8 bg-[#1a0033] shadow-[0_0_30px_rgba(204,153,255,0.1)]',
+    accent: 'text-[#cc99ff]',
+    selected: 'bg-[#cc99ff] text-[#1a0033] border-[#cc99ff]',
+    input: 'bg-transparent border-2 border-[#cc99ff]/50 text-[#cc99ff] p-3 w-full outline-none focus:border-[#cc99ff]',
+    button: 'bg-[#cc99ff] text-[#1a0033] border-2 border-[#cc99ff] px-8 py-3 font-bold uppercase hover:bg-[#b366ff]',
+    label: 'text-xs font-bold uppercase tracking-wider text-[#cc99ff]/60',
+  },
+  solar_flare: {
+    wrapper: 'bg-[#330000] text-[#ffcc00]',
+    card: 'border-2 border-[#ff3300] p-8 bg-[#330000]',
+    accent: 'text-[#ffcc00]',
+    selected: 'bg-[#ff3300] text-white border-[#ff3300]',
+    input: 'bg-transparent border-2 border-[#ff3300]/50 text-[#ffcc00] p-3 w-full outline-none focus:border-[#ffcc00]',
+    button: 'bg-[#ff3300] text-white border-2 border-[#ff3300] px-8 py-3 font-bold uppercase hover:bg-[#cc2200]',
+    label: 'text-xs font-bold uppercase tracking-wider text-[#ff3300]/60',
+  },
+  frost_byte: {
+    wrapper: 'bg-[#e6f7ff] text-[#006699]',
+    card: 'border-2 border-[#006699] p-8 bg-white shadow-[0_8px_30px_rgba(0,102,153,0.1)] rounded-2xl',
+    accent: 'text-[#006699]',
+    selected: 'bg-[#006699] text-white border-[#006699]',
+    input: 'bg-white border-2 border-[#006699]/30 text-[#006699] p-3 w-full rounded-xl outline-none focus:border-[#006699]',
+    button: 'bg-[#006699] text-white border-2 border-[#006699] px-8 py-3 font-bold uppercase rounded-xl hover:bg-[#004d73]',
+    label: 'text-xs font-bold uppercase tracking-wider text-[#006699]/60',
+  },
+  nordic_pine: {
+    wrapper: 'bg-[#0d1a1a] text-[#d9e6e6]',
+    card: 'border-2 border-[#4d8080] p-8 bg-[#0d1a1a] shadow-[4px_4px_0px_#4d8080]',
+    accent: 'text-[#d9e6e6]',
+    selected: 'bg-[#4d8080] text-[#0d1a1a] border-[#4d8080]',
+    input: 'bg-transparent border-2 border-[#4d8080]/50 text-[#d9e6e6] p-3 w-full outline-none focus:border-[#d9e6e6]',
+    button: 'bg-[#4d8080] text-[#0d1a1a] border-2 border-[#4d8080] px-8 py-3 font-bold uppercase hover:bg-[#3d6666]',
+    label: 'text-xs font-bold uppercase tracking-wider text-[#4d8080]/60',
+  },
+  sunset_mirage: {
+    wrapper: 'bg-gradient-to-br from-[#ff512f] to-[#dd2476] text-white',
+    card: 'bg-white/20 backdrop-blur-md border border-white/30 p-8 rounded-3xl shadow-xl',
+    accent: 'text-white',
+    selected: 'bg-white/40 text-white border-white',
+    input: 'bg-white/10 border border-white/20 text-white p-3 w-full rounded-xl outline-none focus:bg-white/20',
+    button: 'bg-white text-[#dd2476] border-2 border-white px-8 py-3 font-bold uppercase rounded-full hover:bg-white/90',
+    label: 'text-xs font-bold uppercase tracking-wider text-white/60',
+  },
+  onyx_stealth: {
+    wrapper: 'bg-[#121212] text-[#e0e0e0]',
+    card: 'border border-[#333] p-8 bg-black shadow-[0_0_40px_rgba(0,0,0,1)]',
+    accent: 'text-red-600',
+    selected: 'bg-red-600 text-white border-red-600',
+    input: 'bg-[#1a1a1a] border border-[#333] text-white p-3 w-full outline-none focus:border-red-600',
+    button: 'bg-black text-red-600 border border-red-600 px-8 py-3 font-bold uppercase hover:bg-red-600 hover:text-white',
+    label: 'text-[10px] font-bold uppercase tracking-widest text-[#555]',
+  },
+  lavender_mist: {
+    wrapper: 'bg-[#f3f0ff] text-[#5b21b6]',
+    card: 'border-2 border-[#5b21b6]/20 p-8 bg-white rounded-3xl shadow-lg',
+    accent: 'text-[#5b21b6]',
+    selected: 'bg-[#5b21b6] text-white border-[#5b21b6]',
+    input: 'bg-white border-2 border-[#5b21b6]/10 text-[#5b21b6] p-3 w-full rounded-xl outline-none focus:border-[#5b21b6]',
+    button: 'bg-[#5b21b6] text-white px-8 py-3 font-bold uppercase rounded-full hover:bg-[#4c1d95]',
+    label: 'text-xs font-bold uppercase tracking-wider text-[#5b21b6]/60',
+  },
+  emerald_matrix: {
+    wrapper: 'bg-[#001a0a] text-[#00ff66]',
+    card: 'border border-[#00ff66] p-8 bg-[#001a0a] shadow-[0_0_30px_rgba(0,255,102,0.15)]',
+    accent: 'text-[#00ff66]',
+    selected: 'bg-[#00ff66] text-black border-[#00ff66]',
+    input: 'bg-black border border-[#00ff66]/30 text-[#00ff66] p-3 w-full outline-none focus:border-[#00ff66]',
+    button: 'bg-[#00ff66] text-black border-2 border-[#00ff66] px-8 py-3 font-bold uppercase hover:bg-[#00cc55]',
+    label: 'text-[10px] font-mono uppercase text-[#00ff66]/50',
+  },
+  crimson_tide: {
+    wrapper: 'bg-[#4a0404] text-[#ffd1d1]',
+    card: 'border-2 border-[#ffd1d1]/30 p-8 bg-[#4a0404] shadow-[0_10px_40px_rgba(0,0,0,0.5)]',
+    accent: 'text-[#ffd1d1]',
+    selected: 'bg-[#ffd1d1] text-[#4a0404] border-[#ffd1d1]',
+    input: 'bg-transparent border-2 border-[#ffd1d1]/20 text-[#ffd1d1] p-3 w-full outline-none focus:border-[#ffd1d1]',
+    button: 'bg-[#ffd1d1] text-[#4a0404] border-2 border-[#ffd1d1] px-8 py-3 font-bold uppercase hover:bg-[#ffb3b3]',
+    label: 'text-xs font-bold uppercase tracking-wider text-[#ffd1d1]/60',
+  },
+  golden_hour: {
+    wrapper: 'bg-[#fffbeb] text-[#92400e]',
+    card: 'border-4 border-[#f59e0b] p-8 bg-white shadow-[12px_12px_0px_#f59e0b]',
+    accent: 'text-[#b45309]',
+    selected: 'bg-[#f59e0b] text-white border-[#f59e0b]',
+    input: 'bg-white border-2 border-[#f59e0b]/40 text-[#92400e] p-3 w-full outline-none focus:border-[#f59e0b]',
+    button: 'bg-[#f59e0b] text-white border-2 border-white px-8 py-3 font-black uppercase shadow-[4px_4px_0px_#92400e]',
+    label: 'text-xs font-black uppercase text-[#f59e0b]/70',
+  },
 };
 
 interface Props {
@@ -651,11 +741,6 @@ const EditTab = ({ form, onUpdate }: Props) => {
           <div className="bg-card border border-border rounded-[2.5rem] w-full max-w-5xl max-h-[90vh] flex flex-col shadow-[0_0_100px_rgba(0,0,0,0.5)] overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-10 duration-500" onClick={e => e.stopPropagation()}>
             <div className="p-8 border-b border-border flex items-center justify-between bg-muted/20">
               <div>
-                <h2 className="text-3xl font-black tracking-tighter flex items-center gap-3">
-                  <Palette className="w-8 h-8 text-primary" />
-                  Visual Identity
-                </h2>
-                <p className="text-sm text-muted-foreground mt-2 font-medium">Elevate your form's presence with our high-fidelity design presets.</p>
               </div>
               <button onClick={() => setShowThemeSelector(false)} className="p-3 hover:bg-muted rounded-full transition-all hover:rotate-90 text-muted-foreground hover:text-foreground">
                 <Plus className="w-6 h-6 rotate-45" />

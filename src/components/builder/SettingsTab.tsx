@@ -53,6 +53,16 @@ const THEME_PREVIEWS: Record<FormTheme, { bg: string; fg: string; accent: string
   glassmorphism: { bg: 'bg-[#1a1a1a]', fg: 'text-[#fff]', accent: 'bg-white' },
   desert_oasis: { bg: 'bg-[#faf9f6]', fg: 'text-[#8b4513]', accent: 'bg-[#d2b48c]' },
   forest_night: { bg: 'bg-[#1b3022]', fg: 'text-[#f0f7f4]', accent: 'bg-[#4f7942]' },
+  electric_violet: { bg: 'bg-[#1a0033]', fg: 'text-[#cc99ff]', accent: 'bg-[#cc99ff]' },
+  solar_flare: { bg: 'bg-[#330000]', fg: 'text-[#ffcc00]', accent: 'bg-[#ff3300]' },
+  frost_byte: { bg: 'bg-[#e6f7ff]', fg: 'text-[#006699]', accent: 'bg-[#006699]' },
+  nordic_pine: { bg: 'bg-[#0d1a1a]', fg: 'text-[#d9e6e6]', accent: 'bg-[#4d8080]' },
+  sunset_mirage: { bg: 'bg-[#ff512f]', fg: 'text-white', accent: 'bg-white' },
+  onyx_stealth: { bg: 'bg-[#121212]', fg: 'text-[#e0e0e0]', accent: 'bg-red-600' },
+  lavender_mist: { bg: 'bg-[#f3f0ff]', fg: 'text-[#5b21b6]', accent: 'bg-[#5b21b6]' },
+  emerald_matrix: { bg: 'bg-[#001a0a]', fg: 'text-[#00ff66]', accent: 'bg-[#00ff66]' },
+  crimson_tide: { bg: 'bg-[#4a0404]', fg: 'text-[#ffd1d1]', accent: 'bg-[#ffd1d1]' },
+  golden_hour: { bg: 'bg-[#fffbeb]', fg: 'text-[#92400e]', accent: 'bg-[#f59e0b]' },
 };
 
 type TabId = 'general' | 'appearance' | 'access' | 'submission' | 'analysis' | 'seo' | 'team';

@@ -32,7 +32,17 @@ export type FormTheme =
   | 'cyberpunk_pink'
   | 'glassmorphism'
   | 'desert_oasis'
-  | 'forest_night';
+  | 'forest_night'
+  | 'electric_violet'
+  | 'solar_flare'
+  | 'frost_byte'
+  | 'nordic_pine'
+  | 'sunset_mirage'
+  | 'onyx_stealth'
+  | 'lavender_mist'
+  | 'emerald_matrix'
+  | 'crimson_tide'
+  | 'golden_hour';
 
 export type FormLayout = 'single_page' | 'notebook';
 
@@ -180,6 +190,16 @@ export const THEME_LABELS: Record<FormTheme, string> = {
   glassmorphism: 'Glassmorphism',
   desert_oasis: 'Desert Oasis',
   forest_night: 'Forest Night',
+  electric_violet: 'Electric Violet',
+  solar_flare: 'Solar Flare',
+  frost_byte: 'Frost Byte',
+  nordic_pine: 'Nordic Pine',
+  sunset_mirage: 'Sunset Mirage',
+  onyx_stealth: 'Onyx Stealth',
+  lavender_mist: 'Lavender Mist',
+  emerald_matrix: 'Emerald Matrix',
+  crimson_tide: 'Crimson Tide',
+  golden_hour: 'Golden Hour',
 };
 
 export const LAYOUT_LABELS: Record<FormLayout, string> = {
