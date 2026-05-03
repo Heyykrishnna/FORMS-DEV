@@ -25,7 +25,6 @@ interface Props {
 
 const COLORS = ['#818cf8', '#3b82f6', '#c084fc', '#f472b6', '#34d399'];
 
-// HELPER FUNCTIONS FOR STATS
 const calculateStats = (numbers: number[]) => {
   if (numbers.length === 0) return null;
   const mean = numbers.reduce((a, b) => a + b, 0) / numbers.length;
@@ -55,7 +54,6 @@ const ResponsesTab = ({ form }: Props) => {
   const [selectedResponse, setSelectedResponse] = useState<FormResponse | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   
-  // AI Analysis State
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [researchPaper, setResearchPaper] = useState<string | null>(null);
   const [showAnalysisModal, setShowAnalysisModal] = useState(false);
@@ -178,7 +176,7 @@ const ResponsesTab = ({ form }: Props) => {
 
   const stats = useMemo(() => {
     const total = allResponses.length;
-    const completionRate = total > 0 ? 100 : 0; // Simulated
+    const completionRate = total > 0 ? 100 : 0; 
     
     const responsesWithTime = allResponses.filter(r => r.timeTaken && r.timeTaken > 0);
     let avgCompletionTime = "—";
@@ -326,16 +324,12 @@ const ResponsesTab = ({ form }: Props) => {
     <div className="font-sans text-[#e2e8f0] py-8">
       <div className="max-w-[1400px] mx-auto px-6">
         
-        {/* STATS HEADER */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-[#15161c] border border-white/10 rounded-2xl p-6 flex items-center justify-between shadow-lg relative overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none" />
             <div className="relative z-10">
               <p className="text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">Total Responses</p>
               <p className="text-4xl font-light text-white tracking-tight">{stats.total}</p>
-            </div>
-            <div className="h-12 w-12 rounded-xl bg-white/5 flex items-center justify-center relative z-10 border border-white/5 group-hover:scale-110 transition-transform">
-              <TrendingUp className="h-6 w-6 text-indigo-400" />
             </div>
           </div>
           <div className="bg-[#15161c] border border-white/10 rounded-2xl p-6 flex items-center justify-between shadow-lg relative overflow-hidden group">
@@ -344,9 +338,6 @@ const ResponsesTab = ({ form }: Props) => {
               <p className="text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">Completion Rate</p>
               <p className="text-4xl font-light text-white tracking-tight">{stats.completionRate}%</p>
             </div>
-            <div className="h-12 w-12 rounded-xl bg-white/5 flex items-center justify-center relative z-10 border border-white/5 group-hover:scale-110 transition-transform">
-              <CheckCircle2 className="h-6 w-6 text-emerald-400" />
-            </div>
           </div>
           <div className="bg-[#15161c] border border-white/10 rounded-2xl p-6 flex items-center justify-between shadow-lg relative overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent pointer-events-none" />
@@ -354,13 +345,9 @@ const ResponsesTab = ({ form }: Props) => {
               <p className="text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">Avg. Completion Time</p>
               <p className="text-4xl font-light text-white tracking-tight">{stats.avgCompletionTime}</p>
             </div>
-            <div className="h-12 w-12 rounded-xl bg-white/5 flex items-center justify-center relative z-10 border border-white/5 group-hover:scale-110 transition-transform">
-              <Clock className="h-6 w-6 text-blue-400" />
-            </div>
           </div>
         </div>
 
-        {/* CONTROLS */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8">
           <div className="flex bg-[#15161c] border border-white/10 rounded-xl p-1 shadow-sm">
             <button
@@ -405,7 +392,6 @@ const ResponsesTab = ({ form }: Props) => {
           </div>
         </div>
 
-        {/* CONTENT AREA */}
         {filteredResponses.length === 0 ? (
           <div className="bg-[#15161c] border border-white/10 rounded-2xl p-24 text-center shadow-lg relative overflow-hidden">
             <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
@@ -416,9 +402,7 @@ const ResponsesTab = ({ form }: Props) => {
         ) : view === 'analytics' ? (
           <div className="flex flex-col gap-6">
             
-            {/* FORECAST & VELOCITY ROW */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-              {/* FORECAST GRAPH */}
               <div className="xl:col-span-2 bg-[#111116] border border-white/5 rounded-2xl p-6 shadow-xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[120px] pointer-events-none -mr-48 -mt-48" />
                 <div className="mb-8 relative z-10">
@@ -467,7 +451,6 @@ const ResponsesTab = ({ form }: Props) => {
                 </div>
               </div>
 
-              {/* VELOCITY & RADAR */}
               <div className="flex flex-col gap-6">
                 <div className="bg-[#15161c] border border-white/10 rounded-2xl p-6 flex flex-col h-[200px] relative overflow-hidden">
                   <h4 className="text-sm font-medium text-white mb-4">Submission Velocity</h4>
@@ -509,7 +492,6 @@ const ResponsesTab = ({ form }: Props) => {
               </div>
             </div>
 
-            {/* HOURLY & DEPTH ROW */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-[#15161c] border border-white/10 rounded-2xl p-6 shadow-lg relative overflow-hidden">
                 <div className="mb-6">
@@ -760,7 +742,6 @@ const ResponsesTab = ({ form }: Props) => {
           </div>
         )}
 
-        {/* AI RESEARCH PAPER MODAL */}
         {showAnalysisModal && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] flex items-center justify-center p-4 sm:p-8" onClick={() => !isAnalyzing && setShowAnalysisModal(false)}>
             <div className="bg-[#111116] border border-white/10 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
@@ -801,7 +782,6 @@ const ResponsesTab = ({ form }: Props) => {
           </div>
         )}
 
-        {/* DETAIL MODAL (SOLO RESPONSE) */}
         {selectedResponse && (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] flex items-center justify-center p-4 sm:p-8" onClick={() => setSelectedResponse(null)}>
             <div 
