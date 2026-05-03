@@ -2,14 +2,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { useNavigate } from 'react-router-dom';
-import { Ghost, Bot, Skull, Pizza, Zap, Crown, User, ArrowLeft, BarChart3, FileText, Calendar, Edit2, LogOut, Clock, X, AlertTriangle, Box, Link as LinkIcon, CheckCheck, Info } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { X, AlertTriangle, Box, Link as LinkIcon, CheckCheck, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import AgentAvatar from '@/components/ui/smoothui/agent-avatar';
-import { ChartBarIcon, ChartBarIconHandle } from '@/components/ChartBarIcon';
-import { RocketIcon, RocketHandle } from '@/components/RocketIcon';
 import React from 'react';
+import { cn } from '@/lib/utils';
 
 const AVATARS = {
   'user': <AgentAvatar seed="user" size={48} />,
@@ -35,509 +34,602 @@ interface ProfileData {
   recent_activity?: Activity[];
 }
 
+// Vertical rule component matching dashboard
+const VerticalScale = ({ className }: { className?: string }) => (
+  <div
+    className={cn(
+      'w-10 h-full bg-[repeating-linear-gradient(315deg,_#d4d4d4_0px,_#d4d4d4_1px,_transparent_1px,_transparent_10px)] bg-[length:14px_14px] border-x border-[#d4d4d4]',
+      className
+    )}
+  />
+);
+
+// Horizontal rule component
+const HorizontalScale = ({ className }: { className?: string }) => (
+  <div
+    className={cn(
+      'w-full h-10 bg-[repeating-linear-gradient(45deg,_#d4d4d4_0px,_#d4d4d4_1px,_transparent_1px,_transparent_10px)] bg-[length:14px_14px] border-y border-[#d4d4d4]',
+      className
+    )}
+  />
+);
+
+// Thin label
+const FieldLabel = ({ children }: { children: React.ReactNode }) => (
+  <p className="text-[10px] font-mono font-bold uppercase tracking-widest text-black/40 mb-1">{children}</p>
+);
+
 const Profile = () => {
-    const { user, signOut } = useAuth();
-    const navigate = useNavigate();
-    const [profile, setProfile] = useState<ProfileData | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [stats, setStats] = useState({
-        formsCount: 0,
-        totalResponses: 0,
-    });
-    
-    const rocketRef = useRef<RocketHandle>(null);
-    const chartRef = useRef<ChartBarIconHandle>(null);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({ formsCount: 0, totalResponses: 0 });
 
-    const loadProfile = React.useCallback(async () => {
-        try {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', user?.id)
-                .single();
-            
-            if (error) throw error;
-            
-            // Fetch recent activity (forms created/updated)
-            const { data: recentForms, error: activityError } = await supabase
-                .from('forms')
-                .select('id, title, updated_at, created_at')
-                .eq('user_id', user?.id)
-                .order('updated_at', { ascending: false })
-                .limit(5);
+  const loadProfile = React.useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user?.id)
+        .single();
 
-            if (activityError) console.error('Error loading activity:', activityError);
-            
-            const activity: Activity[] = recentForms?.map(form => ({
-                action: form.created_at === form.updated_at ? 'DEPLOYED FORM' : 'UPDATED PROTOCOL',
-                target: form.title,
-                timestamp: form.updated_at
-            })) || [];
+      if (error) throw error;
 
-            setProfile({ ...data, recent_activity: activity });
-        } catch (error) {
-            console.error('Error loading profile:', error);
-            // toast.error('Failed to load profile');
-        } finally {
-            setLoading(false);
-        }
-    }, [user?.id]);
+      const { data: recentForms, error: activityError } = await supabase
+        .from('forms')
+        .select('id, title, updated_at, created_at')
+        .eq('user_id', user?.id)
+        .order('updated_at', { ascending: false })
+        .limit(5);
 
-    const loadStats = React.useCallback(async () => {
-        try {
-            // Count forms
-            const { count: formsCount, error: formsError } = await supabase
-                .from('forms')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', user?.id);
-            
-            if (formsError) throw formsError;
+      if (activityError) console.error('Error loading activity:', activityError);
 
-            // This is a simplified count. For total responses across all forms, we'd need a join or separate query.
-            // For now, let's just get forms. Ideally we would count responses.
-            // Let's try to get all forms IDs then count responses
-            const { data: forms } = await supabase.from('forms').select('id').eq('user_id', user?.id);
-            let totalResponses = 0;
-            
-            if (forms && forms.length > 0) {
-                const { count } = await supabase
-                    .from('responses')
-                    .select('*', { count: 'exact', head: true })
-                    .in('form_id', forms.map(f => f.id));
-                totalResponses = count || 0;
-            }
+      const activity: Activity[] = recentForms?.map(form => ({
+        action: form.created_at === form.updated_at ? 'CREATED' : 'UPDATED',
+        target: form.title,
+        timestamp: form.updated_at,
+      })) || [];
 
-            setStats({
-                formsCount: formsCount || 0,
-                totalResponses,
-            });
-
-        } catch (error) {
-            console.error('Error loading stats:', error);
-        }
-    }, [user?.id]);
-
-    useEffect(() => {
-        if (user) {
-            loadProfile();
-            loadStats();
-        }
-    }, [user, loadProfile, loadStats]);
-
-    const [isEditing, setIsEditing] = useState(false);
-    const [editForm, setEditForm] = useState({ username: '', avatar_url: '' });
-    const [avatarMode, setAvatarMode] = useState<'preset' | 'custom'>('preset');
-
-    useEffect(() => {
-        if (profile) {
-            setEditForm({ 
-                username: profile.username || '', 
-                avatar_url: profile.avatar_url || '' 
-            });
-        }
-    }, [profile]);
-
-    const handleUpdateProfile = async (e: React.FormEvent) => {
-        e.preventDefault();
-        try {
-            const { error } = await supabase
-                .from('profiles')
-                .update({ 
-                    username: editForm.username,
-                    avatar_url: editForm.avatar_url,
-                    updated_at: new Date().toISOString()
-                })
-                .eq('id', user?.id);
-
-            if (error) throw error;
-            
-            setProfile(prev => prev ? { ...prev, ...editForm } : null);
-            setIsEditing(false);
-            toast.success("IDENTITY REWRITTEN.");
-        } catch (error) {
-            toast.error("UPDATE FAILED.");
-        }
-    };
-
-    const handleSignOut = async () => {
-        await signOut();
-        navigate('/auth');
-    };
-
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-background flex items-center justify-center">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-black border-t-transparent rounded-full animate-spin" />
-                    <p className="font-mono font-bold uppercase animate-pulse">LOADING IDENTITY...</p>
-                </div>
-            </div>
-        );
+      setProfile({ ...data, recent_activity: activity });
+    } catch (error) {
+      console.error('Error loading profile:', error);
+    } finally {
+      setLoading(false);
     }
+  }, [user?.id]);
 
+  const loadStats = React.useCallback(async () => {
+    try {
+      const { count: formsCount, error: formsError } = await supabase
+        .from('forms')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user?.id);
+
+      if (formsError) throw formsError;
+
+      const { data: forms } = await supabase.from('forms').select('id').eq('user_id', user?.id);
+      let totalResponses = 0;
+
+      if (forms && forms.length > 0) {
+        const { count } = await supabase
+          .from('responses')
+          .select('*', { count: 'exact', head: true })
+          .in('form_id', forms.map(f => f.id));
+        totalResponses = count || 0;
+      }
+
+      setStats({ formsCount: formsCount || 0, totalResponses });
+    } catch (error) {
+      console.error('Error loading stats:', error);
+    }
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (user) {
+      loadProfile();
+      loadStats();
+    }
+  }, [user, loadProfile, loadStats]);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({ username: '', avatar_url: '' });
+  const [avatarMode, setAvatarMode] = useState<'preset' | 'custom'>('preset');
+
+  useEffect(() => {
+    if (isEditing) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isEditing]);
+
+  useEffect(() => {
+    if (profile) {
+      setEditForm({ username: profile.username || '', avatar_url: profile.avatar_url || '' });
+    }
+  }, [profile]);
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          username: editForm.username,
+          avatar_url: editForm.avatar_url,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', user?.id);
+
+      if (error) throw error;
+
+      setProfile(prev => (prev ? { ...prev, ...editForm } : null));
+      setIsEditing(false);
+      toast.success('Profile updated.');
+    } catch {
+      toast.error('Update failed.');
+    }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+  };
+
+  if (loading) {
     return (
-        <div className="min-h-screen bg-background font-mono p-8">
-            <div className="max-w-4xl mx-auto space-y-8">
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                    <Button variant="ghost" className="gap-2" onClick={() => navigate('/dashboard')}>
-                        <ArrowLeft className="w-4 h-4" />
-                        BACK TO DASHBOARD
-                    </Button>
-                    <div className="flex items-center gap-4">
-                        <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-orange-500/10 border border-orange-500 rounded-full">
-                            <span className="text-[10px] font-bold uppercase text-orange-500 tracking-widest">SYSTEM ONLINE</span>
-                        </div>
-                        <Button variant="outline" className="border-2 border-black hover:bg-red-500 hover:text-white hover:border-red-500" onClick={handleSignOut}>
-                            <LogOut className="w-4 h-4 mr-2" />
-                            DISCONNECT
-                        </Button>
-                    </div>
-                </div>
-
-                {/* Profile Card */}
-                <div className="bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                    <div className="flex flex-col md:flex-row gap-8 items-start">
-                        {/* Avatar */}
-                        <div className="w-32 h-32 bg-black text-white flex items-center justify-center border-4 border-black shrink-0 relative group overflow-hidden rounded-full">
-                            <div className="w-full h-full flex items-center justify-center">
-                                {profile?.avatar_url && AVATARS[profile.avatar_url as keyof typeof AVATARS] ? (
-                                    <div className="scale-150">
-                                        {AVATARS[profile.avatar_url as keyof typeof AVATARS]}
-                                    </div>
-                                ) : profile?.avatar_url ? (
-                                    <img 
-                                        src={profile.avatar_url} 
-                                        alt={profile.username} 
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                            (e.target as HTMLImageElement).src = 'https://api.dicebear.com/7.x/pixel-art/svg?seed=' + profile.username;
-                                        }}
-                                    />
-                                ) : (
-                                    <AgentAvatar seed={profile?.username || user?.email || 'aqora'} size={128} />
-                                )}
-                            </div>
-                            <div 
-                                className="absolute inset-0 bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                                onClick={() => setIsEditing(true)}
-                            >
-                                <Edit2 className="w-6 h-6 text-white" />
-                            </div>
-                        </div>
-
-                        {/* Info */}
-                        <div className="flex-1 space-y-4 w-full">
-                            <div>
-                                <h1 className="text-4xl font-black uppercase tracking-tighter mb-1">
-                                    {profile?.username || 'UNKNOWN AGENT'}
-                                </h1>
-                                <p className="text-sm font-bold uppercase text-muted-foreground flex items-center gap-2">
-                                    <Crown className="w-4 h-4 text-[#FF4500]" />
-                                    LEVEL 1 OPERATIVE
-                                </p>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t-4 border-black/10">
-                                <div className="space-y-1">
-                                    <label className="text-[10px] font-black uppercase text-muted-foreground block">EMAIL ADDR</label>
-                                    <p className="font-bold">{user?.email}</p>
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-[10px] font-black uppercase text-muted-foreground block">JOINED</label>
-                                    <p className="font-bold flex items-center gap-2">
-                                        <Calendar className="w-4 h-4" />
-                                        {new Date(user?.created_at || '').toLocaleDateString()}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div 
-                        className="bg-[#FF4500] text-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-transform cursor-pointer"
-                        onMouseEnter={() => rocketRef.current?.startAnimation()}
-                        onMouseLeave={() => rocketRef.current?.stopAnimation()}
-                    >
-                        <div className="flex items-center justify-between mb-4">
-                            <RocketIcon ref={rocketRef} className="w-8 h-8" />
-                            <span className="text-6xl font-black opacity-50">01</span>
-                        </div>
-                        <h3 className="text-4xl font-black mb-1">{stats.formsCount}</h3>
-                        <p className="font-bold uppercase tracking-widest text-sm">FORMS DEPLOYED</p>
-                    </div>
-
-                    <div 
-                        className="bg-black text-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-transform cursor-pointer"
-                        onMouseEnter={() => chartRef.current?.startAnimation()}
-                        onMouseLeave={() => chartRef.current?.stopAnimation()}
-                    >
-                         <div className="flex items-center justify-between mb-4">
-                            <ChartBarIcon ref={chartRef} className="w-8 h-8 text-[#FF4500]" />
-                            <span className="text-6xl font-black opacity-20">02</span>
-                        </div>
-                        <h3 className="text-4xl font-black mb-1">{stats.totalResponses}</h3>
-                        <p className="font-bold uppercase tracking-widest text-sm text-[#FF4500]">TOTAL HITS</p>
-                    </div>
-                </div>
-                {/* Badges Section */}
-                <div className="bg-black text-white p-6 border-4 border-black relative overflow-hidden group">
-                    <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 pointer-events-none"></div>
-                    <div className="relative z-10">
-                        <h2 className="text-2xl font-black uppercase tracking-tighter mb-6 flex items-center gap-2">
-                            <Zap className="w-6 h-6 text-[#FF4500]" />
-                            MEDALS & HONORS
-                        </h2>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {[
-                                { id: 'first_blood', icon: <Ghost />, label: 'FIRST BLOOD', desc: 'Deployed 1st Form', unlocked: stats.formsCount > 0 },
-                                { id: 'influencer', icon: <Crown />, label: 'INFLUENCER', desc: '100+ Responses', unlocked: stats.totalResponses >= 100 },
-                                { id: 'architect', icon: <Bot />, label: 'ARCHITECT', desc: 'Created 5+ Forms', unlocked: stats.formsCount >= 5 },
-                                { id: 'void_dweller', icon: <Skull />, label: 'VOID DWELLER', desc: 'Member > 1 Month', unlocked: new Date(user?.created_at || '').getTime() < Date.now() - 30 * 24 * 60 * 60 * 1000 }
-                            ].map((badge) => (
-                                <div key={badge.id} className={`border-2 p-4 flex flex-col items-center text-center transition-all ${badge.unlocked ? 'border-white bg-white/10' : 'border-white/20 opacity-30 grayscale'}`}>
-                                    <div className={`mb-2 ${badge.unlocked ? 'text-[#FF4500] animate-pulse' : 'text-white'}`}>
-                                        {badge.icon}
-                                    </div>
-                                    <h3 className="text-xs font-black uppercase mb-1">{badge.label}</h3>
-                                    <p className="text-[9px] font-mono uppercase opacity-70">{badge.desc}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Recent Operations Log */}
-                <div className="bg-white border-4 border-black p-6 relative">
-                    <div className="absolute -top-3 -left-3 bg-[#FF4500] text-white px-3 py-1 text-xs font-black uppercase transform -rotate-2 border-2 border-black">
-                        CLASSIFIED
-                    </div>
-                    <h2 className="text-2xl font-black uppercase tracking-tighter mb-6 flex items-center gap-2">
-                        <FileText className="w-6 h-6" />
-                        OPERATIONS LOG
-                    </h2>
-                    <div className="space-y-4 font-mono text-sm max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                        {profile?.recent_activity && profile.recent_activity.length > 0 ? (
-                             profile.recent_activity.map((activity: Activity, index: number) => (
-                                <div key={index} className="flex items-start gap-4 border-b-2 border-dashed border-black/10 pb-4 last:border-0 last:pb-0 group hover:bg-black/5 p-2 transition-colors">
-                                    <div className="w-8 h-8 bg-black text-white flex items-center justify-center shrink-0 border-2 border-black group-hover:bg-[#FF4500] group-hover:border-[#FF4500] transition-colors">
-                                        <span className="font-bold text-xs">{index + 1}</span>
-                                    </div>
-                                    <div className="flex-1">
-                                        <p className="font-bold uppercase text-xs mb-1">
-                                            {activity.action} <span className="text-[#FF4500]">"{activity.target}"</span>
-                                        </p>
-                                        <p className="text-[10px] opacity-50 uppercase flex items-center gap-1">
-                                            <Clock className="w-3 h-3" />
-                                            {new Date(activity.timestamp).toLocaleString()}
-                                        </p>
-                                    </div>
-                                </div>
-                             ))
-                        ) : (
-                            <div className="text-center py-8 opacity-50 font-bold uppercase text-xs">
-                                <p>NO RECENT ACTIVITY DETECTED.</p>
-                                <p className="text-[10px] mt-1">THE SYSTEM IS WAITING...</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-                {/* Danger Zone */}
-                <div className="border-4 border-red-500 p-6 bg-red-500/5 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 bg-red-500 text-white px-2 py-1 text-[10px] font-black uppercase">
-                        DANGER ZONE
-                    </div>
-                    <h2 className="text-xl font-black uppercase tracking-tighter mb-4 text-red-500 flex items-center gap-2">
-                        <AlertTriangle className="w-5 h-5" />
-                        CRITICAL ACTIONS
-                    </h2>
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h3 className="font-bold uppercase text-sm">TERMINATE PROTOCOL</h3>
-                            <p className="text-xs opacity-60 font-mono">Permanently delete your account and all data.</p>
-                        </div>
-                        <Button variant="destructive" className="bg-red-600 hover:bg-red-700 font-bold uppercase" onClick={() => toast.error("ACCESS DENIED. YOU'RE STUCK WITH US.")}>
-                            DELETE ACCOUNT
-                        </Button>
-                    </div>
-                </div>
-
-                {/* Edit Profile Modal */}
-                {isEditing && (
-                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                        <div className="bg-white border-4 border-black p-8 w-full max-w-md shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] relative animate-in zoom-in-95 duration-200">
-                            <button 
-                                onClick={() => setIsEditing(false)}
-                                className="absolute top-4 right-4 hover:bg-black hover:text-white p-1 transition-colors"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
-                            
-                            <h2 className="text-3xl font-black uppercase tracking-tighter mb-6">EDIT IDENTITY</h2>
-                            
-                            <form onSubmit={handleUpdateProfile} className="space-y-6">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-black uppercase tracking-widest block">CODENAME</label>
-                                    <input
-                                        type="text"
-                                        value={editForm.username}
-                                        onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
-                                        className="w-full bg-[#F5F5F5] border-2 border-black p-3 font-bold outline-none focus:border-[#FF4500]"
-                                    />
-                                </div>
-
-                                {/* AVATAR SELECTION */}
-                                <div className="space-y-4">
-                                    <label className="text-xs font-black uppercase tracking-widest block mb-4">SELECT AVATAR</label>
-                                    
-                                    {/* Avatar Preview */}
-                                    <div className="flex items-center gap-4 p-4 border-4 border-black bg-accent/5 rounded-2xl">
-                                        <div className="w-16 h-16 border-4 border-black bg-background flex items-center justify-center shrink-0 text-foreground overflow-hidden rounded-full shadow-brutal">
-                                            {editForm.avatar_url && AVATARS[editForm.avatar_url as keyof typeof AVATARS] ? (
-                                                <div className="w-8 h-8">{AVATARS[editForm.avatar_url as keyof typeof AVATARS]}</div>
-                                            ) : editForm.avatar_url ? (
-                                                <img src={editForm.avatar_url} className="w-full h-full object-cover" alt="Custom avatar" />
-                                            ) : (
-                                                <AgentAvatar seed={editForm.username || user?.email || 'aqora'} size={64} />
-                                            )}
-                                        </div>
-                                        <div className="flex-1">
-                                            <p className="text-xs font-black uppercase mb-1">Current Avatar</p>
-                                            <p className="text-[10px] font-bold uppercase text-muted-foreground">
-                                                {editForm.avatar_url && AVATARS[editForm.avatar_url as keyof typeof AVATARS] ? 'PRESET ICON' : editForm.avatar_url ? 'CUSTOM URL' : 'NO AVATAR SET'}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Tab Selection */}
-                                    <div className="flex border-4 border-black">
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setAvatarMode('preset');
-                                                // Switch to first preset if on custom
-                                                if (!AVATARS[editForm.avatar_url as keyof typeof AVATARS]) {
-                                                    setEditForm({ ...editForm, avatar_url: 'user' });
-                                                }
-                                            }}
-                                            className={`flex-1 py-3 text-xs font-black uppercase transition-all ${
-                                                avatarMode === 'preset'
-                                                    ? 'bg-black text-white'
-                                                    : 'bg-white text-black hover:bg-accent/10'
-                                            }`}
-                                        >
-                                            <div className="flex items-center justify-center gap-2">
-                                                <Box className="w-4 h-4" />
-                                                PRESET ICONS
-                                            </div>
-                                        </button>
-                                        <div className="w-[4px] bg-black"></div>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setAvatarMode('custom');
-                                                // Clear to allow custom URL entry
-                                                if (AVATARS[editForm.avatar_url as keyof typeof AVATARS]) {
-                                                    setEditForm({ ...editForm, avatar_url: '' });
-                                                }
-                                            }}
-                                            className={`flex-1 py-3 text-xs font-black uppercase transition-all ${
-                                                avatarMode === 'custom'
-                                                    ? 'bg-black text-white'
-                                                    : 'bg-white text-black hover:bg-accent/10'
-                                            }`}
-                                        >
-                                            <div className="flex items-center justify-center gap-2">
-                                                <LinkIcon className="w-4 h-4" />
-                                                CUSTOM URL
-                                            </div>
-                                        </button>
-                                    </div>
-
-                                    {/* Content Area */}
-                                    <div className="border-4 border-black p-6 bg-white min-h-[200px]">
-                                        {avatarMode === 'preset' ? (
-                                            // PRESET ICONS VIEW
-                                            <div className="space-y-4">
-                                                <div className="flex items-center justify-between mb-4">
-                                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-accent">CHOOSE FROM {Object.keys(AVATARS).length} PRESET ICONS</h4>
-                                                </div>
-                                                <div className="grid grid-cols-6 gap-3">
-                                                    {Object.entries(AVATARS).map(([key, icon]) => (
-                                                        <button
-                                                            key={key}
-                                                            type="button"
-                                                            onClick={() => setEditForm({ ...editForm, avatar_url: key })}
-                                                            className={`aspect-square p-3 border-4 transition-all group relative rounded-full ${
-                                                                editForm.avatar_url === key
-                                                                    ? 'border-black bg-black text-white shadow-brutal scale-95'
-                                                                    : 'border-gray-300 hover:border-black bg-white text-black hover:shadow-brutal hover:scale-105'
-                                                            }`}
-                                                            title={key.toUpperCase()}
-                                                        >
-                                                            <div className="w-full h-full flex items-center justify-center">{icon}</div>
-                                                            {editForm.avatar_url === key && (
-                                                                <div className="absolute -top-2 -right-2 w-5 h-5 bg-accent border-2 border-black flex items-center justify-center">
-                                                                    <CheckCheck className="w-3 h-3 text-white" />
-                                                                </div>
-                                                            )}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                                <p className="text-[9px] font-bold uppercase text-muted-foreground mt-4 text-center">
-                                                    CLICK ANY ICON TO SELECT • ALL ICONS ARE OPTIMIZED
-                                                </p>
-                                            </div>
-                                        ) : (
-                                            // CUSTOM URL VIEW
-                                            <div className="space-y-3">
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-accent">ENTER CUSTOM IMAGE URL</h4>
-                                                </div>
-                                                <div className="space-y-3">
-                                                    <input
-                                                        type="url"
-                                                        value={editForm.avatar_url}
-                                                        onChange={(e) => setEditForm({ ...editForm, avatar_url: e.target.value })}
-                                                        className="w-full bg-[#F5F5F5] border-4 border-black p-3 font-bold outline-none focus:border-accent text-sm"
-                                                        placeholder="https://ix.imagekit.io/joehukvo..."
-                                                    />
-                                                    <div className="bg-accent/5 border-2 border-black p-3 max-h-[120px] overflow-y-auto scrollbar-thin scrollbar-thumb-black scrollbar-track-transparent">
-                                                        <p className="text-[9px] font-black uppercase mb-1.5 flex items-center gap-1.5">
-                                                            <Info className="w-3 h-3 flex-shrink-0" />
-                                                            IMPORTANT NOTES:
-                                                        </p>
-                                                        <ul className="text-[9px] font-bold space-y-0.5 ml-4 list-disc">
-                                                            <li>USE DIRECT IMAGE URLs (ENDING IN .JPG, .PNG, .GIF, .WEBP)</li>
-                                                            <li>RECOMMENDED SIZE: 256X256 PIXELS OR LARGER</li>
-                                                            <li>ENSURE THE URL IS PUBLICLY ACCESSIBLE</li>
-                                                            <li>SQUARE IMAGES WORK BEST</li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="pt-4 flex gap-4">
-                                    <Button type="button" variant="outline" className="flex-1 border-2 border-black font-bold uppercase" onClick={() => setIsEditing(false)}>
-                                        CANCEL
-                                    </Button>
-                                    <Button type="submit" className="flex-1 bg-[#FF4500] hover:bg-[#FF4500]/90 text-white font-bold uppercase border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all">
-                                        SAVE CHANGES
-                                    </Button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                )}
-            </div>
+      <div className="min-h-screen bg-[#F0F0F0] flex items-center justify-center font-mono">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-2 border-black border-t-transparent rounded-full animate-spin" />
+          <p className="text-xs font-bold uppercase tracking-widest opacity-50">Loading profile...</p>
         </div>
+      </div>
     );
+  }
+
+  const memberSince = user?.created_at ? new Date(user.created_at) : null;
+  const daysActive = memberSince
+    ? Math.floor((Date.now() - memberSince.getTime()) / (1000 * 60 * 60 * 24))
+    : 0;
+
+  const badges = [
+    {
+      id: 'first_form',
+      label: 'FIRST FORM',
+      desc: 'Deployed 1st form',
+      unlocked: stats.formsCount > 0,
+    },
+    {
+      id: 'influencer',
+      label: 'INFLUENCER',
+      desc: '100+ responses',
+      unlocked: stats.totalResponses >= 100,
+    },
+    {
+      id: 'architect',
+      label: 'ARCHITECT',
+      desc: 'Created 5+ forms',
+      unlocked: stats.formsCount >= 5,
+    },
+    {
+      id: 'veteran',
+      label: 'VETERAN',
+      desc: 'Member 30+ days',
+      unlocked: daysActive >= 30,
+    },
+  ];
+
+  return (
+    <div className="relative min-h-screen bg-[#F0F0F0] text-foreground font-mono overflow-x-hidden">
+
+      {/* Left & right vertical scales */}
+      <VerticalScale className="fixed inset-y-0 left-0 z-20 pointer-events-none" />
+      <VerticalScale className="fixed inset-y-0 right-0 z-20 pointer-events-none" />
+
+      {/* Global dot grid background */}
+      <div
+        className="fixed inset-0 pointer-events-none opacity-[0.04]"
+        style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }}
+      />
+
+      {/* NAV — matches dashboard */}
+      <nav className="border-b border-foreground sticky top-0 bg-[#F0F0F0] z-50">
+        <div className="mx-auto flex items-center justify-between px-16 py-4">
+          <Link to="/" className="text-[24px] font-sans font-medium tracking-tight hover:text-accent transition-colors">
+            aqora
+          </Link>
+
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="text-[10px] font-bold uppercase tracking-widest opacity-50 hover:opacity-100 transition-opacity border border-transparent hover:border-foreground px-3 py-2"
+            >
+              Dashboard
+            </button>
+            <button
+              onClick={handleSignOut}
+              className="text-[10px] font-bold uppercase tracking-widest border border-foreground px-4 py-2 hover:bg-foreground hover:text-background transition-all"
+            >
+              Sign out
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      {/* Top horizontal scale */}
+      <HorizontalScale />
+
+      {/* Page content — padded to clear side scales */}
+      <main className="px-16 py-12 max-w-[1400px] mx-auto relative z-10">
+
+        {/* Page heading row */}
+        <div className="flex items-end justify-between mb-10 pb-6 border-b border-black/10">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest opacity-40 mb-1">Account</p>
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-sans leading-none">
+              Profile<span className="text-accent">.</span>
+            </h1>
+          </div>
+          <div className="text-right">
+            <p className="text-[10px] font-bold uppercase tracking-widest opacity-40 mb-1">Member since</p>
+            <p className="text-sm font-bold font-mono">
+              {memberSince ? memberSince.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
+            </p>
+          </div>
+        </div>
+
+        {/* ─── MAIN GRID ─── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          {/* ── LEFT COL: Identity card ── */}
+          <div className="lg:col-span-1 space-y-4">
+
+            {/* Identity card */}
+            <div className="bg-background border border-foreground rounded-xl overflow-hidden shadow-sm">
+              {/* Card header bar */}
+              <div className="bg-foreground text-background px-5 py-3 flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-widest">Identity</span>
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="text-[10px] font-bold uppercase tracking-widest border border-background/30 px-2 py-1 hover:bg-background hover:text-foreground transition-all"
+                >
+                  Edit
+                </button>
+              </div>
+
+              <div className="p-6 space-y-5">
+                {/* Avatar */}
+                <div className="flex items-center gap-4">
+                  <div
+                    className="w-16 h-16 rounded-full border-2 border-foreground overflow-hidden bg-black flex items-center justify-center shrink-0 cursor-pointer group relative"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    {profile?.avatar_url && AVATARS[profile.avatar_url as keyof typeof AVATARS] ? (
+                      <div className="scale-150">{AVATARS[profile.avatar_url as keyof typeof AVATARS]}</div>
+                    ) : profile?.avatar_url ? (
+                      <img
+                        src={profile.avatar_url}
+                        alt={profile.username}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src =
+                            'https://api.dicebear.com/7.x/pixel-art/svg?seed=' + profile.username;
+                        }}
+                      />
+                    ) : (
+                      <AgentAvatar seed={profile?.username || user?.email || 'aqora'} size={64} />
+                    )}
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <span className="text-white text-[8px] font-bold uppercase tracking-widest">Edit</span>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-lg font-bold font-sans leading-tight">
+                      {profile?.username || 'Unknown'}
+                    </p>
+                    <p className="text-[10px] uppercase tracking-widest opacity-40 font-bold">Level 1 Operative</p>
+                  </div>
+                </div>
+
+                <div className="border-t border-black/10 pt-4 space-y-4">
+                  <div>
+                    <FieldLabel>Email</FieldLabel>
+                    <p className="text-sm font-bold break-all">{user?.email}</p>
+                  </div>
+                  <div>
+                    <FieldLabel>User ID</FieldLabel>
+                    <p className="text-[11px] font-mono opacity-50 truncate">{user?.id}</p>
+                  </div>
+                  <div>
+                    <FieldLabel>Days active</FieldLabel>
+                    <p className="text-sm font-bold">{daysActive} days</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Sign out / danger */}
+            <div className="bg-background border border-foreground rounded-xl overflow-hidden shadow-sm">
+              <div className="bg-foreground text-background px-5 py-3">
+                <span className="text-[10px] font-bold uppercase tracking-widest">Account Actions</span>
+              </div>
+              <div className="p-5 space-y-3">
+                <button
+                  onClick={handleSignOut}
+                  className="w-full text-left text-sm font-bold uppercase tracking-wide border border-foreground px-4 py-3 hover:bg-foreground hover:text-background transition-all"
+                >
+                  Sign Out
+                </button>
+                <button
+                  onClick={() => toast.error("Access denied. You're stuck with us.")}
+                  className="w-full text-left text-sm font-bold uppercase tracking-wide border border-red-400 text-red-500 px-4 py-3 hover:bg-red-500 hover:text-white transition-all"
+                >
+                  Delete Account
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* ── RIGHT COL: Badges + Activity ── */}
+          <div className="lg:col-span-2 space-y-6">
+
+            {/* Horizontal scale between sections */}
+            <HorizontalScale />
+
+            {/* Badges */}
+            <div className="bg-background border border-foreground rounded-xl overflow-hidden shadow-sm">
+              <div className="bg-foreground text-background px-5 py-3 flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-widest">Medals & Honors</span>
+                <span className="text-[10px] opacity-50">{badges.filter(b => b.unlocked).length}/{badges.length} unlocked</span>
+              </div>
+              <div className="p-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+                {badges.map(badge => (
+                  <div
+                    key={badge.id}
+                    className={cn(
+                      'border rounded-xl p-4 flex flex-col items-center text-center transition-all',
+                      badge.unlocked
+                        ? 'border-foreground bg-white'
+                        : 'border-black/10 opacity-30'
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        'w-8 h-8 rounded-full border-2 mb-3 flex items-center justify-center text-[10px] font-black',
+                        badge.unlocked ? 'border-accent bg-accent/10 text-accent' : 'border-black/20'
+                      )}
+                    >
+                      {badge.unlocked ? '✓' : '○'}
+                    </div>
+                    <p className="text-[11px] font-black uppercase tracking-wide mb-0.5">{badge.label}</p>
+                    <p className="text-[9px] uppercase opacity-50 font-bold">{badge.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Mid horizontal scale */}
+            <HorizontalScale />
+
+            {/* Stats overview row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[
+                { label: 'Total Forms', value: stats.formsCount },
+                { label: 'Total Responses', value: stats.totalResponses },
+                { label: 'Days Active', value: daysActive },
+              ].map(item => (
+                <div key={item.label} className="bg-background border border-foreground rounded-xl p-6 shadow-sm">
+                  <p className="text-4xl font-bold font-sans mb-1">{item.value}</p>
+                  <FieldLabel>{item.label}</FieldLabel>
+                </div>
+              ))}
+            </div>
+
+            {/* Operations log */}
+            <div className="bg-background border border-foreground rounded-xl overflow-hidden shadow-sm">
+              <div className="bg-foreground text-background px-5 py-3 flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-widest">Operations Log</span>
+                <span className="text-[10px] opacity-50">Last 5 actions</span>
+              </div>
+              <div className="divide-y divide-black/5">
+                {profile?.recent_activity && profile.recent_activity.length > 0 ? (
+                  profile.recent_activity.map((activity: Activity, index: number) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-4 px-5 py-4 hover:bg-black/[0.02] transition-colors group"
+                    >
+                      {/* index badge */}
+                      <div className="w-6 h-6 border border-foreground flex items-center justify-center shrink-0 text-[10px] font-black group-hover:bg-foreground group-hover:text-background transition-all">
+                        {String(index + 1).padStart(2, '0')}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold uppercase tracking-wide truncate">
+                          {activity.action}{' '}
+                          <span className="text-accent">"{activity.target}"</span>
+                        </p>
+                        <p className="text-[10px] opacity-40 font-mono mt-0.5">
+                          {new Date(activity.timestamp).toLocaleString()}
+                        </p>
+                      </div>
+
+                      {/* status dot */}
+                      <div className="w-2 h-2 rounded-full bg-accent shrink-0" />
+                    </div>
+                  ))
+                ) : (
+                  <div className="py-12 text-center">
+                    <p className="text-xs font-bold uppercase tracking-widest opacity-30">No recent activity.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Bottom horizontal scale */}
+        <div className="mt-12">
+          <HorizontalScale />
+        </div>
+
+        {/* Bottom meta */}
+        <div className="mt-6 flex items-center justify-between opacity-30">
+          <p className="text-[10px] font-mono uppercase tracking-widest">aqora · profile</p>
+          <p className="text-[10px] font-mono uppercase tracking-widest">{new Date().toLocaleDateString()}</p>
+        </div>
+
+      </main>
+
+      {/* ─── EDIT PROFILE MODAL ─── */}
+      {isEditing && (
+        <div className="fixed inset-0 bg-black/70 z-[200] flex items-center justify-center p-4">
+          <div className="bg-background border border-foreground w-full max-w-md shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] animate-in zoom-in-95 duration-150 relative overflow-hidden">
+
+            {/* Modal header */}
+            <div className="bg-foreground text-background px-6 py-4 flex items-center justify-between">
+              <span className="text-[10px] font-black uppercase tracking-widest">Edit Profile</span>
+              <button onClick={() => setIsEditing(false)} className="hover:opacity-70 transition-opacity">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateProfile} className="p-6 space-y-5">
+              {/* Username */}
+              <div>
+                <FieldLabel>Username</FieldLabel>
+                <input
+                  type="text"
+                  value={editForm.username}
+                  onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
+                  className="w-full bg-[#F5F5F5] border border-foreground px-3 py-2.5 font-bold text-sm outline-none focus:border-accent transition-colors"
+                />
+              </div>
+
+              {/* Avatar section */}
+              <div>
+                <FieldLabel>Avatar</FieldLabel>
+
+                {/* Preview */}
+                <div className="flex items-center gap-3 p-3 border border-foreground mb-3 bg-[#F5F5F5]">
+                  <div className="w-12 h-12 rounded-full border border-foreground overflow-hidden bg-black flex items-center justify-center shrink-0">
+                    {editForm.avatar_url && AVATARS[editForm.avatar_url as keyof typeof AVATARS] ? (
+                      <div className="scale-150">{AVATARS[editForm.avatar_url as keyof typeof AVATARS]}</div>
+                    ) : editForm.avatar_url ? (
+                      <img src={editForm.avatar_url} className="w-full h-full object-cover" alt="Preview" />
+                    ) : (
+                      <AgentAvatar seed={editForm.username || user?.email || 'aqora'} size={48} />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-xs font-black uppercase">Preview</p>
+                    <p className="text-[10px] opacity-40 font-bold uppercase">
+                      {editForm.avatar_url && AVATARS[editForm.avatar_url as keyof typeof AVATARS]
+                        ? 'Preset'
+                        : editForm.avatar_url
+                        ? 'Custom URL'
+                        : 'Auto-generated'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Mode tabs */}
+                <div className="flex border border-foreground mb-3">
+                  {(['preset', 'custom'] as const).map(mode => (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => {
+                        setAvatarMode(mode);
+                        if (mode === 'preset' && !AVATARS[editForm.avatar_url as keyof typeof AVATARS]) {
+                          setEditForm({ ...editForm, avatar_url: 'user' });
+                        }
+                        if (mode === 'custom' && AVATARS[editForm.avatar_url as keyof typeof AVATARS]) {
+                          setEditForm({ ...editForm, avatar_url: '' });
+                        }
+                      }}
+                      className={cn(
+                        'flex-1 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5',
+                        avatarMode === mode ? 'bg-foreground text-background' : 'bg-background text-foreground hover:bg-black/5'
+                      )}
+                    >
+                      {mode === 'preset' ? <Box className="w-3 h-3" /> : <LinkIcon className="w-3 h-3" />}
+                      {mode}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Mode content */}
+                <div className="border border-foreground p-4 bg-white min-h-[140px]">
+                  {avatarMode === 'preset' ? (
+                    <div className="grid grid-cols-7 gap-2">
+                      {Object.entries(AVATARS).map(([key, icon]) => (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => setEditForm({ ...editForm, avatar_url: key })}
+                          className={cn(
+                            'aspect-square p-2 border-2 transition-all rounded-full relative',
+                            editForm.avatar_url === key
+                              ? 'border-foreground bg-foreground/10 scale-95'
+                              : 'border-black/10 hover:border-foreground'
+                          )}
+                          title={key}
+                        >
+                          <div className="w-full h-full flex items-center justify-center">{icon}</div>
+                          {editForm.avatar_url === key && (
+                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-accent border border-foreground flex items-center justify-center rounded-full">
+                              <CheckCheck className="w-2.5 h-2.5 text-white" />
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <input
+                        type="url"
+                        value={editForm.avatar_url}
+                        onChange={(e) => setEditForm({ ...editForm, avatar_url: e.target.value })}
+                        className="w-full bg-[#F5F5F5] border border-foreground px-3 py-2.5 font-bold text-sm outline-none focus:border-accent transition-colors"
+                        placeholder="https://..."
+                      />
+                      <div className="text-[9px] font-bold uppercase opacity-50 space-y-0.5">
+                        <p className="flex items-center gap-1"><Info className="w-2.5 h-2.5" /> Use direct image URLs (.jpg, .png, .webp)</p>
+                        <p>Recommended: 256×256 px square</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsEditing(false)}
+                  className="flex-1 border border-foreground font-bold uppercase text-xs"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1 bg-foreground text-background hover:bg-accent font-bold uppercase text-xs border border-foreground transition-colors"
+                >
+                  Save Changes
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default Profile;
