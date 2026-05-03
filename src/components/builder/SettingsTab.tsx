@@ -526,32 +526,74 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                     <h3 className="text-xl font-semibold tracking-tight">Intelligence Engine</h3>
                     <p className="text-sm text-muted-foreground mt-1.5">Configure how the platform processes and visualizes your captured data.</p>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-4">
                     {([
-                      { id: 'normal', label: 'Standard Analytics', desc: 'Baseline charts and response matrices' },
-                      { id: 'survey', label: 'Sentiment & Trends', desc: 'Emotional analysis and consensus detection' },
-                      { id: 'research', label: 'Statistical Core', desc: 'Standard deviation and distribution mapping' },
-                      { id: 'data_work', label: 'Raw Intelligence', desc: 'Structured JSON outputs and audit metrics' }
-                    ] as const).map((theme) => (
-                      <button
-                        key={theme.id}
-                        onClick={() => onUpdate({ responseTheme: theme.id })}
-                        className={`flex flex-col text-left p-5 border transition-all ${
-                          form.responseTheme === theme.id || (!form.responseTheme && theme.id === 'normal')
-                            ? 'border-primary bg-primary/[0.03] shadow-[0_0_15px_-5px_rgba(49,91,232,0.2)]'
-                            : 'border-border bg-background/50 hover:border-border/80'
-                        }`}
-                      >
-                        <span className={`text-sm font-bold mb-1 ${
-                          form.responseTheme === theme.id || (!form.responseTheme && theme.id === 'normal')
-                            ? 'text-primary'
-                            : 'text-foreground'
-                        }`}>{theme.label}</span>
-                        <span className="text-[11px] text-muted-foreground leading-snug">
-                          {theme.desc}
-                        </span>
-                      </button>
-                    ))}
+                      { 
+                        id: 'normal', 
+                        label: 'Standard Analytics', 
+                        desc: 'Baseline charts and response matrices',
+                        features: ['Dynamic Bar/Pie Charts', 'Response Density Heatmaps', 'Excel/CSV Matrix Exports', 'Basic Data Filtering']
+                      },
+                      { 
+                        id: 'survey', 
+                        label: 'Sentiment & Trends', 
+                        desc: 'Emotional analysis and consensus detection',
+                        features: ['NLP Sentiment Scoring', 'Word Cloud Visualization', 'Agreement Consensus Mapping', 'Topic Clustering']
+                      },
+                      { 
+                        id: 'research', 
+                        label: 'Statistical Core', 
+                        desc: 'Standard deviation and distribution mapping',
+                        features: ['Gaussian Distribution (Bell Curve)', 'Standard Deviation Analysis', 'Z-Score Normalization', 'Significance Testing']
+                      },
+                      { 
+                        id: 'data_work', 
+                        label: 'Raw Intelligence', 
+                        desc: 'Structured JSON outputs and audit metrics',
+                        features: ['Strict Schema Validation', 'Data Integrity Audit Logs', 'Real-time JSON/API Feeds', 'Quality Control Metrics']
+                      }
+                    ] as const).map((theme) => {
+                      const isActive = form.responseTheme === theme.id || (!form.responseTheme && theme.id === 'normal');
+                      return (
+                        <div key={theme.id} className="space-y-px">
+                          <button
+                            onClick={() => onUpdate({ responseTheme: theme.id })}
+                            className={`w-full flex items-center justify-between p-6 border transition-all ${
+                              isActive
+                                ? 'border-primary bg-primary/[0.03] shadow-[0_0_20px_-5px_rgba(49,91,232,0.15)]'
+                                : 'border-border bg-background/50 hover:border-border/80'
+                            }`}
+                          >
+                            <div className="text-left">
+                              <span className={`text-sm font-bold block mb-1 ${isActive ? 'text-primary' : 'text-foreground'}`}>
+                                {theme.label}
+                              </span>
+                              <span className="text-[11px] text-muted-foreground">
+                                {theme.desc}
+                              </span>
+                            </div>
+                            <div className={`w-2 h-2 rounded-full transition-all ${isActive ? 'bg-primary scale-125' : 'bg-border'}`} />
+                          </button>
+                          
+                          {isActive && (
+                            <div className="p-8 border-x border-b border-primary/20 bg-primary/[0.01] animate-in slide-in-from-top-2 fade-in duration-500">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {theme.features.map((feature, i) => (
+                                  <div key={i} className="flex items-center gap-3">
+                                    <div className="w-1 h-1 bg-primary/40 rounded-full" />
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-foreground/70">{feature}</span>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="mt-8 pt-6 border-t border-border/20 flex items-center justify-between">
+                                <p className="text-[10px] text-muted-foreground italic font-medium italic">Active Protocol: {theme.label}</p>
+                                <span className="text-[9px] font-mono text-primary/60 px-2 py-1 bg-primary/5">INTELLIGENCE_LAYER_V1</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </section>
               </div>
