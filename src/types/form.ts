@@ -92,6 +92,7 @@ export interface FormData {
   isAnonymous: boolean;
   acceptingResponses: boolean;
   confirmationMessage: string;
+  confirmationDescription?: string;
   password?: string;
   submissionLimit?: number;
   redirectUrl?: string;
@@ -105,6 +106,7 @@ export interface FormData {
   limitOneResponse?: boolean;
   isQuiz?: boolean;
   showQuizResultsToUsers?: boolean;
+  showSocialShare?: boolean;
   responseTheme?: ResponseTheme;
   restrictedDomain?: string;
   requireRespondentData?: boolean;

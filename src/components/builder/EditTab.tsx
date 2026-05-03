@@ -7,7 +7,8 @@ import {
   Type, AlignLeft, Mail, Hash, Phone,
   CircleDot, CheckSquare, ChevronDown,
   Calendar, Clock, Upload, Star, Sliders,
-  Heading, FileText, ToggleLeft, Plus, GitBranch, Palette, Eye, Layout, CheckCircle2
+  Heading, FileText, ToggleLeft, Plus, GitBranch, Palette, Eye, Layout, CheckCircle2,
+  CheckCircle, Link, Share2, Award, ExternalLink
 } from 'lucide-react';
 import { THEME_LABELS, FormTheme } from '@/types/form';
 import {
@@ -208,9 +209,11 @@ interface Props {
 const EditTab = ({ form, onUpdate }: Props) => {
   const [showThemePreview, setShowThemePreview] = useState(false);
   const [showThemeSelector, setShowThemeSelector] = useState(false);
+  const [activeSection, setActiveSection] = useState<'questions' | 'ending'>('questions');
 
   const style = THEME_STYLES[form.theme || 'brutalist_dark'];
   const addQuestion = (type: QuestionType) => {
+    if (activeSection !== 'questions') setActiveSection('questions');
     const q = createBlankQuestion(type);
     onUpdate({ questions: [...form.questions, q] });
   };
@@ -306,6 +309,33 @@ const EditTab = ({ form, onUpdate }: Props) => {
         </div>
 
         <h3 className="font-medium text-sm text-foreground mb-4 border-b border-border pb-2 flex items-center gap-2">
+          <AlignLeft className="w-4 h-4" /> Navigation
+        </h3>
+        
+        <div className="space-y-1 mb-8">
+          <button
+            onClick={() => setActiveSection('questions')}
+            className={cn(
+              "w-full text-left flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all",
+              activeSection === 'questions' ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-muted"
+            )}
+          >
+            <FileText className="w-3.5 h-3.5" />
+            Questions & Logic
+          </button>
+          <button
+            onClick={() => setActiveSection('ending')}
+            className={cn(
+              "w-full text-left flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all",
+              activeSection === 'ending' ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-muted"
+            )}
+          >
+            <CheckCircle className="w-3.5 h-3.5" />
+            Ending Page
+          </button>
+        </div>
+
+        <h3 className="font-medium text-sm text-foreground mb-4 border-b border-border pb-2 flex items-center gap-2">
           <AlignLeft className="w-4 h-4" /> Outline
         </h3>
         <div className="space-y-1">
@@ -319,12 +349,22 @@ const EditTab = ({ form, onUpdate }: Props) => {
                 <button
                   key={q.id}
                   onClick={() => {
-                    const el = document.getElementById(`question-${q.id}`);
-                    if (el) {
-                      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    if (activeSection !== 'questions') {
+                      setActiveSection('questions');
+                      // Small delay to allow re-render before scrolling
+                      setTimeout(() => {
+                        const el = document.getElementById(`question-${q.id}`);
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }, 100);
+                    } else {
+                      const el = document.getElementById(`question-${q.id}`);
+                      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
                   }}
-                  className={`w-full text-left flex items-center gap-2 px-2 py-1.5 hover:bg-foreground hover:text-background text-[10px] sm:text-xs font-medium truncate transition-colors ${isSection ? 'mt-2 border-l-2 border-primary text-primary' : ''}`}
+                  className={cn(
+                    "w-full text-left flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-foreground hover:text-background text-[10px] sm:text-xs font-medium truncate transition-all duration-200",
+                    isSection ? 'mt-2 border-l-2 border-primary text-primary' : 'text-muted-foreground'
+                  )}
                 >
                   <Icon className="w-3.5 h-3.5 shrink-0 opacity-60" />
                   <span className="truncate flex-1">{q.title || `Q${idx + 1} — ${QUESTION_TYPE_LABELS[q.type]}`}</span>
@@ -337,9 +377,18 @@ const EditTab = ({ form, onUpdate }: Props) => {
 
       {/* MAIN CONTENT */}
       <div className={cn(
-        "flex-1 max-w-3xl mx-auto w-full transition-all duration-500",
-        showThemePreview ? cn(style.wrapper, "rounded-3xl p-8 min-h-[800px] shadow-2xl border-4 border-white/10") : ""
+        "flex-1 max-w-4xl mx-auto w-full transition-all duration-700 ease-in-out relative",
+        showThemePreview ? cn(style.wrapper, "rounded-[3rem] p-12 min-h-[900px] shadow-[0_40px_80px_-15px_rgba(0,0,0,0.6)] border-[12px] border-white/5 ring-1 ring-white/10") : ""
       )}>
+        {showThemePreview && (
+          <div className="absolute inset-0 pointer-events-none rounded-[2.5rem] overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10 opacity-30" />
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+          </div>
+        )}
+
+      {activeSection === 'questions' ? (
+        <>
       {/* Form Header Preview (Logo) */}
       {form.style?.logoUrl && (
         <div className="mb-6 flex justify-center">
@@ -428,33 +477,163 @@ const EditTab = ({ form, onUpdate }: Props) => {
         </DropdownMenu>
       </div>
 
-      {form.questions.length === 0 && (
-        <div className="border border-border rounded-xl p-12 text-center mt-6 bg-card shadow-sm">
-          <p className="text-muted-foreground text-sm font-medium">
-            No questions yet. Click "Add Question" to start building.
-          </p>
+        </>
+      ) : (
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-2 font-sans">Ending Page</h2>
+            <p className="text-sm text-muted-foreground">Customize what respondents see after they submit your form.</p>
+          </div>
+
+          <div className={cn(
+            "space-y-6",
+            showThemePreview ? "flex flex-col items-center justify-center text-center py-20" : ""
+          )}>
+            <div className={cn(
+              "border border-border bg-card p-8 rounded-2xl shadow-sm space-y-6 w-full transition-all duration-300",
+              showThemePreview ? style.card : ""
+            )}>
+              <div className="flex justify-center mb-4">
+                <div className={cn(
+                  "w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center",
+                  showThemePreview ? "bg-white/10" : ""
+                )}>
+                  <CheckCircle2 className={cn("w-8 h-8 text-primary", showThemePreview ? "text-inherit" : "")} />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className={cn("text-[10px] font-bold uppercase tracking-wider text-muted-foreground", showThemePreview ? style.label : "")}>Confirmation Heading</label>
+                  <input 
+                    value={form.confirmationMessage}
+                    onChange={(e) => onUpdate({ confirmationMessage: e.target.value })}
+                    placeholder="e.g. Thank you for your response!"
+                    className={cn(
+                      "w-full bg-transparent text-2xl font-bold outline-none border-b border-border pb-2 focus:border-primary transition-all",
+                      showThemePreview ? style.input : ""
+                    )}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className={cn("text-[10px] font-bold uppercase tracking-wider text-muted-foreground", showThemePreview ? style.label : "")}>Description / Sub-message</label>
+                  <textarea 
+                    value={form.confirmationDescription || ''}
+                    onChange={(e) => onUpdate({ confirmationDescription: e.target.value })}
+                    placeholder="Add a friendly closing message or next steps..."
+                    className={cn(
+                      "w-full bg-transparent text-base outline-none border-b border-border pb-2 focus:border-primary transition-all resize-none min-h-[80px]",
+                      showThemePreview ? style.input : ""
+                    )}
+                  />
+                </div>
+              </div>
+
+              {form.isQuiz && (
+                <div className={cn(
+                  "p-4 border border-primary/20 bg-primary/5 rounded-xl flex items-center justify-between",
+                  showThemePreview ? "bg-white/5 border-white/20" : ""
+                )}>
+                  <div className="flex items-center gap-3">
+                    <Award className="w-5 h-5 text-primary" />
+                    <div>
+                      <h4 className="text-sm font-bold">Quiz Results</h4>
+                      <p className="text-xs text-muted-foreground">Show respondents their score immediately.</p>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => onUpdate({ showQuizResultsToUsers: !form.showQuizResultsToUsers })}
+                    className={cn(
+                      "px-4 py-1.5 rounded-lg text-xs font-bold transition-all border",
+                      form.showQuizResultsToUsers 
+                        ? "bg-primary text-primary-foreground border-primary" 
+                        : "bg-background text-foreground border-border hover:border-foreground"
+                    )}
+                  >
+                    {form.showQuizResultsToUsers ? "Enabled" : "Disabled"}
+                  </button>
+                </div>
+              )}
+
+              <div className="space-y-4 pt-6 border-t border-border">
+                <div className="flex items-center gap-2 mb-2 text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                 Post-Submission Actions
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                    <Link className="w-3 h-3" /> Redirect URL
+                  </label>
+                  <input 
+                    value={form.redirectUrl || ''}
+                    onChange={(e) => onUpdate({ redirectUrl: e.target.value })}
+                    placeholder="https://yourwebsite.com/next-page"
+                    className="w-full bg-muted/50 border border-border px-3 py-2 rounded-lg text-sm outline-none focus:border-primary transition-all"
+                  />
+                  <p className="text-[10px] text-muted-foreground">Redirects the user automatically after 3 seconds.</p>
+                </div>
+
+                <button 
+                  onClick={() => onUpdate({ showSocialShare: !form.showSocialShare })}
+                  className={cn(
+                    "w-full flex items-center justify-between p-4 rounded-xl border transition-all duration-300",
+                    form.showSocialShare ? "bg-primary/5 border-primary/20" : "bg-muted/30 border-border"
+                  )}
+                >
+                  <div className="flex items-center gap-3 text-left">
+                    <Share2 className={cn("w-4 h-4", form.showSocialShare ? "text-primary" : "text-muted-foreground")} />
+                    <div className="flex flex-col">
+                      <span className="text-xs font-bold">Show Social Share Buttons</span>
+                      <span className="text-[10px] text-muted-foreground">Allow respondents to share on X, LinkedIn, etc.</span>
+                    </div>
+                  </div>
+                  <div className={cn(
+                    "w-10 h-5 rounded-full relative transition-colors duration-300 shrink-0",
+                    form.showSocialShare ? "bg-primary" : "bg-muted"
+                  )}>
+                    <div className={cn(
+                      "absolute top-1 w-3 h-3 rounded-full bg-white transition-all duration-300",
+                      form.showSocialShare ? "right-1" : "left-1"
+                    )} />
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {showThemePreview && (
+              <div className="mt-8 space-y-4 w-full">
+                <p className={cn("text-[10px] font-bold uppercase tracking-[0.3em] opacity-40", style.label)}>Previewing Landing Experience</p>
+                <div className="flex gap-4 justify-center">
+                  <button className={cn("px-8 py-3 rounded-full font-bold uppercase text-xs tracking-widest transition-all", style.button)}>
+                    Submit another response
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
       </div>
 
       {/* THEME SELECTOR MODAL */}
       {showThemeSelector && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm" onClick={() => setShowThemeSelector(false)}>
-          <div className="bg-card border border-border rounded-3xl w-full max-w-4xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
-            <div className="p-6 border-b border-border flex items-center justify-between">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8 bg-black/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowThemeSelector(false)}>
+          <div className="bg-card border border-border rounded-[2.5rem] w-full max-w-5xl max-h-[90vh] flex flex-col shadow-[0_0_100px_rgba(0,0,0,0.5)] overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-10 duration-500" onClick={e => e.stopPropagation()}>
+            <div className="p-8 border-b border-border flex items-center justify-between bg-muted/20">
               <div>
-                <h2 className="text-xl font-bold flex items-center gap-2">
-                  <Palette className="w-5 h-5 text-primary" />
+                <h2 className="text-3xl font-black tracking-tighter flex items-center gap-3">
+                  <Palette className="w-8 h-8 text-primary" />
                   Visual Identity
                 </h2>
-                <p className="text-xs text-muted-foreground mt-1">Select a theme to transform your form's aesthetics.</p>
+                <p className="text-sm text-muted-foreground mt-2 font-medium">Elevate your form's presence with our high-fidelity design presets.</p>
               </div>
-              <button onClick={() => setShowThemeSelector(false)} className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-foreground">
-                <Plus className="w-5 h-5 rotate-45" />
+              <button onClick={() => setShowThemeSelector(false)} className="p-3 hover:bg-muted rounded-full transition-all hover:rotate-90 text-muted-foreground hover:text-foreground">
+                <Plus className="w-6 h-6 rotate-45" />
               </button>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-6 grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="flex-1 overflow-y-auto p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {(Object.keys(THEME_LABELS) as FormTheme[]).map((themeKey) => {
                 const tStyle = THEME_STYLES[themeKey];
                 const isActive = form.theme === themeKey;
@@ -467,33 +646,41 @@ const EditTab = ({ form, onUpdate }: Props) => {
                       setShowThemePreview(true);
                     }}
                     className={cn(
-                      "group relative flex flex-col text-left rounded-2xl overflow-hidden border-2 transition-all duration-300 hover:scale-[1.02]",
-                      isActive ? "border-primary shadow-lg ring-2 ring-primary/20" : "border-border hover:border-foreground/20"
+                      "group relative flex flex-col text-left rounded-[1.5rem] overflow-hidden border-2 transition-all duration-500 hover:translate-y-[-4px]",
+                      isActive ? "border-primary shadow-2xl ring-4 ring-primary/10 scale-[1.02]" : "border-border hover:border-primary/50 hover:shadow-xl"
                     )}
                   >
-                    <div className={cn("h-24 w-full p-3 flex flex-col gap-2", tStyle.wrapper)}>
-                      <div className={cn("w-full h-2 rounded", tStyle.accent)} style={{ backgroundColor: 'currentColor' }} />
-                      <div className="flex gap-1">
-                        <div className="w-4 h-4 rounded-full bg-white/20" />
-                        <div className="flex-1 h-4 rounded bg-white/10" />
+                    <div className={cn("h-36 w-full p-5 flex flex-col gap-3 transition-transform duration-700 group-hover:scale-105", tStyle.wrapper)}>
+                      <div className={cn("w-12 h-1.5 rounded-full", tStyle.accent)} style={{ backgroundColor: 'currentColor' }} />
+                      <div className="flex gap-2">
+                        <div className="w-6 h-6 rounded-full bg-white/20" />
+                        <div className="flex-1 h-6 rounded bg-white/10" />
                       </div>
-                      <div className="w-full h-8 rounded-lg bg-white/5 border border-white/10" />
+                      <div className="w-full h-12 rounded-xl bg-white/5 border border-white/10" />
                     </div>
-                    <div className="p-3 bg-card flex items-center justify-between">
-                      <span className="text-xs font-semibold">{THEME_LABELS[themeKey]}</span>
-                      {isActive && <CheckCircle2 className="w-3.5 h-3.5 text-primary" />}
+                    <div className="p-5 bg-card flex items-center justify-between border-t border-border">
+                      <div className="flex flex-col">
+                        <span className="text-xs font-black uppercase tracking-widest">{THEME_LABELS[themeKey]}</span>
+                        <span className="text-[10px] text-muted-foreground mt-0.5">Premium Preset</span>
+                      </div>
+                      {isActive && (
+                        <div className="bg-primary/10 p-1.5 rounded-full">
+                          <CheckCircle2 className="w-4 h-4 text-primary" />
+                        </div>
+                      )}
                     </div>
                   </button>
                 );
               })}
             </div>
 
-            <div className="p-6 border-t border-border bg-muted/30 flex justify-end">
+            <div className="p-8 border-t border-border bg-muted/40 flex justify-between items-center">
+              <p className="text-xs text-muted-foreground font-medium italic">Tip: All themes are responsive and support live preview.</p>
               <button 
                 onClick={() => setShowThemeSelector(false)}
-                className="bg-primary text-primary-foreground px-6 py-2 rounded-xl font-bold text-sm hover:opacity-90 transition-all"
+                className="bg-primary text-primary-foreground px-10 py-3 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg hover:shadow-primary/20 hover:scale-[1.02] transition-all"
               >
-                Done
+                Apply Changes
               </button>
             </div>
           </div>

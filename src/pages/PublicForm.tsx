@@ -236,6 +236,7 @@ const PublicForm = () => {
         isAnonymous: settings.isAnonymous ?? true,
         acceptingResponses: settings.acceptingResponses ?? true,
         confirmationMessage: settings.confirmationMessage || 'Thank you for your response!',
+        confirmationDescription: settings.confirmationDescription || '',
         password: settings.password,
         submissionLimit: settings.submissionLimit,
         redirectUrl: settings.redirectUrl,
@@ -249,6 +250,7 @@ const PublicForm = () => {
         limitOneResponse: settings.limitOneResponse ?? false,
         isQuiz: settings.isQuiz ?? false,
         showQuizResultsToUsers: data.show_quiz_results_to_users ?? settings.showQuizResultsToUsers ?? false,
+        showSocialShare: data.show_social_share ?? settings.showSocialShare ?? true,
         responseTheme: data.response_theme || settings.responseTheme || 'normal',
         restrictedDomain: data.restricted_domain || settings.restrictedDomain,
         requireRespondentData: data.require_respondent_data ?? settings.requireRespondentData ?? false,
@@ -723,10 +725,37 @@ const PublicForm = () => {
               <Check className="h-16 w-16 mx-auto" />
             </div>
             <h1 className="text-4xl font-black uppercase mb-3 italic tracking-tighter">
-              {isQuizMode ? 'RESULTS' : 'SUBMITTED'}
+              {isQuizMode ? 'RESULTS' : 'THANK YOU'}
             </h1>
-            <p className="text-sm font-bold uppercase tracking-tight opacity-70">{form.confirmationMessage}</p>
+            <p className="text-xl font-bold uppercase tracking-tight mb-2">{form.confirmationMessage}</p>
+            {form.confirmationDescription && (
+              <p className="text-sm font-medium opacity-60 max-w-md mx-auto">{form.confirmationDescription}</p>
+            )}
           </div>
+
+          {form.showSocialShare !== false && (
+            <div className="flex flex-col gap-4 max-w-xs mx-auto mb-10">
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 text-center">Share your results</p>
+              <div className="flex justify-center gap-3">
+                {[
+                  { name: 'Twitter', icon: '𝕏', color: '#000', url: `https://twitter.com/intent/tweet?text=I just completed ${form.title}!&url=${window.location.href}` },
+                  { name: 'LinkedIn', icon: 'in', color: '#0077b5', url: `https://www.linkedin.com/sharing/share-offsite/?url=${window.location.href}` },
+                  { name: 'Facebook', icon: 'f', color: '#1877f2', url: `https://www.facebook.com/sharer/sharer.php?u=${window.location.href}` }
+                ].map((social) => (
+                  <a 
+                    key={social.name}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`${style.card} w-10 h-10 flex items-center justify-center font-black text-lg hover:scale-110 transition-transform`}
+                    style={{ color: social.color }}
+                  >
+                    {social.icon}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Quiz Score Card - Only show inline if owner has enabled it */}
           {isQuizMode && form.showQuizResultsToUsers && (
