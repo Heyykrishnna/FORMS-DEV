@@ -217,8 +217,6 @@ const FormBuilder = () => {
 
   const handlePreview = () => {
     if (!form) return;
-    // The form is already being saved on every change via handleUpdate,
-    // but we can add a small toast to confirm the latest version is being opened.
     toast.info('Opening preview...');
     window.open(`/form/${form.id}`, '_blank');
   };
