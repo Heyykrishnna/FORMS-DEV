@@ -36,7 +36,6 @@ const FormBuilder = () => {
       
       if (error) throw error;
       
-      // Parse JSON fields
       const questions = typeof data.questions === 'string' ? JSON.parse(data.questions) : data.questions || [];
       const style = typeof data.style === 'string' ? JSON.parse(data.style) : data.style || {};
       const settings = typeof data.settings === 'string' ? JSON.parse(data.settings) : data.settings || {};
@@ -50,7 +49,6 @@ const FormBuilder = () => {
         layout: data.layout || 'single_page',
         style,
         
-        // Map settings back to root properties
         isAnonymous: settings.isAnonymous ?? true,
         acceptingResponses: settings.acceptingResponses ?? true,
         confirmationMessage: settings.confirmationMessage || 'Thank you for your response!',
@@ -76,7 +74,6 @@ const FormBuilder = () => {
         seoIndexable: data.seo_indexable ?? settings.seoIndexable ?? true,
         seoKeywords: data.seo_keywords || settings.seoKeywords,
         
-        // Security & Team Persistence
         collaborators: settings.collaborators || [],
         collaborationPassword: settings.collaborationPassword,
         linkRotationSalt: settings.linkRotationSalt,
@@ -101,12 +98,11 @@ const FormBuilder = () => {
   const handleUpdate = async (updated: Partial<FormData>) => {
     if (!form || !id) return;
     
-    // Optimistic update
     const newForm = { ...form, ...updated };
     setForm(newForm);
 
     try {
-      // Prepare settings object for DB
+      
       const settings = {
         isAnonymous: newForm.isAnonymous,
         acceptingResponses: newForm.acceptingResponses,
@@ -133,7 +129,6 @@ const FormBuilder = () => {
         seoIndexable: newForm.seoIndexable,
         seoKeywords: newForm.seoKeywords,
         
-        // Sync security settings
         collaborators: newForm.collaborators,
         collaborationPassword: newForm.collaborationPassword,
         linkRotationSalt: newForm.linkRotationSalt,
@@ -159,11 +154,10 @@ const FormBuilder = () => {
         .eq('id', id);
 
       if (error) {
-        // Fallback for missing columns (PGRST204)
+        
         if (error.code === 'PGRST204') {
           console.warn('Database schema mismatch detected. Retrying without top-level columns...', error.message);
           
-          // Retry with ONLY standard columns + the settings blob (which contains everything)
           const fallbackUpdate = {
             title: newForm.title,
             description: newForm.description,
@@ -223,7 +217,7 @@ const FormBuilder = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* TOP BAR */}
+      
       <header className="border-b border-border sticky top-0 bg-background/80 backdrop-blur-sm z-50">
         <div className="container mx-auto flex items-center justify-between px-4 py-3 gap-4">
           <div className="flex items-center gap-3 sm:gap-6 overflow-hidden flex-1">
@@ -266,7 +260,6 @@ const FormBuilder = () => {
         </div>
       </div>
 
-      {/* TAB CONTENT */}
       <div className="flex-1">
         {activeTab === 'edit' && <EditTab form={form} onUpdate={handleUpdate} />}
         {activeTab === 'responses' && <ResponsesTab form={form} />}

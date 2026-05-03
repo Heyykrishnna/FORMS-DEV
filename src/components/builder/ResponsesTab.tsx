@@ -907,4 +907,3 @@ const ResponsesTab = ({ form }: Props) => {
 };
 
 export default ResponsesTab;
-

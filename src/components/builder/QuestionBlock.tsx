@@ -74,7 +74,7 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
         themeStyles ? themeStyles.card : ""
       )}
     >
-      {/* Header bar */}
+      
       <div className={cn(
         "flex flex-col sm:flex-row sm:items-center justify-between px-4 py-3 border-b gap-3",
         isSectionHeader 
@@ -113,7 +113,6 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
         </div>
       </div>
 
-      {/* Body */}
       <div className="p-4 space-y-3">
         <div className="flex flex-col md:flex-row gap-4 items-start">
           <div className="flex-1 w-full">
@@ -155,7 +154,6 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
           />
         )}
 
-        {/* Options for choice types */}
         {(question.type === 'single_choice' || question.type === 'multiple_choice' || question.type === 'dropdown' || question.type === 'logic_mcq') && (
           <div className="space-y-2 pt-2">
             {(question.options || []).map((opt, i) => (
@@ -177,7 +175,6 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
           </div>
         )}
 
-        {/* Logic mapping for logic_mcq */}
         {question.type === 'logic_mcq' && sections.length > 0 && (
           <div className="pt-6 border-t border-border space-y-4">
             <div className="flex items-center gap-2">
@@ -216,7 +213,6 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
           </div>
         )}
 
-        {/* Rating config */}
         {question.type === 'rating' && (
           <div className="flex items-center gap-3 pt-2">
             <span className="text-xs uppercase text-muted-foreground">MAX STARS:</span>
@@ -231,7 +227,6 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
           </div>
         )}
 
-        {/* Linear scale config */}
         {question.type === 'linear_scale' && (
           <div className="space-y-2 pt-2">
             <div className="flex items-center gap-3">
@@ -267,10 +262,9 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
           </div>
         )}
 
-        {/* Validation & Settings */}
         {!isLayout && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-6 border-t border-border">
-            {/* Required Toggle */}
+            
             <div className="flex items-center justify-between bg-muted/30 p-3 border border-border rounded-lg">
               <span className="text-xs font-medium">Required field</span>
               <Switch
@@ -279,7 +273,6 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
               />
             </div>
 
-            {/* Include in Quiz Toggle - Only show if form is quiz mode */}
             {isQuiz && (
               <div className="flex items-center justify-between bg-primary/5 p-3 border border-primary/20 rounded-lg">
                 <div className="flex items-center gap-2">
@@ -292,7 +285,6 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
               </div>
             )}
 
-            {/* Max Length for Text inputs */}
             {(question.type === 'short_text' || question.type === 'long_text') && (
               <div className="flex items-center justify-between bg-muted/30 p-3 border border-border rounded-lg">
                 <span className="text-xs font-medium">Character limit</span>
@@ -304,7 +296,6 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
               </div>
             )}
 
-            {/* Placeholder Context */}
             {['short_text', 'long_text', 'email', 'number', 'phone'].includes(question.type) && (
               <div className="flex items-center justify-between bg-muted/30 p-3 border border-border rounded-lg">
                 <span className="text-xs font-medium">Data mapping</span>
@@ -314,7 +305,6 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
           </div>
         )}
 
-        {/* Quiz: Correct Answer & Points - Show by default unless opted-out */}
         {isQuiz && !isLayout && question.includeInQuiz !== false && (
           <div className="pt-6 border-t border-primary/20 space-y-4">
             <div className="flex items-center gap-2 mb-2">
@@ -322,7 +312,7 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Points */}
+              
               <div className="bg-primary/5 border border-primary/20 p-3 rounded-lg">
                 <label className="text-xs font-medium text-primary block mb-1">Points</label>
                 <Input
@@ -335,7 +325,6 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
                 />
               </div>
 
-              {/* Correct Answer */}
               <div className="bg-primary/5 border border-primary/20 p-3 rounded-lg">
                 <label className="text-xs font-medium text-primary block mb-1">Correct Answer</label>
                 {(question.type === 'single_choice' || question.type === 'dropdown' || question.type === 'yes_no' || question.type === 'logic_mcq') ? (

@@ -111,7 +111,7 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
         </div>
 
         <div className="flex flex-col lg:flex-row items-start gap-16">
-          {/* Sidebar Navigation */}
+          
           <div className="w-full lg:w-48 flex-shrink-0 sticky top-10">
             <div className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-x-visible no-scrollbar pb-2 lg:pb-0">
               {tabs.map((tab) => {
@@ -137,7 +137,6 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
             </div>
           </div>
 
-          {/* Content Area */}
           <div className="flex-1 min-w-0">
             <div className="bg-transparent min-h-[600px]">
 
@@ -331,7 +330,6 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
               </div>
             )}
 
-
             {activeTab === 'access' && (
               <div className="space-y-16 animate-in fade-in duration-500">
                 <section>
@@ -341,7 +339,7 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                   </div>
 
                   <div className="space-y-12">
-                    {/* Entry Protocols */}
+                    
                     <div className="space-y-6">
                       <div className="flex items-center gap-2 mb-4">
                         <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Entry Protocols</h4>
@@ -390,7 +388,6 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                       </div>
                     </div>
 
-                    {/* Organizational Control */}
                     <div className="space-y-6">
                       <div className="flex items-center gap-2 mb-4">
                         <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Organizational Control</h4>
@@ -415,7 +412,6 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                       </div>
                     </div>
 
-                    {/* Submission Governance */}
                     <div className="space-y-6">
                       <div className="flex items-center gap-2 mb-4">
                         <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Submission Governance</h4>
@@ -446,7 +442,6 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                       </div>
                     </div>
 
-                    {/* Hard Constraints */}
                     <div className="space-y-6">
                       <div className="flex items-center gap-2 mb-4">
                         <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Hard Constraints</h4>
@@ -485,7 +480,6 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
               </div>
             )}
 
-
             {activeTab === 'submission' && (
               <div className="space-y-12 animate-in fade-in duration-500">
                 <section>
@@ -510,7 +504,7 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                         <input
                           value={form.redirectUrl || ''}
                           onChange={(e) => onUpdate({ redirectUrl: e.target.value })}
-                          placeholder="https://..."
+                          placeholder="https:"
                           className="w-full bg-background/50 text-sm px-0 py-2 border-b border-border rounded-none outline-none font-mono focus:border-primary transition-all placeholder:text-muted-foreground/30"
                         />
                       </div>
@@ -527,7 +521,6 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                 </section>
               </div>
             )}
-
 
             {activeTab === 'analysis' && (
               <div className="space-y-12 animate-in fade-in duration-500">
@@ -609,7 +602,6 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
               </div>
             )}
 
-
             {activeTab === 'seo' && (
               <div className="space-y-12 animate-in fade-in duration-500">
                 <section>
@@ -685,7 +677,7 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
 
             {activeTab === 'team' && (
               <div className="space-y-16 animate-in fade-in duration-500">
-                {/* Header & Overview */}
+                
                 <section>
                   <div className="flex items-end justify-between mb-10 pb-6 border-b border-border/50">
                     <div>
@@ -705,9 +697,9 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                   </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                    {/* Left Column: Management */}
+                    
                     <div className="lg:col-span-7 space-y-12">
-                      {/* Access Management */}
+                      
                       <div className="space-y-8">
                         <div className="space-y-6">
                           <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.2em]">Access Management</label>
@@ -745,7 +737,6 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                           </div>
                         </div>
 
-                        {/* Collaborator List */}
                         <div className="space-y-px border border-border/50 divide-y divide-border/30 bg-background/50">
                           <div className="flex items-center justify-between p-4 bg-secondary/10">
                             <div className="flex items-center gap-3">
@@ -786,7 +777,6 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                         </div>
                       </div>
 
-                      {/* Protocol Security Block */}
                       <div className="space-y-6">
                         <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.2em]">Secure Access Protocol</label>
                         <div className="grid grid-cols-1 gap-6">
@@ -846,7 +836,6 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                       </div>
                     </div>
 
-                    {/* Right Column: Ledger */}
                     <div className="lg:col-span-5">
                       <div className="space-y-8 h-full flex flex-col">
                         <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.2em]">Security Ledger</label>

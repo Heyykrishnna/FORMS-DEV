@@ -91,7 +91,6 @@ const ShareTab = ({ form }: Props) => {
     <div className="min-h-full font-sans bg-background text-foreground">
       <div className="max-w-6xl mx-auto p-6 md:p-10">
         
-
         <div className="mb-10">
           <h2 className="text-3xl md:text-4xl font-bold font-sans tracking-tight mb-4">Share & Publish</h2>
           <p className="text-muted-foreground text-sm max-w-2xl font-light">
@@ -101,10 +100,8 @@ const ShareTab = ({ form }: Props) => {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
-
           <div className="lg:col-span-7 space-y-6">
             
-
             <div className="relative border border-border bg-card p-6 rounded-xl overflow-hidden group shadow-sm">
               <div className="relative z-10">
                 <label className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground mb-4 flex items-center gap-2">
@@ -126,7 +123,6 @@ const ShareTab = ({ form }: Props) => {
                 </div>
               </div>
             </div>
-
 
             <div className="relative border border-border bg-card p-6 rounded-xl overflow-hidden group shadow-sm">
               <div className="relative z-10">
@@ -163,7 +159,6 @@ const ShareTab = ({ form }: Props) => {
               </div>
             </div>
 
-
             <div className="relative border border-border bg-card p-6 rounded-xl overflow-hidden group shadow-sm">
               <div className="relative z-10 flex flex-col h-full">
                 <div className="bg-secondary/50 border border-border rounded-lg p-4 mb-4">
@@ -189,7 +184,6 @@ const ShareTab = ({ form }: Props) => {
           <div className="lg:col-span-5 relative border border-border bg-card rounded-xl overflow-hidden flex flex-col shadow-sm">
              <div className="relative z-10 p-6 flex flex-col h-full">
 
-
                 <div className="flex-1 flex flex-col items-center justify-center min-h-[300px] mb-8 relative">
                    <div 
                       ref={qrRef} 
@@ -197,14 +191,12 @@ const ShareTab = ({ form }: Props) => {
                     />
                 </div>
 
-
                 <div className="space-y-5 bg-secondary/30 p-5 rounded-lg border border-border">
                    <div className="flex items-center gap-2 mb-2">
                      <Settings2 className="w-3.5 h-3.5 text-muted-foreground" />
                      <span className="text-xs font-medium text-foreground">Configuration</span>
                    </div>
                    
-
                    <div className="grid grid-cols-2 gap-4">
 
                      <div className="space-y-2">
@@ -223,7 +215,6 @@ const ShareTab = ({ form }: Props) => {
                         </select>
                      </div>
 
-
                      <div className="space-y-2">
                         <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Corners</label>
                         <select 
@@ -236,7 +227,6 @@ const ShareTab = ({ form }: Props) => {
                           <option value="extra-rounded">Extra Rounded</option>
                         </select>
                      </div>
-
 
                      <div className="col-span-2 space-y-2">
                         <label className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">

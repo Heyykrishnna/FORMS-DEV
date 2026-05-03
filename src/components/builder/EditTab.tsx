@@ -362,7 +362,7 @@ const EditTab = ({ form, onUpdate }: Props) => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl flex items-start gap-8 relative">
-      {/* SIDEBAR NAVIGATION */}
+      
       <div className="w-64 sticky top-32 shrink-0 hidden lg:block border border-border bg-card p-4 rounded-xl shadow-sm max-h-[calc(100vh-10rem)] overflow-y-auto">
         <div className="space-y-4 mb-6">
           <button 
@@ -441,7 +441,7 @@ const EditTab = ({ form, onUpdate }: Props) => {
                   onClick={() => {
                     if (activeSection !== 'questions') {
                       setActiveSection('questions');
-                      // Small delay to allow re-render before scrolling
+                      
                       setTimeout(() => {
                         const el = document.getElementById(`question-${q.id}`);
                         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -465,7 +465,6 @@ const EditTab = ({ form, onUpdate }: Props) => {
         </div>
       </div>
 
-      {/* MAIN CONTENT */}
       <div className={cn(
         "flex-1 max-w-4xl mx-auto w-full transition-all duration-700 ease-in-out relative",
         showThemePreview ? cn(style.wrapper, "rounded-[3rem] p-12 min-h-[900px] shadow-[0_40px_80px_-15px_rgba(0,0,0,0.6)] border-[12px] border-white/5 ring-1 ring-white/10") : ""
@@ -479,7 +478,7 @@ const EditTab = ({ form, onUpdate }: Props) => {
 
       {activeSection === 'questions' ? (
         <>
-      {/* Form Header Preview (Logo) */}
+      
       {form.style?.logoUrl && (
         <div className="mb-6 flex justify-center">
           <div className="border border-border p-2 bg-card rounded-xl shadow-sm">
@@ -507,7 +506,6 @@ const EditTab = ({ form, onUpdate }: Props) => {
         />
       </div>
 
-      {/* Questions */}
       <div className="space-y-8 pb-32">
         <DndContext
           sensors={sensors}
@@ -538,7 +536,6 @@ const EditTab = ({ form, onUpdate }: Props) => {
         </DndContext>
       </div>
 
-      {/* Add Question */}
       <div className="mt-6">
         <DropdownMenu>
           <DropdownMenuTrigger className="border border-border bg-primary text-primary-foreground rounded-lg px-6 py-3 font-medium text-sm shadow-sm hover:opacity-90 transition-all flex items-center gap-2 w-full justify-center">
@@ -735,7 +732,6 @@ const EditTab = ({ form, onUpdate }: Props) => {
       )}
       </div>
 
-      {/* THEME SELECTOR MODAL */}
       {showThemeSelector && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8 bg-black/60 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowThemeSelector(false)}>
           <div className="bg-card border border-border rounded-[2.5rem] w-full max-w-5xl max-h-[90vh] flex flex-col shadow-[0_0_100px_rgba(0,0,0,0.5)] overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-10 duration-500" onClick={e => e.stopPropagation()}>
