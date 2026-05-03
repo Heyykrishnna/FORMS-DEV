@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -34,7 +33,6 @@ interface ProfileData {
   recent_activity?: Activity[];
 }
 
-// Vertical rule component matching dashboard
 const VerticalScale = ({ className }: { className?: string }) => (
   <div
     className={cn(
@@ -44,7 +42,6 @@ const VerticalScale = ({ className }: { className?: string }) => (
   />
 );
 
-// Horizontal rule component
 const HorizontalScale = ({ className }: { className?: string }) => (
   <div
     className={cn(
@@ -54,7 +51,6 @@ const HorizontalScale = ({ className }: { className?: string }) => (
   />
 );
 
-// Thin label
 const FieldLabel = ({ children }: { children: React.ReactNode }) => (
   <p className="text-[10px] font-mono font-bold uppercase tracking-widest text-black/40 mb-1">{children}</p>
 );
@@ -226,17 +222,14 @@ const Profile = () => {
   return (
     <div className="relative min-h-screen bg-[#F0F0F0] text-foreground font-mono overflow-x-hidden">
 
-      {/* Left & right vertical scales */}
       <VerticalScale className="fixed inset-y-0 left-0 z-20 pointer-events-none" />
       <VerticalScale className="fixed inset-y-0 right-0 z-20 pointer-events-none" />
 
-      {/* Global dot grid background */}
       <div
         className="fixed inset-0 pointer-events-none opacity-[0.04]"
         style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }}
       />
 
-      {/* NAV — matches dashboard */}
       <nav className="border-b border-foreground sticky top-0 bg-[#F0F0F0] z-50">
         <div className="mx-auto flex items-center justify-between px-16 py-4">
           <Link to="/" className="text-[24px] font-sans font-medium tracking-tight hover:text-accent transition-colors">
@@ -260,13 +253,10 @@ const Profile = () => {
         </div>
       </nav>
 
-      {/* Top horizontal scale */}
       <HorizontalScale />
 
-      {/* Page content — padded to clear side scales */}
       <main className="px-16 py-12 max-w-[1400px] mx-auto relative z-10">
 
-        {/* Page heading row */}
         <div className="flex items-end justify-between mb-10 pb-6 border-b border-black/10">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest opacity-40 mb-1">Account</p>
@@ -282,15 +272,11 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* ─── MAIN GRID ─── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-          {/* ── LEFT COL: Identity card ── */}
           <div className="lg:col-span-1 space-y-4">
 
-            {/* Identity card */}
             <div className="bg-background border border-foreground rounded-xl overflow-hidden shadow-sm">
-              {/* Card header bar */}
               <div className="bg-foreground text-background px-5 py-3 flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-widest">Identity</span>
                 <button
@@ -302,7 +288,6 @@ const Profile = () => {
               </div>
 
               <div className="p-6 space-y-5">
-                {/* Avatar */}
                 <div className="flex items-center gap-4">
                   <div
                     className="w-16 h-16 rounded-full border-2 border-foreground overflow-hidden bg-black flex items-center justify-center shrink-0 cursor-pointer group relative"
@@ -352,7 +337,6 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Sign out / danger */}
             <div className="bg-background border border-foreground rounded-xl overflow-hidden shadow-sm">
               <div className="bg-foreground text-background px-5 py-3">
                 <span className="text-[10px] font-bold uppercase tracking-widest">Account Actions</span>
@@ -374,13 +358,10 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* ── RIGHT COL: Badges + Activity ── */}
           <div className="lg:col-span-2 space-y-6">
 
-            {/* Horizontal scale between sections */}
             <HorizontalScale />
 
-            {/* Badges */}
             <div className="bg-background border border-foreground rounded-xl overflow-hidden shadow-sm">
               <div className="bg-foreground text-background px-5 py-3 flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-widest">Medals & Honors</span>
@@ -412,10 +393,8 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Mid horizontal scale */}
             <HorizontalScale />
 
-            {/* Stats overview row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[
                 { label: 'Total Forms', value: stats.formsCount },
@@ -429,7 +408,6 @@ const Profile = () => {
               ))}
             </div>
 
-            {/* Operations log */}
             <div className="bg-background border border-foreground rounded-xl overflow-hidden shadow-sm">
               <div className="bg-foreground text-background px-5 py-3 flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-widest">Operations Log</span>
@@ -442,7 +420,6 @@ const Profile = () => {
                       key={index}
                       className="flex items-center gap-4 px-5 py-4 hover:bg-black/[0.02] transition-colors group"
                     >
-                      {/* index badge */}
                       <div className="w-6 h-6 border border-foreground flex items-center justify-center shrink-0 text-[10px] font-black group-hover:bg-foreground group-hover:text-background transition-all">
                         {String(index + 1).padStart(2, '0')}
                       </div>
@@ -457,7 +434,6 @@ const Profile = () => {
                         </p>
                       </div>
 
-                      {/* status dot */}
                       <div className="w-2 h-2 rounded-full bg-accent shrink-0" />
                     </div>
                   ))
@@ -472,12 +448,10 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Bottom horizontal scale */}
         <div className="mt-12">
           <HorizontalScale />
         </div>
 
-        {/* Bottom meta */}
         <div className="mt-6 flex items-center justify-between opacity-30">
           <p className="text-[10px] font-mono uppercase tracking-widest">aqora · profile</p>
           <p className="text-[10px] font-mono uppercase tracking-widest">{new Date().toLocaleDateString()}</p>
@@ -485,12 +459,10 @@ const Profile = () => {
 
       </main>
 
-      {/* ─── EDIT PROFILE MODAL ─── */}
       {isEditing && (
         <div className="fixed inset-0 bg-black/70 z-[200] flex items-center justify-center p-4">
           <div className="bg-background border border-foreground w-full max-w-md shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] animate-in zoom-in-95 duration-150 relative overflow-hidden">
 
-            {/* Modal header */}
             <div className="bg-foreground text-background px-6 py-4 flex items-center justify-between">
               <span className="text-[10px] font-black uppercase tracking-widest">Edit Profile</span>
               <button onClick={() => setIsEditing(false)} className="hover:opacity-70 transition-opacity">
@@ -499,7 +471,6 @@ const Profile = () => {
             </div>
 
             <form onSubmit={handleUpdateProfile} className="p-6 space-y-5">
-              {/* Username */}
               <div>
                 <FieldLabel>Username</FieldLabel>
                 <input
@@ -510,11 +481,9 @@ const Profile = () => {
                 />
               </div>
 
-              {/* Avatar section */}
               <div>
                 <FieldLabel>Avatar</FieldLabel>
 
-                {/* Preview */}
                 <div className="flex items-center gap-3 p-3 border border-foreground mb-3 bg-[#F5F5F5]">
                   <div className="w-12 h-12 rounded-full border border-foreground overflow-hidden bg-black flex items-center justify-center shrink-0">
                     {editForm.avatar_url && AVATARS[editForm.avatar_url as keyof typeof AVATARS] ? (
@@ -537,7 +506,6 @@ const Profile = () => {
                   </div>
                 </div>
 
-                {/* Mode tabs */}
                 <div className="flex border border-foreground mb-3">
                   {(['preset', 'custom'] as const).map(mode => (
                     <button
@@ -563,7 +531,6 @@ const Profile = () => {
                   ))}
                 </div>
 
-                {/* Mode content */}
                 <div className="border border-foreground p-4 bg-white min-h-[140px]">
                   {avatarMode === 'preset' ? (
                     <div className="grid grid-cols-7 gap-2">
@@ -607,7 +574,6 @@ const Profile = () => {
                 </div>
               </div>
 
-              {/* Actions */}
               <div className="flex gap-3 pt-2">
                 <Button
                   type="button"
