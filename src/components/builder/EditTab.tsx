@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { FormData, Question, QuestionType, QUESTION_TYPE_LABELS } from '@/types/form';
 import { createBlankQuestion } from '@/lib/formStore';
 import QuestionBlock from './QuestionBlock';
+import { cn } from '@/lib/utils';
 import {
   Type, AlignLeft, Mail, Hash, Phone,
   CircleDot, CheckSquare, ChevronDown,
   Calendar, Clock, Upload, Star, Sliders,
-  Heading, FileText, ToggleLeft, Plus, GitBranch
+  Heading, FileText, ToggleLeft, Plus, GitBranch, Palette, Eye, Layout, CheckCircle2
 } from 'lucide-react';
+import { THEME_LABELS, FormTheme } from '@/types/form';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -60,12 +62,154 @@ const GROUPS: { label: string; types: QuestionType[] }[] = [
   { label: 'LAYOUT', types: ['section_header', 'description'] },
 ];
 
+const THEME_STYLES: Record<FormTheme, { wrapper: string; card: string; accent: string; selected: string; input: string; button: string; label: string }> = {
+  brutalist_dark: {
+    wrapper: 'bg-[#000] text-[#fff]',
+    card: 'border-2 border-[#fff] p-6 bg-black',
+    accent: 'text-[#FF4500]',
+    selected: 'bg-[#FF4500] text-[#fff] border-[#FF4500]',
+    input: 'bg-transparent border-2 border-[#fff] text-[#fff] p-2.5 w-full outline-none focus:border-[#FF4500] placeholder:text-[#666]',
+    button: 'bg-[#FF4500] text-[#fff] border-2 border-[#fff] px-8 py-3 font-bold uppercase shadow-[4px_4px_0px_#fff]',
+    label: 'text-xs font-bold uppercase tracking-wider text-[#999]',
+  },
+  clean_light: {
+    wrapper: 'bg-[#fafafa] text-[#111]',
+    card: 'border-2 border-[#111] p-6 bg-[#fff]',
+    accent: 'text-[#111]',
+    selected: 'bg-[#111] text-[#fff] border-[#111]',
+    input: 'bg-[#fff] border-2 border-[#ddd] text-[#111] p-2.5 w-full outline-none focus:border-[#111] placeholder:text-[#aaa]',
+    button: 'bg-[#111] text-[#fff] border-2 border-[#111] px-8 py-3 font-bold uppercase hover:bg-[#333]',
+    label: 'text-xs font-bold uppercase tracking-wider text-[#888]',
+  },
+  neon_industrial: {
+    wrapper: 'bg-[#0a0f1a] text-[#00ff41]',
+    card: 'border-2 border-[#00ff41] p-6 bg-[#0a0f1a]',
+    accent: 'text-[#00ff41]',
+    selected: 'bg-[#00ff41] text-[#0a0f1a] border-[#00ff41]',
+    input: 'bg-transparent border-2 border-[#00ff41]/50 text-[#00ff41] p-2.5 w-full outline-none focus:border-[#00ff41] placeholder:text-[#00ff41]/30',
+    button: 'bg-[#00ff41] text-[#0a0f1a] border-2 border-[#00ff41] px-8 py-3 font-bold uppercase hover:bg-[#00cc33]',
+    label: 'text-xs font-bold uppercase tracking-wider text-[#00ff41]/60',
+  },
+  monochrome: {
+    wrapper: 'bg-[#f0f0f0] text-[#333]',
+    card: 'border-2 border-[#333] p-6 bg-[#fff]',
+    accent: 'text-[#333]',
+    selected: 'bg-[#333] text-[#fff] border-[#333]',
+    input: 'bg-[#f5f5f5] border-2 border-[#ccc] text-[#333] p-2.5 w-full outline-none focus:border-[#333] placeholder:text-[#999]',
+    button: 'bg-[#333] text-[#fff] border-2 border-[#333] px-8 py-3 font-bold uppercase hover:bg-[#555]',
+    label: 'text-xs font-bold uppercase tracking-wider text-[#999]',
+  },
+  warm_terminal: {
+    wrapper: 'bg-[#1a1208] text-[#e6a030]',
+    card: 'border-2 border-[#e6a030]/50 p-6 bg-[#1a1208]',
+    accent: 'text-[#e6a030]',
+    selected: 'bg-[#e6a030] text-[#1a1208] border-[#e6a030]',
+    input: 'bg-transparent border-2 border-[#e6a030]/30 text-[#e6a030] p-2.5 w-full outline-none focus:border-[#e6a030] placeholder:text-[#e6a030]/30',
+    button: 'bg-[#e6a030] text-[#1a1208] border-2 border-[#e6a030] px-8 py-3 font-bold uppercase hover:bg-[#cc8a20]',
+    label: 'text-xs font-bold uppercase tracking-wider text-[#e6a030]/60',
+  },
+  cyber_toxic: {
+    wrapper: 'bg-[#ffff00] text-[#000]',
+    card: 'border-4 border-[#000] p-6 bg-[#ffff00]',
+    accent: 'text-[#ff00ff]',
+    selected: 'bg-[#ff00ff] text-[#fff] border-[#000]',
+    input: 'bg-[#fff] border-4 border-[#000] text-[#000] p-2.5 w-full outline-none focus:bg-[#ff00ff] focus:text-[#fff] placeholder:text-[#000]/30',
+    button: 'bg-[#000] text-[#ffff00] border-4 border-[#000] px-8 py-3 font-bold uppercase shadow-[6px_6px_0px_#ff00ff] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px]',
+    label: 'text-xs font-black uppercase tracking-tighter text-[#000]',
+  },
+  retro_paper: {
+    wrapper: 'bg-[#f4f1ea] text-[#2c2c2c]',
+    card: 'border-2 border-[#2c2c2c] p-8 bg-[#fcfaf5]',
+    accent: 'text-[#8b4513]',
+    selected: 'bg-[#8b4513] text-[#fff] border-[#2c2c2c]',
+    input: 'bg-transparent border-b-2 border-[#2c2c2c] text-[#2c2c2c] p-2 w-full outline-none focus:border-[#8b4513] placeholder:text-[#ccc]',
+    button: 'bg-[#2c2c2c] text-[#f4f1ea] px-8 py-3 hover:text-white font-bold uppercase tracking-widest hover:bg-[#444]',
+    label: 'text-xs font-serif italic text-[#666]',
+  },
+  midnight_vampire: {
+    wrapper: 'bg-[#0a0000] text-[#ff0000]',
+    card: 'border-2 border-[#ff0000] p-6 bg-[#1a0000]',
+    accent: 'text-[#ffd700]',
+    selected: 'bg-[#ff0000] text-[#000] border-[#ffd700]',
+    input: 'bg-[#000] border-2 border-[#ff0000]/50 text-[#ff0000] p-3 w-full outline-none focus:border-[#ffd700] placeholder:text-[#ff0000]/20',
+    button: 'bg-[#ff0000] text-[#000] border-2 border-[#ffd700] px-8 py-3 font-bold uppercase hover:bg-[#cc0000]',
+    label: 'text-xs font-bold uppercase tracking-[0.2em] text-[#ff0000]/60',
+  },
+  deep_ocean: {
+    wrapper: 'bg-[#001f3f] text-[#7fdbff]',
+    card: 'border-2 border-[#7fdbff] p-6 bg-[#001f3f]/50 backdrop-blur-sm',
+    accent: 'text-[#39cccc]',
+    selected: 'bg-[#7fdbff] text-[#001f3f] border-[#39cccc]',
+    input: 'bg-[#001f3f] border-2 border-[#7fdbff]/30 text-[#7fdbff] p-2.5 w-full outline-none focus:border-[#7fdbff] placeholder:text-[#7fdbff]/20',
+    button: 'bg-[#39cccc] text-[#001f3f] border-2 border-[#7fdbff] px-8 py-3 font-bold uppercase hover:bg-[#2eadad]',
+    label: 'text-xs font-bold uppercase text-[#7fdbff]/50',
+  },
+  royal_gold: {
+    wrapper: 'bg-black text-[#d4af37]',
+    card: 'border-[3px] border-[#d4af37] p-8 bg-black shadow-[0_0_20px_rgba(212,175,55,0.1)]',
+    accent: 'text-white',
+    selected: 'bg-[#d4af37] text-black border-white',
+    input: 'bg-transparent border-2 border-[#d4af37]/40 text-[#d4af37] p-3 w-full outline-none focus:border-[#d4af37] placeholder:text-[#d4af37]/30',
+    button: 'bg-[#d4af37] text-black border-2 border-white px-8 py-3 font-bold uppercase hover:opacity-90 transition-opacity font-serif',
+    label: 'text-[10px] font-black uppercase tracking-[0.3em] text-[#d4af37]/40',
+  },
+  toxic_mint: {
+    wrapper: 'bg-[#000] text-[#00ff88] font-mono',
+    card: 'border-4 border-[#00ff88] p-8 bg-[#000] shadow-[8px_8px_0px_#00ff88]',
+    accent: 'text-[#fff]',
+    selected: 'bg-[#00ff88] text-[#000] border-[#fff]',
+    input: 'bg-[#000] border-4 border-[#00ff88]/50 text-[#00ff88] p-3 w-full outline-none focus:border-[#fff] placeholder:text-[#00ff88]/20',
+    button: 'bg-[#00ff88] text-[#000] border-4 border-[#00ff88] px-8 py-3 font-black uppercase shadow-[6px_6px_0px_#fff] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all',
+    label: 'text-[10px] font-black uppercase tracking-[0.4em] text-[#00ff88]/50',
+  },
+  cyberpunk_pink: {
+    wrapper: 'bg-[#1a001a] text-[#ff00ff] font-mono',
+    card: 'border-4 border-[#00ffff] p-8 bg-[#1a001a] shadow-[10px_10px_0px_#ff00ff]',
+    accent: 'text-[#00ffff]',
+    selected: 'bg-[#ff00ff] text-[#fff] border-[#00ffff]',
+    input: 'bg-[#1a001a] border-2 border-[#ff00ff]/50 text-[#ff00ff] p-3 w-full outline-none focus:border-[#00ffff] placeholder:text-[#ff00ff]/20',
+    button: 'bg-[#ff00ff] text-[#fff] border-4 border-[#00ffff] px-8 py-3 font-black uppercase hover:bg-[#ff00ff]/80 transition-all shadow-[0_0_15px_rgba(255,0,255,0.5)]',
+    label: 'text-xs font-black uppercase tracking-[0.2em] text-[#ff00ff]/60',
+  },
+  glassmorphism: {
+    wrapper: 'bg-gradient-to-br from-[#121212] via-[#2a2a2a] to-[#1a1a1a] text-[#fff]',
+    card: 'bg-white/10 backdrop-blur-xl border border-white/20 p-8 shadow-2xl rounded-3xl',
+    accent: 'text-blue-400',
+    selected: 'bg-white/30 text-white border-white/50 backdrop-blur-md',
+    input: 'bg-white/5 border border-white/20 text-white p-3 w-full rounded-xl outline-none focus:bg-white/10 transition-all placeholder:text-white/20',
+    button: 'bg-white text-black px-10 py-4 font-black uppercase rounded-full hover:bg-opacity-90 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]',
+    label: 'text-[10px] font-black uppercase tracking-[0.2em] text-white/40',
+  },
+  desert_oasis: {
+    wrapper: 'bg-[#faf9f6] text-[#8b4513]',
+    card: 'border-4 border-[#d2b48c] p-8 bg-white shadow-[12px_12px_0px_#8b4513]',
+    accent: 'text-[#cd5c5c]',
+    selected: 'bg-[#8b4513] text-white border-[#8b4513]',
+    input: 'bg-[#faf9f6] border-2 border-[#d2b48c] text-[#8b4513] p-3 w-full outline-none focus:border-[#8b4513] placeholder:text-[#d2b48c]',
+    button: 'bg-[#8b4513] text-white px-8 py-3 font-bold uppercase tracking-widest hover:bg-[#a0522d]',
+    label: 'text-xs font-serif italic text-[#8b4513]/60',
+  },
+  forest_night: {
+    wrapper: 'bg-[#1b3022] text-[#f0f7f4]',
+    card: 'border-2 border-[#4f7942] p-8 bg-[#1b3022]/80 backdrop-blur-sm shadow-[8px_8px_0px_#4f7942]',
+    accent: 'text-[#90ee90]',
+    selected: 'bg-[#4f7942] text-[#f0f7f4] border-[#90ee90]',
+    input: 'bg-transparent border-2 border-[#4f7942] text-[#f0f7f4] p-3 w-full outline-none focus:border-[#90ee90] placeholder:text-[#4f7942]',
+    button: 'bg-[#4f7942] text-[#f0f7f4] border-2 border-[#f0f7f4] px-8 py-3 font-bold uppercase hover:bg-[#3d5c33]',
+    label: 'text-[10px] font-black uppercase tracking-[0.4em] text-[#4f7942]',
+  },
+};
+
 interface Props {
   form: FormData;
   onUpdate: (data: Partial<FormData>) => void;
 }
 
 const EditTab = ({ form, onUpdate }: Props) => {
+  const [showThemePreview, setShowThemePreview] = useState(false);
+  const [showThemeSelector, setShowThemeSelector] = useState(false);
+
+  const style = THEME_STYLES[form.theme || 'brutalist_dark'];
   const addQuestion = (type: QuestionType) => {
     const q = createBlankQuestion(type);
     onUpdate({ questions: [...form.questions, q] });
@@ -127,6 +271,40 @@ const EditTab = ({ form, onUpdate }: Props) => {
     <div className="container mx-auto px-4 py-8 max-w-7xl flex items-start gap-8 relative">
       {/* SIDEBAR NAVIGATION */}
       <div className="w-64 sticky top-32 shrink-0 hidden lg:block border border-border bg-card p-4 rounded-xl shadow-sm max-h-[calc(100vh-10rem)] overflow-y-auto">
+        <div className="space-y-4 mb-6">
+          <button 
+            onClick={() => setShowThemePreview(!showThemePreview)}
+            className={cn(
+              "w-full flex items-center justify-between px-3 py-2 rounded-xl border transition-all text-xs font-medium",
+              showThemePreview 
+                ? "bg-primary text-primary-foreground border-primary" 
+                : "bg-background text-foreground border-border hover:border-foreground"
+            )}
+          >
+            <div className="flex items-center gap-2">
+              {showThemePreview ? <Eye className="w-3.5 h-3.5" /> : <Layout className="w-3.5 h-3.5" />}
+              {showThemePreview ? "Theme View" : "Normal View"}
+            </div>
+            <div className={cn(
+              "w-8 h-4 rounded-full relative transition-colors",
+              showThemePreview ? "bg-white/20" : "bg-muted"
+            )}>
+              <div className={cn(
+                "absolute top-1 w-2 h-2 rounded-full transition-all",
+                showThemePreview ? "right-1 bg-white" : "left-1 bg-foreground/20"
+              )} />
+            </div>
+          </button>
+
+          <button 
+            onClick={() => setShowThemeSelector(true)}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl border border-border bg-background hover:bg-muted transition-all text-xs font-medium text-foreground"
+          >
+            <Palette className="w-3.5 h-3.5" />
+            Design & Themes
+          </button>
+        </div>
+
         <h3 className="font-medium text-sm text-foreground mb-4 border-b border-border pb-2 flex items-center gap-2">
           <AlignLeft className="w-4 h-4" /> Outline
         </h3>
@@ -158,7 +336,10 @@ const EditTab = ({ form, onUpdate }: Props) => {
       </div>
 
       {/* MAIN CONTENT */}
-      <div className="flex-1 max-w-3xl mx-auto w-full">
+      <div className={cn(
+        "flex-1 max-w-3xl mx-auto w-full transition-all duration-500",
+        showThemePreview ? cn(style.wrapper, "rounded-3xl p-8 min-h-[800px] shadow-2xl border-4 border-white/10") : ""
+      )}>
       {/* Form Header Preview (Logo) */}
       {form.style?.logoUrl && (
         <div className="mb-6 flex justify-center">
@@ -172,15 +353,18 @@ const EditTab = ({ form, onUpdate }: Props) => {
         </div>
       )}
 
-      {/* Description */}
-      <div className="border border-border bg-card p-4 rounded-xl shadow-sm mb-6"
-      >
+      <div className={cn(
+        "border border-border bg-card p-4 rounded-xl shadow-sm mb-6",
+        showThemePreview ? style.card : ""
+      )}>
         <textarea
           value={form.description}
           onChange={(e) => onUpdate({ description: e.target.value })}
           placeholder="Form description (optional)"
-          className="w-full bg-transparent text-sm font-sans font-medium outline-none resize-none min-h-[60px] placeholder:text-muted-foreground"
-          
+          className={cn(
+            "w-full bg-transparent text-sm font-sans font-medium outline-none resize-none min-h-[60px] placeholder:text-muted-foreground",
+            showThemePreview ? "text-inherit" : ""
+          )}
         />
       </div>
 
@@ -208,6 +392,7 @@ const EditTab = ({ form, onUpdate }: Props) => {
                 onDelete={() => removeQuestion(q.id)}
                 onDuplicate={() => duplicateQuestion(q.id)}
                 onMove={(dir) => moveQuestion(q.id, dir)}
+                themeStyles={showThemePreview ? style : undefined}
               />
             ))}
           </SortableContext>
@@ -251,6 +436,69 @@ const EditTab = ({ form, onUpdate }: Props) => {
         </div>
       )}
       </div>
+
+      {/* THEME SELECTOR MODAL */}
+      {showThemeSelector && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm" onClick={() => setShowThemeSelector(false)}>
+          <div className="bg-card border border-border rounded-3xl w-full max-w-4xl max-h-[80vh] flex flex-col shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+            <div className="p-6 border-b border-border flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <Palette className="w-5 h-5 text-primary" />
+                  Visual Identity
+                </h2>
+                <p className="text-xs text-muted-foreground mt-1">Select a theme to transform your form's aesthetics.</p>
+              </div>
+              <button onClick={() => setShowThemeSelector(false)} className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-foreground">
+                <Plus className="w-5 h-5 rotate-45" />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6 grid grid-cols-2 md:grid-cols-3 gap-4">
+              {(Object.keys(THEME_LABELS) as FormTheme[]).map((themeKey) => {
+                const tStyle = THEME_STYLES[themeKey];
+                const isActive = form.theme === themeKey;
+                
+                return (
+                  <button
+                    key={themeKey}
+                    onClick={() => {
+                      onUpdate({ theme: themeKey });
+                      setShowThemePreview(true);
+                    }}
+                    className={cn(
+                      "group relative flex flex-col text-left rounded-2xl overflow-hidden border-2 transition-all duration-300 hover:scale-[1.02]",
+                      isActive ? "border-primary shadow-lg ring-2 ring-primary/20" : "border-border hover:border-foreground/20"
+                    )}
+                  >
+                    <div className={cn("h-24 w-full p-3 flex flex-col gap-2", tStyle.wrapper)}>
+                      <div className={cn("w-full h-2 rounded", tStyle.accent)} style={{ backgroundColor: 'currentColor' }} />
+                      <div className="flex gap-1">
+                        <div className="w-4 h-4 rounded-full bg-white/20" />
+                        <div className="flex-1 h-4 rounded bg-white/10" />
+                      </div>
+                      <div className="w-full h-8 rounded-lg bg-white/5 border border-white/10" />
+                    </div>
+                    <div className="p-3 bg-card flex items-center justify-between">
+                      <span className="text-xs font-semibold">{THEME_LABELS[themeKey]}</span>
+                      {isActive && <CheckCircle2 className="w-3.5 h-3.5 text-primary" />}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="p-6 border-t border-border bg-muted/30 flex justify-end">
+              <button 
+                onClick={() => setShowThemeSelector(false)}
+                className="bg-primary text-primary-foreground px-6 py-2 rounded-xl font-bold text-sm hover:opacity-90 transition-all"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

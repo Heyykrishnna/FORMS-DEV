@@ -17,9 +17,10 @@ interface Props {
   onMove: (dir: -1 | 1) => void;
   sections: Question[];
   isQuiz?: boolean;
+  themeStyles?: { wrapper: string; card: string; accent: string; selected: string; input: string; button: string; label: string };
 }
 
-const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate, onMove, sections, isQuiz }: Props) => {
+const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate, onMove, sections, isQuiz, themeStyles }: Props) => {
   const {
     attributes,
     listeners,
@@ -69,7 +70,8 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
         isSectionHeader 
           ? "border border-accent/20 bg-accent/5 shadow-sm mt-12 first:mt-0" 
           : "border border-border bg-card shadow-sm hover:shadow-md",
-        isDragging ? "shadow-2xl scale-[1.02] z-50 ring-2 ring-primary" : ""
+        isDragging ? "shadow-2xl scale-[1.02] z-50 ring-2 ring-primary" : "",
+        themeStyles ? themeStyles.card : ""
       )}
     >
       {/* Header bar */}
@@ -96,16 +98,16 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
           </span>
         </div>
         <div className="flex items-center justify-end gap-2 sm:gap-1 border-t sm:border-t-0 border-foreground/5 pt-2 sm:pt-0">
-          <button onClick={() => onMove(-1)} disabled={index === 0} className="p-1.5 sm:p-1 hover:bg-muted disabled:opacity-30">
+          <button onClick={() => onMove(-1)} disabled={index === 0} className={cn("p-1.5 sm:p-1 hover:bg-muted disabled:opacity-30", themeStyles ? "text-inherit hover:bg-white/10" : "")}>
             <ChevronUp className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
           </button>
-          <button onClick={() => onMove(1)} disabled={index === total - 1} className="p-1.5 sm:p-1 hover:bg-muted disabled:opacity-30">
+          <button onClick={() => onMove(1)} disabled={index === total - 1} className={cn("p-1.5 sm:p-1 hover:bg-muted disabled:opacity-30", themeStyles ? "text-inherit hover:bg-white/10" : "")}>
             <ChevronDown className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
           </button>
-          <button onClick={onDuplicate} className="p-1.5 sm:p-1 hover:bg-muted">
+          <button onClick={onDuplicate} className={cn("p-1.5 sm:p-1 hover:bg-muted", themeStyles ? "text-inherit hover:bg-white/10" : "")}>
             <Copy className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
           </button>
-          <button onClick={onDelete} className={cn("p-1.5 sm:p-1", isSectionHeader ? "hover:bg-accent-foreground/20" : "hover:bg-destructive hover:text-destructive-foreground")}>
+          <button onClick={onDelete} className={cn("p-1.5 sm:p-1", isSectionHeader ? "hover:bg-accent-foreground/20" : "hover:bg-destructive hover:text-destructive-foreground", themeStyles ? "text-inherit hover:bg-rose-500/20" : "")}>
             <Trash2 className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
           </button>
         </div>
@@ -131,7 +133,8 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
                 placeholder={isLayout ? (question.type === 'section_header' ? 'SECTION TITLE' : 'DESCRIPTION TEXT') : 'QUESTION TITLE'}
                 className={cn(
                   "w-full bg-transparent font-medium outline-none border-b border-border pb-2 placeholder:text-muted-foreground/30 transition-all",
-                  isSectionHeader ? "text-xl focus:border-primary" : "text-lg focus:border-primary"
+                  isSectionHeader ? "text-xl focus:border-primary" : "text-lg focus:border-primary",
+                  themeStyles ? cn(themeStyles.input, "border-b-2") : ""
                 )}
               />
             )}
