@@ -21,6 +21,8 @@ import {
   Check,
   ShieldAlert,
   ShieldCheck,
+  Globe,
+  FileCheck,
   RefreshCw,
   Calendar,
   History,
@@ -98,9 +100,9 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
           </p>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-10">
+        <div className="flex flex-col lg:flex-row items-start gap-16">
           {/* Sidebar Navigation */}
-          <div className="w-full lg:w-64 flex-shrink-0">
+          <div className="w-full lg:w-48 flex-shrink-0 sticky top-10">
             <div className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-x-visible no-scrollbar pb-2 lg:pb-0">
               {tabs.map((tab) => {
                 const isActive = activeTab === tab.id;
@@ -108,13 +110,16 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-all rounded-lg whitespace-nowrap ${
+                    className={`flex items-center gap-3 px-2 py-1.5 text-sm font-medium transition-all group relative ${
                       isActive 
-                        ? 'bg-primary/10 text-primary' 
-                        : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+                        ? 'text-primary' 
+                        : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
-                    <tab.icon size={18} className={isActive ? 'text-primary' : 'text-muted-foreground'} />
+                    {isActive && (
+                      <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-1 h-4 bg-primary rounded-full hidden lg:block" />
+                    )}
+                    <tab.icon size={16} className={isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground transition-colors'} />
                     <span>{tab.label}</span>
                   </button>
                 );
@@ -124,73 +129,76 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
 
           {/* Content Area */}
           <div className="flex-1 min-w-0">
-            <div className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden min-h-[600px]">
+            <div className="bg-transparent min-h-[600px]">
 
             {activeTab === 'general' && (
-              <div className="p-6 md:p-8 space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="space-y-12 animate-in fade-in duration-500">
                 <section>
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold tracking-tight">Identity</h3>
-                    <p className="text-xs text-muted-foreground mt-1">Define how your form is identified across the platform.</p>
+                  <div className="mb-8">
+                    <h3 className="text-xl font-semibold tracking-tight">Identity</h3>
+                    <p className="text-sm text-muted-foreground mt-1.5">Define how your form is identified and presented to your audience.</p>
                   </div>
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <label className="text-[11px] font-bold uppercase text-muted-foreground tracking-wider">Form Title</label>
+                  <div className="space-y-8">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Form Title</label>
                       <input
                         value={form.title}
                         onChange={(e) => onUpdate({ title: e.target.value })}
-                        className="w-full bg-background text-sm px-4 py-2.5 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                        placeholder="Untitled Form"
+                        className="w-full bg-background/50 text-sm px-0 py-2 border-b border-border rounded-none outline-none focus:border-primary transition-all placeholder:text-muted-foreground/30"
+                        placeholder="e.g. Q1 Customer Feedback"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[11px] font-bold uppercase text-muted-foreground tracking-wider">Description</label>
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Description</label>
                       <textarea
                         value={form.description}
                         onChange={(e) => onUpdate({ description: e.target.value })}
-                        className="w-full bg-background text-sm px-4 py-2.5 border border-border rounded-lg outline-none resize-none min-h-[120px] focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                        placeholder="Tell respondents what this form is about..."
+                        className="w-full bg-background/50 text-sm px-0 py-2 border-b border-border rounded-none outline-none resize-none min-h-[40px] focus:border-primary transition-all placeholder:text-muted-foreground/30"
+                        placeholder="Briefly explain the purpose of this form..."
                       />
                     </div>
                   </div>
                 </section>
 
-                <div className="h-px bg-border" />
-
                 <section>
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold tracking-tight">Structure</h3>
-                    <p className="text-xs text-muted-foreground mt-1">Configure the physical layout and navigation experience.</p>
+                  <div className="mb-8">
+                    <h3 className="text-xl font-semibold tracking-tight">Structure</h3>
+                    <p className="text-sm text-muted-foreground mt-1.5">Configure the physical layout and navigation experience of the form.</p>
                   </div>
-                  <div className="space-y-6">
-                    <div className="space-y-3">
-                      <label className="text-[11px] font-bold uppercase text-muted-foreground tracking-wider">Form Layout</label>
-                      <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-8">
+                    <div className="space-y-4">
+                      <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Navigation Flow</label>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {(['single_page', 'notebook'] as const).map((layout) => (
                           <button
                             key={layout}
                             onClick={() => onUpdate({ layout })}
-                            className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all ${
+                            className={`flex items-start gap-4 p-5 rounded-none border transition-all ${
                               form.layout === layout 
-                                ? 'bg-primary/5 border-primary shadow-sm' 
-                                : 'border-border bg-background hover:border-border/80'
+                                ? 'bg-primary/5 border-primary shadow-[0_0_20px_-10px_rgba(49,91,232,0.3)]' 
+                                : 'border-border bg-background/50 hover:border-border/80'
                             }`}
                           >
-                            <span className={`text-xs font-semibold mb-1 ${form.layout === layout ? 'text-primary' : 'text-foreground'}`}>
-                              {layout === 'single_page' ? 'Standard Form' : 'Notebook Mode'}
-                            </span>
-                            <span className="text-[10px] text-muted-foreground text-center">
-                              {layout === 'single_page' ? 'Scrollable list of questions' : 'One question at a time'}
-                            </span>
+                            <div className={`mt-1 w-4 h-4 rounded-full border-2 flex items-center justify-center ${form.layout === layout ? 'border-primary' : 'border-muted-foreground/30'}`}>
+                              {form.layout === layout && <div className="w-1.5 h-1.5 rounded-full bg-primary" />}
+                            </div>
+                            <div className="text-left">
+                              <span className={`text-sm font-bold block mb-1 ${form.layout === layout ? 'text-primary' : 'text-foreground'}`}>
+                                {layout === 'single_page' ? 'Standard Scroll' : 'Focused Flow'}
+                              </span>
+                              <span className="text-[11px] text-muted-foreground leading-snug">
+                                {layout === 'single_page' ? 'All questions on a single scrollable page' : 'One question at a time for maximum focus'}
+                              </span>
+                            </div>
                           </button>
                         ))}
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between p-4 bg-secondary/30 rounded-xl border border-border">
+                    <div className="flex items-center justify-between py-6 border-y border-border/50">
                       <div>
-                        <p className="text-xs font-semibold">Progress Indicator</p>
-                        <p className="text-[11px] text-muted-foreground mt-0.5">Display completion status to respondents</p>
+                        <p className="text-sm font-bold">Progress Indicator</p>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">Show respondents how far they are in the process</p>
                       </div>
                       <Switch 
                         checked={form.showProgressBar} 
@@ -202,16 +210,15 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
               </div>
             )}
 
-
             {activeTab === 'appearance' && (
-              <div className="p-6 md:p-8 space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="space-y-12 animate-in fade-in duration-500">
                 <section>
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold tracking-tight">Theme & Style</h3>
-                    <p className="text-xs text-muted-foreground mt-1">Select a preset theme or customize the design tokens manually.</p>
+                  <div className="mb-8">
+                    <h3 className="text-xl font-semibold tracking-tight">Design System</h3>
+                    <p className="text-sm text-muted-foreground mt-1.5">Apply a curated visual language or customize individual design tokens.</p>
                   </div>
                   
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-10">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-12">
                     {(Object.keys(THEME_LABELS) as FormTheme[]).map((theme) => {
                       const preview = THEME_PREVIEWS[theme];
                       const isSelected = form.theme === theme;
@@ -219,95 +226,74 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                         <button
                           key={theme}
                           onClick={() => onUpdate({ theme })}
-                          className={`group relative flex flex-col p-3 rounded-xl border transition-all ${
+                          className={`group relative flex flex-col p-3 rounded-none border transition-all ${
                             isSelected 
-                              ? 'border-primary ring-1 ring-primary bg-primary/[0.02] shadow-sm' 
-                              : 'border-border bg-background hover:border-border/80'
+                              ? 'border-primary bg-primary/[0.02] shadow-[0_0_15px_-5px_rgba(49,91,232,0.2)]' 
+                              : 'border-border bg-background/50 hover:border-border/80'
                           }`}
                         >
-                          <div className={`aspect-[4/3] rounded-lg mb-3 overflow-hidden border border-border/50 shadow-inner flex flex-col ${preview.bg}`}>
+                          <div className={`aspect-[4/3] rounded-none mb-3 overflow-hidden border border-border/50 flex flex-col ${preview.bg}`}>
                             <div className="flex-1 p-3">
-                              <div className={`text-[10px] font-bold ${preview.fg}`}>ABC</div>
-                              <div className={`h-1.5 w-1/2 rounded-full mt-1.5 ${preview.accent}`} />
-                              <div className={`h-1 w-1/3 rounded-full mt-1 opacity-20 ${preview.accent}`} />
-                            </div>
-                            <div className="h-4 bg-black/5 flex items-center px-2 gap-1">
-                               <div className="w-1 h-1 rounded-full bg-black/10" />
-                               <div className="w-4 h-0.5 rounded-full bg-black/10" />
+                              <div className={`text-[10px] font-bold ${preview.fg}`}>Aa</div>
+                              <div className={`h-1 w-1/2 rounded-none mt-1.5 ${preview.accent}`} />
+                              <div className={`h-1 w-1/3 rounded-none mt-1 opacity-20 ${preview.accent}`} />
                             </div>
                           </div>
-                          <span className={`text-[10px] font-bold uppercase tracking-wide truncate ${isSelected ? 'text-primary' : 'text-muted-foreground'}`}>
+                          <span className={`text-[10px] font-bold uppercase tracking-widest truncate ${isSelected ? 'text-primary' : 'text-muted-foreground'}`}>
                             {THEME_LABELS[theme]}
                           </span>
-                          {isSelected && (
-                            <div className="absolute top-2 right-2 w-4 h-4 bg-primary text-primary-foreground rounded-full flex items-center justify-center">
-                              <Check size={10} strokeWidth={3} />
-                            </div>
-                          )}
                         </button>
                       );
                     })}
                   </div>
 
-                  <div className="space-y-8 bg-secondary/20 p-6 rounded-2xl border border-border/50">
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <label className="text-[11px] font-bold uppercase text-muted-foreground tracking-wider">Background Color</label>
-                        <div className="flex items-center gap-3">
+                  <div className="space-y-10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                      <div className="space-y-4">
+                        <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Brand Color</label>
+                        <div className="flex items-center gap-4">
                           <div 
-                            className="w-10 h-10 rounded-lg border border-border shadow-sm shrink-0" 
-                            style={{ backgroundColor: form.style.backgroundColor || '#ffffff' }}
-                          />
-                          <input
-                            type="color"
-                            value={form.style.backgroundColor || '#ffffff'}
-                            onChange={(e) => onUpdate({ style: { ...form.style, backgroundColor: e.target.value } })}
-                            className="flex-1 h-10 bg-background border border-border rounded-lg px-2 cursor-pointer"
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-[11px] font-bold uppercase text-muted-foreground tracking-wider">Accent Color</label>
-                        <div className="flex items-center gap-3">
-                          <div 
-                            className="w-10 h-10 rounded-lg border border-border shadow-sm shrink-0" 
+                            className="w-12 h-12 rounded-none border border-border shadow-sm shrink-0" 
                             style={{ backgroundColor: form.style.customAccentColor || '#315be8' }}
                           />
-                          <input
-                            type="color"
-                            value={form.style.customAccentColor || '#315be8'}
-                            onChange={(e) => onUpdate({ style: { ...form.style, customAccentColor: e.target.value } })}
-                            className="flex-1 h-10 bg-background border border-border rounded-lg px-2 cursor-pointer"
-                          />
+                          <div className="flex-1">
+                             <input
+                              type="color"
+                              value={form.style.customAccentColor || '#315be8'}
+                              onChange={(e) => onUpdate({ style: { ...form.style, customAccentColor: e.target.value } })}
+                              className="w-full h-8 bg-transparent cursor-pointer"
+                            />
+                            <p className="text-[10px] text-muted-foreground mt-1 font-mono uppercase">{form.style.customAccentColor || '#315be8'}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="space-y-6">
-                      <div className="space-y-3">
-                        <label className="text-[11px] font-bold uppercase text-muted-foreground tracking-wider">Font Family</label>
-                        <div className="grid grid-cols-3 gap-2">
+                      <div className="space-y-4">
+                        <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Typography</label>
+                        <div className="flex gap-2">
                           {(['mono', 'sans', 'serif'] as const).map((font) => (
                             <button
                               key={font}
                               onClick={() => onUpdate({ style: { ...form.style, fontFamily: font } })}
-                              className={`py-2 rounded-lg border text-xs font-semibold transition-all ${
+                              className={`flex-1 py-2 border text-[11px] font-bold uppercase tracking-wider transition-all ${
                                 form.style.fontFamily === font 
-                                  ? 'bg-foreground text-background border-foreground shadow-sm' 
+                                  ? 'bg-primary text-primary-foreground border-primary' 
                                   : 'border-border bg-background text-muted-foreground hover:border-border/80'
                               }`}
                             >
-                              {font.charAt(0).toUpperCase() + font.slice(1)}
+                              {font}
                             </button>
                           ))}
                         </div>
                       </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="space-y-3">
-                          <div className="flex justify-between">
-                            <label className="text-[11px] font-bold uppercase text-muted-foreground tracking-wider">Border Radius</label>
-                            <span className="text-[11px] font-mono font-bold text-primary">{form.style.borderRadius || 0}px</span>
+                    </div>
+
+                    <div className="pt-6 border-t border-border/50">
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div className="space-y-6">
+                          <div className="flex justify-between items-end">
+                            <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Edge Roundness</label>
+                            <span className="text-xs font-mono font-bold">{form.style.borderRadius || 0}px</span>
                           </div>
                           <Slider
                             value={[form.style.borderRadius || 0]}
@@ -316,10 +302,10 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                             onValueChange={([v]) => onUpdate({ style: { ...form.style, borderRadius: v } })}
                           />
                         </div>
-                        <div className="space-y-3">
-                          <div className="flex justify-between">
-                            <label className="text-[11px] font-bold uppercase text-muted-foreground tracking-wider">Interface Opacity</label>
-                            <span className="text-[11px] font-mono font-bold text-primary">{form.style.cardOpacity || 100}%</span>
+                        <div className="space-y-6">
+                          <div className="flex justify-between items-end">
+                            <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Surface Opacity</label>
+                            <span className="text-xs font-mono font-bold">{form.style.cardOpacity || 100}%</span>
                           </div>
                           <Slider
                             value={[form.style.cardOpacity || 100]}
@@ -337,155 +323,151 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
 
 
             {activeTab === 'access' && (
-              <div className="p-6 md:p-8 space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="space-y-16 animate-in fade-in duration-500">
                 <section>
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold tracking-tight">Security & Permissions</h3>
-                    <p className="text-xs text-muted-foreground mt-1">Control who can access and submit your form.</p>
+                  <div className="mb-10">
+                    <h3 className="text-2xl font-bold tracking-tight">Access & Security</h3>
+                    <p className="text-sm text-muted-foreground mt-2">Manage how users enter and interact with your workspace protocol.</p>
                   </div>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-background rounded-xl border border-border">
-                      <div>
-                        <p className="text-xs font-semibold">Anonymous Responses</p>
-                        <p className="text-[11px] text-muted-foreground mt-0.5">Allow submissions without identifying the user</p>
-                      </div>
-                      <Switch 
-                        checked={form.isAnonymous} 
-                        onCheckedChange={(v) => onUpdate({ isAnonymous: v })} 
-                      />
-                    </div>
 
-                    {!form.isAnonymous && (
-                      <div className="flex items-center justify-between p-4 bg-primary/5 rounded-xl border border-primary/10 ml-6">
-                        <div>
-                          <p className="text-xs font-semibold text-primary">Mandatory Identity</p>
-                          <p className="text-[11px] text-muted-foreground mt-0.5">Require name and email for submission</p>
+                  <div className="space-y-12">
+                    {/* Entry Protocols */}
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-2 mb-4">
+                        <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Entry Protocols</h4>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 gap-px bg-border/30 border border-border/50">
+                        <div className="flex items-center justify-between p-6 bg-background">
+                          <div className="space-y-1">
+                            <p className="text-sm font-bold">Anonymous Submission</p>
+                            <p className="text-[11px] text-muted-foreground">Allow data entry without identity verification</p>
+                          </div>
+                          <Switch 
+                            checked={form.isAnonymous} 
+                            onCheckedChange={(v) => onUpdate({ isAnonymous: v })} 
+                          />
                         </div>
-                        <Switch 
-                          checked={form.requireRespondentData || false} 
-                          onCheckedChange={(v) => onUpdate({ requireRespondentData: v })} 
-                        />
-                      </div>
-                    )}
 
-                    <div className="space-y-3 pt-2">
-                      <label className="text-[11px] font-bold uppercase text-muted-foreground tracking-wider">Domain Restriction</label>
-                      <div className="relative">
-                        <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50" size={16} />
-                        <input
-                          type="text"
-                          value={form.restrictedDomain || ''}
-                          onChange={(e) => onUpdate({ restrictedDomain: e.target.value })}
-                          placeholder="e.g. gmail.com, company.co"
-                          className="w-full bg-background text-sm pl-10 pr-4 py-2.5 border border-border rounded-lg outline-none font-mono focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                        />
-                      </div>
-                      <p className="text-[10px] text-muted-foreground font-medium italic">Leave empty to allow all domains.</p>
-                    </div>
+                        {!form.isAnonymous && (
+                          <div className="flex items-center justify-between p-6 bg-background border-t border-border/10">
+                            <div className="space-y-1">
+                              <p className="text-sm font-bold">Identity Verification</p>
+                              <p className="text-[11px] text-muted-foreground">Require validated name and email via protocol</p>
+                            </div>
+                            <Switch 
+                              checked={form.requireRespondentData || false} 
+                              onCheckedChange={(v) => onUpdate({ requireRespondentData: v })} 
+                            />
+                          </div>
+                        )}
 
-                    <div className="flex items-center justify-between p-4 bg-background rounded-xl border border-border">
-                      <div>
-                        <p className="text-xs font-semibold">One Response Per User</p>
-                        <p className="text-[11px] text-muted-foreground mt-0.5">Restrict submissions to one per email address</p>
-                      </div>
-                      <Switch 
-                        checked={form.limitOneResponse || false} 
-                        onCheckedChange={(v) => onUpdate({ limitOneResponse: v })} 
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between p-4 bg-background rounded-xl border border-border">
-                      <div>
-                        <p className="text-xs font-semibold">Accepting Responses</p>
-                        <p className="text-[11px] text-muted-foreground mt-0.5">Allow or block new form submissions</p>
-                      </div>
-                      <Switch 
-                        checked={form.acceptingResponses} 
-                        onCheckedChange={(v) => onUpdate({ acceptingResponses: v })} 
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between p-4 bg-background rounded-xl border border-border">
-                      <div>
-                        <p className="text-xs font-semibold">Enable Quiz Mode</p>
-                        <p className="text-[11px] text-muted-foreground mt-0.5">Assign points, set answers, and provide feedback</p>
-                      </div>
-                      <Switch 
-                        checked={form.isQuiz || false} 
-                        onCheckedChange={(v) => onUpdate({ isQuiz: v })} 
-                      />
-                    </div>
-                    {form.isQuiz && (
-                      <div className="flex items-center justify-between p-4 bg-primary/5 rounded-xl border border-primary/10 ml-6">
-                        <div>
-                          <p className="text-xs font-semibold text-primary">Post-Submission Results</p>
-                          <p className="text-[11px] text-muted-foreground mt-0.5">Allow respondents to see their scores and correct answers</p>
+                        <div className="flex items-center justify-between p-6 bg-background border-t border-border/10">
+                          <div className="space-y-1">
+                            <p className="text-sm font-bold">Access Passphrase</p>
+                            <p className="text-[11px] text-muted-foreground">Gate the entire form with a global password</p>
+                          </div>
+                          <div className="w-64">
+                            <input
+                              type="password"
+                              value={form.password || ''}
+                              onChange={(e) => onUpdate({ password: e.target.value })}
+                              placeholder="••••••••"
+                              className="w-full bg-transparent text-xs px-0 py-2 border-b border-border rounded-none outline-none font-mono focus:border-primary transition-all text-right"
+                            />
+                          </div>
                         </div>
-                        <Switch 
-                          checked={form.showQuizResultsToUsers || false} 
-                          onCheckedChange={(v) => onUpdate({ showQuizResultsToUsers: v })} 
-                        />
-                      </div>
-                    )}
-
-                    <div className="space-y-3 pt-2">
-                      <label className="text-[11px] font-bold uppercase text-muted-foreground tracking-wider">Access Password</label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50" size={16} />
-                        <input
-                          type="password"
-                          value={form.password || ''}
-                          onChange={(e) => onUpdate({ password: e.target.value })}
-                          placeholder="Set a password to lock this form"
-                          className="w-full bg-background text-sm pl-10 pr-4 py-2.5 border border-border rounded-lg outline-none font-mono focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                        />
                       </div>
                     </div>
-                  </div>
-                </section>
 
-                <div className="h-px bg-border" />
-
-                <section>
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold tracking-tight">Limits & Collection</h3>
-                    <p className="text-xs text-muted-foreground mt-1">Fine-tune submission quotas and timeline restrictions.</p>
-                  </div>
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between p-4 bg-secondary/30 rounded-xl border border-border">
-                      <div>
-                        <p className="text-xs font-semibold">Email Collection Strategy</p>
-                        <p className="text-[11px] text-muted-foreground mt-0.5">Define how identity is verified</p>
+                    {/* Organizational Control */}
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-2 mb-4">
+                        <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Organizational Control</h4>
                       </div>
-                      <select
-                        value={form.collectEmails || 'do_not_collect'}
-                        onChange={(e) => onUpdate({ collectEmails: e.target.value as any })}
-                        className="bg-background border border-border rounded-lg px-3 py-2 text-xs font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all min-w-[160px]"
-                      >
-                        <option value="do_not_collect">Do Not Collect</option>
-                        <option value="verified">Verified Emails</option>
-                        <option value="responder_input">Responder Input</option>
-                      </select>
+                      
+                      <div className="p-6 bg-background border border-border/50">
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-1">
+                            <p className="text-sm font-bold">Domain Restriction</p>
+                            <p className="text-[11px] text-muted-foreground">Limit submission access to specific organizational domains</p>
+                          </div>
+                          <div className="w-64">
+                            <input
+                              type="text"
+                              value={form.restrictedDomain || ''}
+                              onChange={(e) => onUpdate({ restrictedDomain: e.target.value })}
+                              placeholder="e.g. revox.ai, google.com"
+                              className="w-full bg-transparent text-xs px-0 py-2 border-b border-border rounded-none outline-none font-mono focus:border-primary transition-all text-right"
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <label className="text-[11px] font-bold uppercase text-muted-foreground tracking-wider">Submission Quota</label>
-                        <input
-                          type="number"
-                          value={form.submissionLimit || ''}
-                          onChange={(e) => onUpdate({ submissionLimit: parseInt(e.target.value) || undefined })}
-                          placeholder="Unlimited"
-                          className="w-full bg-background text-sm px-4 py-2.5 border border-border rounded-lg outline-none font-mono focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                        />
+
+                    {/* Submission Governance */}
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-2 mb-4">
+                        <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Submission Governance</h4>
                       </div>
-                      <div className="space-y-2">
-                        <label className="text-[11px] font-bold uppercase text-muted-foreground tracking-wider">Auto-Close Date</label>
-                        <input
-                          type="date"
-                          value={form.closeDate || ''}
-                          onChange={(e) => onUpdate({ closeDate: e.target.value })}
-                          className="w-full bg-background text-sm px-4 py-2.5 border border-border rounded-lg outline-none font-mono focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                        />
+                      
+                      <div className="grid grid-cols-1 gap-px bg-border/30 border border-border/50">
+                        <div className="flex items-center justify-between p-6 bg-background">
+                          <div className="space-y-1">
+                            <p className="text-sm font-bold">Anti-Spam Protocol</p>
+                            <p className="text-[11px] text-muted-foreground">Limit submissions to one per unique identifier</p>
+                          </div>
+                          <Switch 
+                            checked={form.limitOneResponse || false} 
+                            onCheckedChange={(v) => onUpdate({ limitOneResponse: v })} 
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between p-6 bg-background border-t border-border/10">
+                          <div className="space-y-1">
+                            <p className="text-sm font-bold">Collection Status</p>
+                            <p className="text-[11px] text-muted-foreground">Toggle availability of the submission interface</p>
+                          </div>
+                          <Switch 
+                            checked={form.acceptingResponses} 
+                            onCheckedChange={(v) => onUpdate({ acceptingResponses: v })} 
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Hard Constraints */}
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-2 mb-4">
+                        <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Hard Constraints</h4>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-border/30 border border-border/50">
+                        <div className="p-6 bg-background">
+                          <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Total Submission Cap</label>
+                          <div className="mt-4">
+                            <input
+                              type="number"
+                              value={form.submissionLimit || ''}
+                              onChange={(e) => onUpdate({ submissionLimit: parseInt(e.target.value) || undefined })}
+                              placeholder="Unlimited"
+                              className="w-full bg-transparent text-sm px-0 py-2 border-b border-border rounded-none outline-none font-mono focus:border-primary transition-all"
+                            />
+                            <p className="text-[10px] text-muted-foreground mt-2 italic">Automated closure upon reaching quota</p>
+                          </div>
+                        </div>
+                        <div className="p-6 bg-background md:border-l md:border-border/10">
+                          <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Protocol Expiration</label>
+                          <div className="mt-4">
+                            <input
+                              type="date"
+                              value={form.closeDate || ''}
+                              onChange={(e) => onUpdate({ closeDate: e.target.value })}
+                              className="w-full bg-transparent text-sm px-0 py-2 border-b border-border rounded-none outline-none font-mono focus:border-primary transition-all"
+                            />
+                            <p className="text-[10px] text-muted-foreground mt-2 italic">Form will be locked at midnight on this date</p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -495,42 +477,41 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
 
 
             {activeTab === 'submission' && (
-              <div className="p-6 md:p-8 space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="space-y-12 animate-in fade-in duration-500">
                 <section>
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold tracking-tight">Success Page</h3>
-                    <p className="text-xs text-muted-foreground mt-1">Customize the experience after a successful submission.</p>
+                  <div className="mb-8">
+                    <h3 className="text-xl font-semibold tracking-tight">Post-Submission Protocol</h3>
+                    <p className="text-sm text-muted-foreground mt-1.5">Define what happens after a successful data capture event.</p>
                   </div>
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <label className="text-[11px] font-bold uppercase text-muted-foreground tracking-wider">Confirmation Message</label>
+                  <div className="space-y-10">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Confirmation Terminal</label>
                       <textarea
                         value={form.confirmationMessage}
                         onChange={(e) => onUpdate({ confirmationMessage: e.target.value })}
-                        className="w-full bg-background text-sm px-4 py-2.5 border border-border rounded-lg outline-none resize-none min-h-[120px] focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                        placeholder="Thank you for your response!"
+                        className="w-full bg-background/50 text-sm px-0 py-2 border-b border-border rounded-none outline-none resize-none min-h-[60px] focus:border-primary transition-all placeholder:text-muted-foreground/30"
+                        placeholder="e.g. Protocol complete. Data transmitted successfully."
                       />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[11px] font-bold uppercase text-muted-foreground tracking-wider">Redirect URL</label>
-                      <div className="relative">
-                        <Send className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50" size={16} />
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Redirect Handover</label>
                         <input
                           value={form.redirectUrl || ''}
                           onChange={(e) => onUpdate({ redirectUrl: e.target.value })}
-                          placeholder="https://yourwebsite.com/thanks"
-                          className="w-full bg-background text-sm pl-10 pr-4 py-2.5 border border-border rounded-lg outline-none font-mono focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                          placeholder="https://..."
+                          className="w-full bg-background/50 text-sm px-0 py-2 border-b border-border rounded-none outline-none font-mono focus:border-primary transition-all placeholder:text-muted-foreground/30"
                         />
                       </div>
-                      <p className="text-[10px] text-muted-foreground italic">Users will be automatically redirected after submission.</p>
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[11px] font-bold uppercase text-muted-foreground tracking-wider">Submit Button Text</label>
-                      <input
-                        value={form.submitButtonText || 'Submit'}
-                        onChange={(e) => onUpdate({ submitButtonText: e.target.value })}
-                        className="w-full bg-background text-sm px-4 py-2.5 border border-border rounded-lg outline-none font-semibold focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                      />
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Submit Action Label</label>
+                        <input
+                          value={form.submitButtonText || 'Submit'}
+                          onChange={(e) => onUpdate({ submitButtonText: e.target.value })}
+                          className="w-full bg-background/50 text-sm px-0 py-2 border-b border-border rounded-none outline-none font-bold focus:border-primary transition-all"
+                        />
+                      </div>
                     </div>
                   </div>
                 </section>
@@ -539,40 +520,38 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
 
 
             {activeTab === 'analysis' && (
-              <div className="p-6 md:p-8 space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="space-y-12 animate-in fade-in duration-500">
                 <section>
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold tracking-tight">Response Intelligence</h3>
-                    <p className="text-xs text-muted-foreground mt-1">Configure how your data is analyzed and visualized in the dashboard.</p>
+                  <div className="mb-8">
+                    <h3 className="text-xl font-semibold tracking-tight">Intelligence Engine</h3>
+                    <p className="text-sm text-muted-foreground mt-1.5">Configure how the platform processes and visualizes your captured data.</p>
                   </div>
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {([
-                        { id: 'normal', label: 'Standard', desc: 'Summary charts and response tables' },
-                        { id: 'survey', label: 'Survey Insights', desc: 'Trend analysis and consensus detection' },
-                        { id: 'research', label: 'Academic Research', desc: 'Statistical distributions and standard deviation' },
-                        { id: 'data_work', label: 'Data Science', desc: 'Structured outputs and quality control metrics' }
-                      ] as const).map((theme) => (
-                        <button
-                          key={theme.id}
-                          onClick={() => onUpdate({ responseTheme: theme.id })}
-                          className={`flex flex-col text-left p-5 rounded-xl border-2 transition-all group ${
-                            form.responseTheme === theme.id || (!form.responseTheme && theme.id === 'normal')
-                              ? 'border-primary bg-primary/[0.03] shadow-sm'
-                              : 'border-border bg-background hover:border-border/80'
-                          }`}
-                        >
-                          <span className={`text-sm font-bold mb-1 ${
-                            form.responseTheme === theme.id || (!form.responseTheme && theme.id === 'normal')
-                              ? 'text-primary'
-                              : 'text-foreground'
-                          }`}>{theme.label}</span>
-                          <span className="text-[11px] text-muted-foreground leading-snug">
-                            {theme.desc}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {([
+                      { id: 'normal', label: 'Standard Analytics', desc: 'Baseline charts and response matrices' },
+                      { id: 'survey', label: 'Sentiment & Trends', desc: 'Emotional analysis and consensus detection' },
+                      { id: 'research', label: 'Statistical Core', desc: 'Standard deviation and distribution mapping' },
+                      { id: 'data_work', label: 'Raw Intelligence', desc: 'Structured JSON outputs and audit metrics' }
+                    ] as const).map((theme) => (
+                      <button
+                        key={theme.id}
+                        onClick={() => onUpdate({ responseTheme: theme.id })}
+                        className={`flex flex-col text-left p-5 border transition-all ${
+                          form.responseTheme === theme.id || (!form.responseTheme && theme.id === 'normal')
+                            ? 'border-primary bg-primary/[0.03] shadow-[0_0_15px_-5px_rgba(49,91,232,0.2)]'
+                            : 'border-border bg-background/50 hover:border-border/80'
+                        }`}
+                      >
+                        <span className={`text-sm font-bold mb-1 ${
+                          form.responseTheme === theme.id || (!form.responseTheme && theme.id === 'normal')
+                            ? 'text-primary'
+                            : 'text-foreground'
+                        }`}>{theme.label}</span>
+                        <span className="text-[11px] text-muted-foreground leading-snug">
+                          {theme.desc}
+                        </span>
+                      </button>
+                    ))}
                   </div>
                 </section>
               </div>
@@ -580,18 +559,19 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
 
 
             {activeTab === 'seo' && (
-              <div className="p-6 md:p-8 space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="space-y-12 animate-in fade-in duration-500">
                 <section>
-                  <div className="mb-6">
-                    <h3 className="text-lg font-semibold tracking-tight">SEO & Discovery</h3>
-                    <p className="text-xs text-muted-foreground mt-1">Optimize how your form appears in search results and social shares.</p>
+                  <div className="mb-8">
+                    <h3 className="text-xl font-semibold tracking-tight">SEO & Indexing</h3>
+                    <p className="text-sm text-muted-foreground mt-1.5">Optimize how your form workspace is discovered by search engines.</p>
                   </div>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between p-4 bg-background rounded-xl border border-border">
+                  
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                    <div className="space-y-8">
+                      <div className="flex items-center justify-between py-4 border-b border-border/50">
                         <div>
-                          <p className="text-xs font-semibold">Search Engine Indexing</p>
-                          <p className="text-[11px] text-muted-foreground mt-0.5">Allow Google and Bing to crawl this form</p>
+                          <p className="text-sm font-bold">Public Indexing</p>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">Allow search protocols to crawl this form</p>
                         </div>
                         <Switch 
                           checked={form.seoIndexable !== false} 
@@ -599,10 +579,10 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                         />
                       </div>
 
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         <div className="flex justify-between items-end">
-                          <label className="text-[11px] font-bold uppercase text-muted-foreground tracking-wider">SEO Title</label>
-                          <span className={`text-[10px] font-bold ${(form.seoTitle?.length || 0) > 60 ? 'text-red-500' : 'text-primary'}`}>
+                          <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Metadata Title</label>
+                          <span className={`text-[10px] font-mono ${(form.seoTitle?.length || 0) > 60 ? 'text-red-500' : 'text-primary'}`}>
                             {form.seoTitle?.length || 0}/60
                           </span>
                         </div>
@@ -610,14 +590,14 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                           value={form.seoTitle || ''}
                           onChange={(e) => onUpdate({ seoTitle: e.target.value })}
                           placeholder={form.title}
-                          className="w-full bg-background text-sm px-4 py-2.5 border border-border rounded-lg outline-none font-medium focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                          className="w-full bg-transparent text-sm px-0 py-2 border-b border-border rounded-none outline-none focus:border-primary transition-all"
                         />
                       </div>
 
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         <div className="flex justify-between items-end">
-                          <label className="text-[11px] font-bold uppercase text-muted-foreground tracking-wider">SEO Description</label>
-                          <span className={`text-[10px] font-bold ${(form.seoDescription?.length || 0) > 160 ? 'text-red-500' : 'text-primary'}`}>
+                          <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Description Meta</label>
+                          <span className={`text-[10px] font-mono ${(form.seoDescription?.length || 0) > 160 ? 'text-red-500' : 'text-primary'}`}>
                             {form.seoDescription?.length || 0}/160
                           </span>
                         </div>
@@ -625,63 +605,23 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                           value={form.seoDescription || ''}
                           onChange={(e) => onUpdate({ seoDescription: e.target.value })}
                           placeholder={form.description}
-                          className="w-full bg-background text-sm px-4 py-2.5 border border-border rounded-lg outline-none resize-none min-h-[100px] focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-[11px] font-bold uppercase text-muted-foreground tracking-wider">Keywords</label>
-                        <input
-                          value={form.seoKeywords || ''}
-                          onChange={(e) => onUpdate({ seoKeywords: e.target.value })}
-                          placeholder="survey, feedback, research"
-                          className="w-full bg-background text-sm px-4 py-2.5 border border-border rounded-lg outline-none font-mono focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                          className="w-full bg-transparent text-sm px-0 py-2 border-b border-border rounded-none outline-none resize-none min-h-[40px] focus:border-primary transition-all"
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-8">
-                      {/* Search Preview */}
-                      <div className="space-y-3">
-                        <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
-                          <Search size={12} /> Google Search Preview
-                        </label>
-                        <div className="bg-white p-5 rounded-xl border border-border shadow-sm text-left font-sans">
-                          <div className="text-[16px] text-[#1a0dab] hover:underline cursor-pointer font-medium mb-1 truncate">
+                    <div className="space-y-10">
+                      <div className="space-y-4">
+                        <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Search Terminal Preview</label>
+                        <div className="p-6 border border-border/50 bg-background/50 space-y-2">
+                          <div className="text-[16px] text-[#1a0dab] font-medium truncate">
                             {form.seoTitle || form.title || 'Untitled Form'}
                           </div>
-                          <div className="text-[13px] text-[#006621] mb-1 truncate opacity-80">
-                            {window.location.origin}/form/{form.id}
+                          <div className="text-[13px] text-[#006621] truncate opacity-60">
+                            {window.location.origin}/f/{form.id}
                           </div>
-                          <div className="text-[13px] text-[#4d5156] line-clamp-2 leading-relaxed">
-                            {form.seoDescription || form.description || 'Fill out this form created on Aqora — the intelligent workspace for data gathering.'}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Social Preview */}
-                      <div className="space-y-3">
-                         <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
-                          <Share2 size={12} /> Social Media Card
-                        </label>
-                        <div className="bg-[#f8f9fa] border border-border rounded-xl overflow-hidden shadow-sm">
-                          <div className="aspect-[1.91/1] bg-primary/5 flex items-center justify-center border-b border-border relative">
-                            {form.style?.bannerImageUrl ? (
-                              <img src={form.style.bannerImageUrl} className="w-full h-full object-cover" alt="Banner" />
-                            ) : (
-                              <div className="flex flex-col items-center opacity-20">
-                                <span className="text-2xl font-bold tracking-tighter">Aqora</span>
-                                <span className="text-[8px] font-black uppercase tracking-widest mt-1">Protocol Workspace</span>
-                              </div>
-                            )}
-                          </div>
-                          <div className="p-4 bg-white">
-                            <p className="text-[14px] font-bold text-foreground line-clamp-1 mb-1">
-                              {form.seoTitle || form.title || 'Untitled Form'}
-                            </p>
-                            <p className="text-[12px] text-muted-foreground line-clamp-2 leading-snug">
-                              {form.seoDescription || form.description || 'Participate in this official data intelligence gathering.'}
-                            </p>
+                          <div className="text-[13px] text-muted-foreground line-clamp-2 leading-relaxed">
+                            {form.seoDescription || form.description || 'Access the official data gathering portal on RevoX.'}
                           </div>
                         </div>
                       </div>
@@ -692,87 +632,23 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
             )}
 
             {activeTab === 'team' && (
-              <div className="p-6 md:p-8 space-y-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                {/* Security Overview Card */}
-                <div className="bg-background rounded-2xl border border-border overflow-hidden shadow-sm">
-                  <div className="px-6 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                        <ShieldCheck size={20} />
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-bold">Security Score</h3>
-                        <p className="text-xs text-muted-foreground mt-0.5">Overall protection level for this form</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-5 w-full sm:w-auto">
-                      <div className="flex-1 sm:w-48 h-2 bg-secondary rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-primary transition-all duration-1000 ease-out" 
-                          style={{ width: `${securityStrength}%` }}
-                        />
-                      </div>
-                      <span className="text-sm font-bold tabular-nums">
-                        {securityStrength}%
-                        <span className="text-[10px] font-bold text-primary ml-1.5 px-1.5 py-0.5 bg-primary/10 rounded-md">
-                          {securityStrength < 30 ? 'Low' : securityStrength < 60 ? 'Medium' : 'High'}
-                        </span>
-                      </span>
-                    </div>
+              <div className="space-y-12 animate-in fade-in duration-500">
+                <section>
+                  <div className="mb-8">
+                    <h3 className="text-xl font-semibold tracking-tight">Team & Governance</h3>
+                    <p className="text-sm text-muted-foreground mt-1.5">Manage collaborator permissions and monitor security audit logs.</p>
                   </div>
                   
-                  <div className="grid grid-cols-2 sm:grid-cols-4 border-t border-border">
-                    {[
-                      { label: 'Password', active: !!form.password, icon: Lock },
-                      { label: 'Expiration', active: !!form.linkExpirationDate, icon: Calendar },
-                      { label: 'Domain Lock', active: !!form.restrictedDomain, icon: ShieldAlert },
-                      { label: 'Team', active: (form.collaborators || []).length > 0, icon: Users },
-                    ].map(({ label, active, icon: Icon }) => (
-                      <div key={label} className="px-5 py-4 flex flex-col gap-1 border-r last:border-r-0 border-border">
-                        <div className="flex items-center gap-2">
-                           <Icon size={12} className={active ? 'text-primary' : 'text-muted-foreground/40'} />
-                           <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</span>
-                        </div>
-                        <span className={`text-[11px] font-bold ${active ? 'text-foreground' : 'text-muted-foreground/30'}`}>
-                          {active ? 'Configured' : 'Disabled'}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                  <div className="space-y-8">
-                    <section>
-                      <div className="mb-6">
-                        <h3 className="text-base font-semibold">Team Access</h3>
-                        <p className="text-xs text-muted-foreground mt-1">Add colleagues to collaborate on form design and results.</p>
-                      </div>
-
-                      <div className="space-y-3 mb-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                    <div className="space-y-12">
+                      <div className="space-y-6">
+                        <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Add Collaborator</label>
                         <div className="flex gap-2">
                           <input
                             id="collaborator-email"
                             type="email"
-                            placeholder="colleague@company.com"
-                            className="flex-1 bg-background text-sm px-4 py-2.5 border border-border rounded-lg outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                const input = e.currentTarget;
-                                const email = input.value.trim();
-                                if (email && email.includes('@')) {
-                                  const current = form.collaborators || [];
-                                  if (current.find(c => c.email === email)) {
-                                    toast.error("User already has access");
-                                  } else {
-                                    onUpdate({ collaborators: [...current, { email, role: 'editor' }] });
-                                    addSecurityLog(`Access granted: ${email}`);
-                                    input.value = '';
-                                    toast.success("Collaborator added");
-                                  }
-                                }
-                              }
-                            }}
+                            placeholder="colleague@revox.ai"
+                            className="flex-1 bg-transparent text-sm px-0 py-2 border-b border-border rounded-none outline-none focus:border-primary transition-all"
                           />
                           <button 
                             onClick={() => {
@@ -780,219 +656,114 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                               const email = input?.value.trim();
                               if (email && email.includes('@')) {
                                 const current = form.collaborators || [];
-                                if (current.find(c => c.email === email)) {
-                                  toast.error("User already has access");
-                                } else {
-                                  onUpdate({ collaborators: [...current, { email, role: 'editor' }] });
-                                  addSecurityLog(`Access granted: ${email}`);
-                                  input.value = '';
-                                  toast.success("Collaborator added");
-                                }
-                              } else {
-                                toast.error("Enter a valid email");
+                                onUpdate({ collaborators: [...current, { email, role: 'editor' }] });
+                                addSecurityLog(`Access granted: ${email}`);
+                                input.value = '';
+                                toast.success("Access granted");
                               }
                             }}
-                            className="bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-xs font-bold uppercase transition-all shadow-sm hover:opacity-90"
+                            className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-primary border border-primary/20 hover:bg-primary/5 transition-all"
                           >
-                            Add
+                            Grant
                           </button>
                         </div>
                       </div>
-                      {/* Collaborators List */}
-                      <div className="space-y-3">
-                        {(form.collaborators || []).length === 0 ? (
-                          <div className="border border-dashed border-border p-8 rounded-xl text-center bg-secondary/10">
-                            <Users size={24} className="mx-auto mb-3 text-muted-foreground/20" />
-                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">No team members</p>
-                            <p className="text-[10px] text-muted-foreground/60 mt-1">Invite others to help manage this form.</p>
+
+                      <div className="space-y-4">
+                        {(form.collaborators || []).map((collab, index) => (
+                          <div key={index} className="flex items-center justify-between py-3 border-b border-border/30 group">
+                            <div className="flex items-center gap-3">
+                              <div className="w-6 h-6 rounded-none bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
+                                {collab.email[0].toUpperCase()}
+                              </div>
+                              <span className="text-xs font-medium">{collab.email}</span>
+                            </div>
+                            <button 
+                              onClick={() => {
+                                const newCollabs = (form.collaborators || []).filter((_, i) => i !== index);
+                                onUpdate({ collaborators: newCollabs });
+                                addSecurityLog(`Access revoked: ${collab.email}`);
+                              }}
+                              className="text-[10px] font-bold uppercase text-muted-foreground hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                            >
+                              Revoke
+                            </button>
                           </div>
-                        ) : (
-                          (form.collaborators || []).map((collab, index) => (
-                            <div key={index} className="flex items-center justify-between p-3 rounded-xl border border-border bg-background hover:border-primary/30 transition-all group shadow-sm">
-                              <div className="flex items-center gap-3 min-w-0">
-                                <div className="w-8 h-8 rounded-lg overflow-hidden border border-border">
-                                  <AgentAvatar seed={collab.email} size={32} />
-                                </div>
-                                <div className="min-w-0">
-                                  <p className="text-[11px] font-bold truncate">{collab.email}</p>
-                                  <span className={`text-[9px] font-bold uppercase tracking-tight ${collab.role === 'editor' ? 'text-primary' : 'text-muted-foreground'}`}>
-                                    {collab.role === 'editor' ? 'Editor' : 'Viewer'}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-2 flex-shrink-0">
-                                <select
-                                  value={collab.role}
-                                  onChange={(e) => {
-                                    const newCollabs = [...(form.collaborators || [])];
-                                    newCollabs[index] = { ...collab, role: e.target.value as any };
-                                    onUpdate({ collaborators: newCollabs });
-                                    addSecurityLog(`Role changed: ${collab.email} to ${e.target.value}`);
-                                  }}
-                                  className="bg-transparent border border-border rounded-lg px-2 py-1 text-[10px] font-bold uppercase outline-none focus:border-primary transition-all"
-                                >
-                                  <option value="editor">Editor</option>
-                                  <option value="viewer">Viewer</option>
-                                </select>
-                                <button 
-                                  onClick={() => {
-                                    const newCollabs = (form.collaborators || []).filter((_, i) => i !== index);
-                                    onUpdate({ collaborators: newCollabs });
-                                    addSecurityLog(`Access revoked: ${collab.email}`);
-                                    toast.info("Collaborator removed");
-                                  }}
-                                  className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-all"
-                                >
-                                  <Trash2 size={14} />
-                                </button>
+                        ))}
+                      </div>
+
+                      <div className="pt-8 space-y-6">
+                        <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Protocol Security</label>
+                        <div className="space-y-6">
+                          <div className="space-y-4">
+                            <p className="text-[11px] text-muted-foreground uppercase font-bold tracking-wider">Secure Collaboration Link</p>
+                            <div className="p-4 bg-secondary/20 border border-border/50 font-mono text-[10px] break-all text-muted-foreground leading-relaxed select-all">
+                              {`${window.location.origin}/collab/${btoa(JSON.stringify({ 
+                                id: form.id, 
+                                s: form.linkRotationSalt || 'v1',
+                                e: form.linkExpirationDate || '0',
+                                p: form.collaborationPassword ? '1' : '0' 
+                              }))}`}
+                            </div>
+                            <button
+                              onClick={() => {
+                                const url = `${window.location.origin}/collab/${btoa(JSON.stringify({ 
+                                  id: form.id, 
+                                  s: form.linkRotationSalt || 'v1', 
+                                  e: form.linkExpirationDate || '0',
+                                  p: form.collaborationPassword ? '1' : '0' 
+                                }))}`;
+                                navigator.clipboard.writeText(url);
+                                toast.success("Secure link copied");
+                              }}
+                              className="text-[10px] font-bold uppercase tracking-widest text-primary hover:underline"
+                            >
+                              Copy Link
+                            </button>
+                          </div>
+
+                          <div className="p-6 border border-red-500/10 bg-red-500/[0.02] space-y-4">
+                            <div className="flex items-center gap-2 text-red-500">
+                              <RefreshCw size={14} />
+                              <h4 className="text-[10px] font-bold uppercase tracking-wider">Emergency Token Rotation</h4>
+                            </div>
+                            <p className="text-[11px] text-muted-foreground leading-relaxed">
+                              Invalidate all active team links instantly. This action cannot be undone.
+                            </p>
+                            <button 
+                              onClick={() => {
+                                const newSalt = Math.random().toString(36).substring(2, 15);
+                                onUpdate({ linkRotationSalt: newSalt });
+                                addSecurityLog("Security token rotated");
+                                toast.success("Protocol tokens rotated");
+                              }}
+                              className="px-4 py-2 bg-red-500 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-red-600 transition-all"
+                            >
+                              Rotate Tokens
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-10">
+                       <div className="space-y-6">
+                        <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Audit Ledger</label>
+                        <div className="space-y-6 max-h-[500px] overflow-y-auto no-scrollbar pr-4">
+                          {(form.securityLogs || []).map((log, i) => (
+                            <div key={i} className="text-[10px] font-mono leading-relaxed text-muted-foreground/80 flex items-start gap-4 border-l border-border/50 pl-4 relative">
+                              <div className="absolute -left-[3px] top-1.5 w-1.5 h-1.5 rounded-full bg-primary/40" />
+                              <div className="flex-1">
+                                <p className="text-foreground/90 font-sans font-medium">{log.action}</p>
+                                <p className="text-[9px] opacity-40 mt-0.5">{new Date(log.timestamp).toLocaleString()}</p>
                               </div>
                             </div>
-                          ))
-                        )}
+                          ))}
+                        </div>
                       </div>
-
-                      {(form.collaborators || []).length > 0 && (
-                        <p className="text-[10px] text-muted-foreground font-medium mt-4 italic">
-                          {(form.collaborators || []).length} team member{(form.collaborators || []).length !== 1 ? 's' : ''} currently have access.
-                        </p>
-                      )}
-                    </section>
-
-                    {/* Audit Log */}
-                    <section className="rounded-2xl border border-border overflow-hidden bg-secondary/5">
-                      <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-background">
-                        <History size={14} className="text-primary" />
-                        <h4 className="text-[11px] font-bold uppercase tracking-wider">Security Activity</h4>
-                        <span className="ml-auto text-[9px] font-bold text-muted-foreground bg-secondary px-1.5 py-0.5 rounded-md uppercase">{(form.securityLogs || []).length} Logs</span>
-                      </div>
-                      <div className="p-2 space-y-1 max-h-48 overflow-y-auto font-mono text-[10px]">
-                        {(form.securityLogs || []).length === 0 ? (
-                          <p className="text-muted-foreground/30 italic text-center py-6 uppercase tracking-widest">No activity</p>
-                        ) : (
-                          (form.securityLogs || []).map((log, i) => (
-                            <div key={i} className="flex items-start gap-3 p-2 rounded-lg hover:bg-background transition-colors border border-transparent hover:border-border/50">
-                              <Check size={10} className="text-primary mt-0.5 flex-shrink-0" />
-                              <div className="min-w-0">
-                                <span className="text-foreground/80 leading-none block truncate font-medium">{log.action}</span>
-                                <span className="text-[9px] text-muted-foreground/50">{new Date(log.timestamp).toLocaleString()}</span>
-                              </div>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </section>
+                    </div>
                   </div>
-
-                  {/* === RIGHT COLUMN: SECURITY === */}
-                  <div className="space-y-6">
-                    <section className="space-y-6">
-                      {/* Collaboration Password */}
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <label className="text-[11px] font-bold uppercase text-muted-foreground tracking-wider flex items-center gap-2">
-                             <Lock size={12} /> Team Password
-                          </label>
-                          {form.collaborationPassword && (
-                            <span className="text-[9px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md uppercase">Encrypted</span>
-                          )}
-                        </div>
-                        <input
-                          type="password"
-                          value={form.collaborationPassword || ''}
-                          onChange={(e) => {
-                            onUpdate({ collaborationPassword: e.target.value });
-                            if (e.target.value && !form.collaborationPassword) addSecurityLog("Team password enabled");
-                          }}
-                          placeholder="Set a dedicated team password"
-                          className="w-full bg-background text-sm px-4 py-2.5 border border-border rounded-lg outline-none font-mono focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                        />
-                      </div>
-
-                      {/* Expiration Date */}
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <label className="text-[11px] font-bold uppercase text-muted-foreground tracking-wider flex items-center gap-2">
-                             <Calendar size={12} /> Expiration
-                          </label>
-                          {form.linkExpirationDate && (
-                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md uppercase ${
-                              new Date(form.linkExpirationDate) < new Date() ? 'bg-red-100 text-red-600' : 'bg-primary/10 text-primary'
-                            }`}>
-                              {new Date(form.linkExpirationDate) < new Date() ? 'Expired' : 'Set'}
-                            </span>
-                          )}
-                        </div>
-                        <input
-                          type="date"
-                          value={form.linkExpirationDate || ''}
-                          onChange={(e) => {
-                            onUpdate({ linkExpirationDate: e.target.value });
-                            addSecurityLog(`Expiration set to ${e.target.value}`);
-                          }}
-                          className="w-full bg-background text-sm px-4 py-2.5 border border-border rounded-lg outline-none font-mono focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                        />
-                      </div>
-
-                      {/* Salt Rotation */}
-                      <div className="p-5 rounded-2xl border border-border bg-secondary/10 space-y-4">
-                        <div className="flex items-center gap-2">
-                          <RefreshCw size={14} className="text-muted-foreground" />
-                          <h4 className="text-xs font-bold uppercase tracking-wider">Token Rotation</h4>
-                        </div>
-                        <p className="text-[10px] text-muted-foreground leading-relaxed uppercase font-medium">
-                          Invalidate all active team links instantly. Use this if security is compromised.
-                        </p>
-                        <button 
-                          onClick={() => {
-                            const newSalt = Math.random().toString(36).substring(2, 15);
-                            onUpdate({ linkRotationSalt: newSalt });
-                            addSecurityLog("Token rotated — access revoked for all old links");
-                            toast.success("Security token rotated");
-                          }}
-                          className="w-full bg-foreground text-background text-xs font-bold uppercase py-3 rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-sm"
-                        >
-                          <RefreshCw size={14} />
-                          Rotate Security Token
-                        </button>
-                      </div>
-                    </section>
-
-                    {/* Collaboration Link Export */}
-                    <section className="p-5 rounded-2xl border border-primary/20 bg-primary/[0.02] space-y-4">
-                      <div className="flex items-center gap-2 text-primary">
-                        <Share2 size={14} />
-                        <label className="text-xs font-bold uppercase tracking-wider">Collaboration Link</label>
-                      </div>
-                      <div className="bg-background border border-border p-3 rounded-lg font-mono text-[10px] break-all text-muted-foreground/80 leading-relaxed select-all">
-                        {`${window.location.origin}/collab/${btoa(JSON.stringify({ 
-                          id: form.id, 
-                          s: form.linkRotationSalt || 'v1',
-                          e: form.linkExpirationDate || '0',
-                          p: form.collaborationPassword ? '1' : '0' 
-                        }))}`}
-                      </div>
-                      <div className="grid grid-cols-1 gap-2">
-                        <button
-                          onClick={() => {
-                            const url = `${window.location.origin}/collab/${btoa(JSON.stringify({ 
-                              id: form.id, 
-                              s: form.linkRotationSalt || 'v1', 
-                              e: form.linkExpirationDate || '0',
-                              p: form.collaborationPassword ? '1' : '0' 
-                            }))}`;
-                            navigator.clipboard.writeText(url);
-                            toast.success("Link copied to clipboard");
-                            addSecurityLog("Collab link exported");
-                          }}
-                          className="w-full bg-primary text-primary-foreground py-3 text-xs font-bold uppercase rounded-lg hover:opacity-90 transition-all shadow-sm flex items-center justify-center gap-2"
-                        >
-                          <Copy size={14} />
-                          Copy Secure Link
-                        </button>
-                      </div>
-                    </section>
-                  </div>
-                </div>
+                </section>
               </div>
             )}
             </div>
