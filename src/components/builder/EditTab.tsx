@@ -388,14 +388,6 @@ const EditTab = ({ form, onUpdate }: Props) => {
               )} />
             </div>
           </button>
-
-          <button 
-            onClick={() => setShowThemeSelector(true)}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl border border-border bg-background hover:bg-muted transition-all text-xs font-medium text-foreground"
-          >
-            <Palette className="w-3.5 h-3.5" />
-            Design & Themes
-          </button>
         </div>
 
         <h3 className="font-medium text-sm text-foreground mb-4 border-b border-border pb-2 flex items-center gap-2">
