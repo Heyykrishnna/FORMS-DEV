@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 import { Eye, EyeOff, ArrowRight, Skull, Fingerprint, Ghost, Bot, Pizza, Zap, Crown, User, AlertTriangle, Box, Link as LinkIcon, CheckCheck, Info } from 'lucide-react';
 
 const FUNNY_LOADING_MESSAGES = [
@@ -43,6 +44,13 @@ const Auth = () => {
   const [loadingMsg, setLoadingMsg] = useState(FUNNY_LOADING_MESSAGES[0]);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const navigate = useNavigate();
+  const { session, loading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && session) {
+      navigate('/dashboard');
+    }
+  }, [session, authLoading, navigate]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;

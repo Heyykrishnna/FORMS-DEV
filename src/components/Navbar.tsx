@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface NavItemProps {
   label: string;
@@ -146,6 +147,8 @@ const PlatformMegaMenu = () => (
 );
 
 const Navbar = () => {
+  const { user } = useAuth();
+
   return (
     <div className="sticky top-0 z-50 w-full">
       <nav className="relative w-full h-[64px]" style={{ background: '#e8e6df' }}>
@@ -192,14 +195,14 @@ const Navbar = () => {
             </Link>
 
             <div className="flex items-center gap-4 pl-2">
-              <Link to="/auth" className="text-[14px] font-medium transition-colors hover:text-foreground" style={{ color: 'var(--hex-ink-soft)' }}>
-                Log In
+              <Link to={user ? "/dashboard" : "/auth"} className="text-[14px] font-medium transition-colors hover:text-foreground" style={{ color: 'var(--hex-ink-soft)' }}>
+                {user ? "Dashboard" : "Log In"}
               </Link>
               <Link 
-                to="/auth" 
+                to={user ? "/dashboard" : "/auth"} 
                 className="text-[13px] font-medium border hex-line-strong text-foreground bg-white px-4 py-2 rounded-md hover:bg-[#faf9f6] transition-all shadow-sm"
               >
-                Get started
+                {user ? "Go to Dashboard" : "Get started"}
               </Link>
             </div>
           </div>

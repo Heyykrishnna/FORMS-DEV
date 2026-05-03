@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Star } from 'lucide-react';
+import { Star, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
+import { generateFormFromPrompt } from '@/services/groq';
+import { createBlankForm } from '@/lib/formStore';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
 import {
@@ -37,6 +41,74 @@ const VerticalScale = ({className} : {className?: string}) => {
 
 const Index = () => {
   const [prompt, setPrompt] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleGenerate = async () => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+
+    if (!prompt.trim() || isGenerating) return;
+
+    setIsGenerating(true);
+    const toastId = toast.loading("AI is brainstorming your form...", {
+      description: "Analyzing objective and designing structure...",
+    });
+
+    try {
+      const generatedForm = await generateFormFromPrompt(prompt);
+      
+      const newForm = {
+        ...createBlankForm(),
+        ...generatedForm,
+        id: crypto.randomUUID(),
+        user_id: user.id,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      // Save to Supabase
+      const { error } = await supabase
+        .from('forms')
+        .insert([{
+          id: newForm.id,
+          user_id: user.id,
+          title: newForm.title,
+          description: newForm.description,
+          questions: newForm.questions,
+          theme: newForm.theme,
+          layout: newForm.layout,
+          style: newForm.style,
+          settings: {
+            isAnonymous: newForm.isAnonymous,
+            acceptingResponses: newForm.acceptingResponses,
+            showProgressBar: newForm.showProgressBar,
+            confirmationMessage: newForm.confirmationMessage,
+          },
+          status: 'published'
+        }]);
+
+      if (error) throw error;
+
+      toast.success("Form Generated!", {
+        id: toastId,
+        description: `Created "${newForm.title}" with ${newForm.questions?.length} steps.`,
+      });
+
+      navigate(`/builder/${newForm.id}`);
+    } catch (error: any) {
+      console.error(error);
+      toast.error("Generation Failed", {
+        id: toastId,
+        description: error.message || "Something went wrong during generation.",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -94,18 +166,28 @@ const Index = () => {
                 <div className="mt-10 relative max-w-[540px] group">
                   <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500/5 to-blue-500/5 rounded-2xl blur-md opacity-0 group-hover:opacity-100 transition duration-700 pointer-events-none" />
                   
-                  <div className="relative flex flex-col sm:flex-row items-stretch bg-[#fdfcfb] border hex-line-strong rounded-xl p-1.5 shadow-sm focus-within:shadow-md focus-within:border-indigo-400/50 transition-all z-10">
-                    <input 
-                      type="text" 
-                      value={prompt}
-                      onChange={(e) => setPrompt(e.target.value)}
-                      placeholder="Describe the form you want to build..."
-                      className="w-full sm:flex-1 bg-transparent border-none focus:outline-none text-[15px] placeholder:text-muted-foreground/60 px-4 py-3"
-                    />
-                    <Link to="/auth" className="w-full sm:w-auto bg-foreground text-background px-6 py-2.5 rounded-xl text-[13px] font-medium hover:bg-foreground/90 transition-all shadow-sm flex items-center justify-center gap-2">
-                      Generate
-                    </Link>
-                  </div>
+                    <div className="relative flex flex-col sm:flex-row items-stretch bg-[#fdfcfb] border hex-line-strong rounded-xl p-1.5 shadow-sm focus-within:shadow-md focus-within:border-indigo-400/50 transition-all z-10">
+                      <input 
+                        type="text" 
+                        value={prompt}
+                        onChange={(e) => setPrompt(e.target.value)}
+                        placeholder="Describe the form you want to build..."
+                        className="w-full sm:flex-1 bg-transparent border-none focus:outline-none text-[15px] placeholder:text-muted-foreground/60 px-4 py-3"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleGenerate();
+                          }
+                        }}
+                      />
+                      <button 
+                        onClick={handleGenerate}
+                        disabled={isGenerating}
+                        className="w-full sm:w-auto bg-foreground text-background px-6 py-2.5 rounded-xl text-[13px] font-medium hover:bg-foreground/90 transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
+                      >
+                        {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : "Generate"}
+                      </button>
+                    </div>
                   
                   <div className="mt-5 relative z-10">
                     <div className="flex flex-wrap items-center gap-2">
@@ -467,45 +549,61 @@ const SignalIllustration = () => (
 
 const FeatureBlock = ({ glyph, title, body, cta, mock, reverse, noHover }: {
   glyph: string; chip: string; title: React.ReactNode; body: string; cta: string; mock: React.ReactNode; reverse?: boolean; noHover?: boolean;
-}) => (
-  <section className="border-b hex-line-soft py-20 relative overflow-hidden" style={{ borderBottomWidth: 1 }}>
-    {reverse && <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/5 blur-[120px] pointer-events-none" />}
-    {!reverse && <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/5 blur-[120px] pointer-events-none" />}
-    
-    <div className="max-w-7xl mx-auto px-6 relative z-10">
-      <div
-        className={cn(
-          'grid gap-20 items-center lg:items-start',
-          reverse
-            ? 'lg:grid-cols-[1.8fr_1fr] lg:[&>*:first-child]:order-2'
-            : 'lg:grid-cols-[1fr_1.8fr]',
-        )}
-      >
-        <div className="max-w-lg lg:pt-4">
-          <div className="flex items-center gap-3 mb-6">
-            <GeoGlyph />
-            <span className="hex-mono text-[11px] tracking-wider" style={{ color: 'var(--hex-ink-muted)' }}>FIG.{glyph}</span>
+}) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  
+  return (
+    <section className="border-b hex-line-soft py-20 relative overflow-hidden" style={{ borderBottomWidth: 1 }}>
+      {reverse && <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/5 blur-[120px] pointer-events-none" />}
+      {!reverse && <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/5 blur-[120px] pointer-events-none" />}
+      
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div
+          className={cn(
+            'grid gap-20 items-center lg:items-start',
+            reverse
+              ? 'lg:grid-cols-[1.8fr_1fr] lg:[&>*:first-child]:order-2'
+              : 'lg:grid-cols-[1fr_1.8fr]',
+          )}
+        >
+          <div className="max-w-lg lg:pt-4">
+            <div className="flex items-center gap-3 mb-6">
+              <GeoGlyph />
+              <span className="hex-mono text-[11px] tracking-wider" style={{ color: 'var(--hex-ink-muted)' }}>FIG.{glyph}</span>
+            </div>
+            <h2 className="text-[48px] font-semibold tracking-[-0.035em] leading-[1.02]">{title}</h2>
+            <p className="mt-8 text-[18px] leading-relaxed opacity-70" style={{ color: 'var(--hex-ink-soft)' }}>{body}</p>
+            <div className="mt-12 flex items-center gap-6">
+              <button 
+                onClick={() => {
+                  if (user) {
+                    navigate('/dashboard');
+                  } else {
+                    navigate('/auth');
+                  }
+                }}
+                className="hex-btn-primary text-[14px] px-8 py-3"
+              >
+                {cta} →
+              </button>
+            </div>
           </div>
-          <h2 className="text-[48px] font-semibold tracking-[-0.035em] leading-[1.02]">{title}</h2>
-          <p className="mt-8 text-[18px] leading-relaxed opacity-70" style={{ color: 'var(--hex-ink-soft)' }}>{body}</p>
-          <div className="mt-12 flex items-center gap-6">
-            <Link to="/auth" className="hex-btn-primary text-[14px] px-8 py-3">{cta} →</Link>
-          </div>
-        </div>
-        <div className="flex justify-center relative group min-w-0 w-full">
-          {!noHover && <div className="absolute -inset-10 bg-indigo-500/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />}
-          <div
-            className={cn(
-              'relative transition-all duration-700 ease-out w-full max-w-full min-w-0',
-              !noHover && 'transform group-hover:scale-[1.03] group-hover:-rotate-1',
-            )}
-          >
-            {mock}
+          <div className="flex justify-center relative group min-w-0 w-full">
+            {!noHover && <div className="absolute -inset-10 bg-indigo-500/5 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />}
+            <div
+              className={cn(
+                'relative transition-all duration-700 ease-out w-full max-w-full min-w-0',
+                !noHover && 'transform group-hover:scale-[1.03] group-hover:-rotate-1',
+              )}
+            >
+              {mock}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 export default Index;
