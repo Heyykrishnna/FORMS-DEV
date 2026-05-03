@@ -397,7 +397,7 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                               type="text"
                               value={form.restrictedDomain || ''}
                               onChange={(e) => onUpdate({ restrictedDomain: e.target.value })}
-                              placeholder="e.g. revox.ai, google.com"
+                              placeholder="e.g. aqora.ai, google.com"
                               className="w-full bg-transparent text-xs px-0 py-2 border-b border-border rounded-none outline-none font-mono focus:border-primary transition-all text-right"
                             />
                           </div>
@@ -586,7 +586,7 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                                 ))}
                               </div>
                               <div className="mt-8 pt-6 border-t border-border/20 flex items-center justify-between">
-                                <p className="text-[10px] text-muted-foreground italic font-medium italic">Active Protocol: {theme.label}</p>
+                                <p className="text-[10px] text-muted-foreground font-medium italic">Active Protocol: {theme.label}</p>
                                 <span className="text-[9px] font-mono text-primary/60 px-2 py-1 bg-primary/5">INTELLIGENCE_LAYER_V1</span>
                               </div>
                             </div>
@@ -663,7 +663,7 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                             {window.location.origin}/f/{form.id}
                           </div>
                           <div className="text-[13px] text-muted-foreground line-clamp-2 leading-relaxed">
-                            {form.seoDescription || form.description || 'Access the official data gathering portal on RevoX.'}
+                            {form.seoDescription || form.description || 'Access the official data gathering portal on Aqora.'}
                           </div>
                         </div>
                       </div>
@@ -674,133 +674,199 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
             )}
 
             {activeTab === 'team' && (
-              <div className="space-y-12 animate-in fade-in duration-500">
+              <div className="space-y-16 animate-in fade-in duration-500">
+                {/* Header & Overview */}
                 <section>
-                  <div className="mb-8">
-                    <h3 className="text-xl font-semibold tracking-tight">Team & Governance</h3>
-                    <p className="text-sm text-muted-foreground mt-1.5">Manage collaborator permissions and monitor security audit logs.</p>
+                  <div className="flex items-end justify-between mb-10 pb-6 border-b border-border/50">
+                    <div>
+                      <h3 className="text-2xl font-bold tracking-tight">Team & Governance</h3>
+                      <p className="text-sm text-muted-foreground mt-2">Manage collaborator protocols and monitor security audit logs.</p>
+                    </div>
+                    <div className="flex items-center gap-6">
+                      <div className="text-right">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Active Seats</p>
+                        <p className="text-xl font-mono">{(form.collaborators || []).length + 1}/10</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Security Tier</p>
+                        <p className="text-xl font-mono text-primary">ELITE</p>
+                      </div>
+                    </div>
                   </div>
-                  
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-                    <div className="space-y-12">
-                      <div className="space-y-6">
-                        <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Add Collaborator</label>
-                        <div className="flex gap-2">
-                          <input
-                            id="collaborator-email"
-                            type="email"
-                            placeholder="colleague@revox.ai"
-                            className="flex-1 bg-transparent text-sm px-0 py-2 border-b border-border rounded-none outline-none focus:border-primary transition-all"
-                          />
-                          <button 
-                            onClick={() => {
-                              const input = document.getElementById('collaborator-email') as HTMLInputElement;
-                              const email = input?.value.trim();
-                              if (email && email.includes('@')) {
-                                const current = form.collaborators || [];
-                                onUpdate({ collaborators: [...current, { email, role: 'editor' }] });
-                                addSecurityLog(`Access granted: ${email}`);
-                                input.value = '';
-                                toast.success("Access granted");
-                              }
-                            }}
-                            className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-primary border border-primary/20 hover:bg-primary/5 transition-all"
-                          >
-                            Grant
-                          </button>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                    {/* Left Column: Management */}
+                    <div className="lg:col-span-7 space-y-12">
+                      {/* Access Management */}
+                      <div className="space-y-8">
+                        <div className="space-y-6">
+                          <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.2em]">Access Management</label>
+                          <div className="flex gap-3">
+                            <div className="flex-1 relative">
+                              <input
+                                id="collaborator-email"
+                                type="email"
+                                placeholder="colleague@aqora.ai"
+                                className="w-full bg-transparent text-sm pl-0 pr-24 py-3 border-b border-border rounded-none outline-none focus:border-primary transition-all font-mono"
+                              />
+                              <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                                <select className="bg-transparent text-[10px] font-bold uppercase border-none outline-none text-muted-foreground cursor-pointer hover:text-primary transition-colors">
+                                  <option>Editor</option>
+                                  <option>Viewer</option>
+                                </select>
+                              </div>
+                            </div>
+                            <button 
+                              onClick={() => {
+                                const input = document.getElementById('collaborator-email') as HTMLInputElement;
+                                const email = input?.value.trim();
+                                if (email && email.includes('@')) {
+                                  const current = form.collaborators || [];
+                                  onUpdate({ collaborators: [...current, { email, role: 'editor' }] });
+                                  addSecurityLog(`Access granted: ${email}`);
+                                  input.value = '';
+                                  toast.success("Identity authorized");
+                                }
+                              }}
+                              className="px-6 py-2 bg-foreground text-background text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-all shadow-sm"
+                            >
+                              Authorize
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Collaborator List */}
+                        <div className="space-y-px border border-border/50 divide-y divide-border/30 bg-background/50">
+                          <div className="flex items-center justify-between p-4 bg-secondary/10">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-none border border-border bg-background flex items-center justify-center overflow-hidden">
+                                <AgentAvatar seed="admin" size={32} />
+                              </div>
+                              <div>
+                                <p className="text-xs font-bold">Workspace Owner (You)</p>
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-tighter">Full Protocol Access</p>
+                              </div>
+                            </div>
+                            <span className="text-[9px] font-mono text-primary/60 bg-primary/5 px-2 py-1">ROOT_ACCESS</span>
+                          </div>
+
+                          {(form.collaborators || []).map((collab, index) => (
+                            <div key={index} className="flex items-center justify-between p-4 bg-background group hover:bg-secondary/5 transition-colors">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-none border border-border bg-background flex items-center justify-center overflow-hidden">
+                                  <AgentAvatar seed={collab.email} size={32} />
+                                </div>
+                                <div>
+                                  <p className="text-xs font-bold">{collab.email}</p>
+                                  <p className="text-[10px] text-muted-foreground uppercase tracking-tighter">{collab.role || 'Editor'}</p>
+                                </div>
+                              </div>
+                              <button 
+                                onClick={() => {
+                                  const newCollabs = (form.collaborators || []).filter((_, i) => i !== index);
+                                  onUpdate({ collaborators: newCollabs });
+                                  addSecurityLog(`Access revoked: ${collab.email}`);
+                                }}
+                                className="text-[10px] font-bold uppercase text-red-500 opacity-0 group-hover:opacity-100 transition-all hover:underline underline-offset-4"
+                              >
+                                Revoke Access
+                              </button>
+                            </div>
+                          ))}
                         </div>
                       </div>
 
-                      <div className="space-y-4">
-                        {(form.collaborators || []).map((collab, index) => (
-                          <div key={index} className="flex items-center justify-between py-3 border-b border-border/30 group">
-                            <div className="flex items-center gap-3">
-                              <div className="w-6 h-6 rounded-none bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
-                                {collab.email[0].toUpperCase()}
-                              </div>
-                              <span className="text-xs font-medium">{collab.email}</span>
+                      {/* Protocol Security Block */}
+                      <div className="space-y-6">
+                        <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.2em]">Secure Access Protocol</label>
+                        <div className="grid grid-cols-1 gap-6">
+                          <div className="p-8 border border-border/50 bg-background/50 space-y-6">
+                            <div className="space-y-2">
+                              <p className="text-[11px] font-bold uppercase tracking-wider">Dynamic Collaboration Link</p>
+                              <p className="text-[11px] text-muted-foreground">This link grants high-level access based on the current rotation salt.</p>
                             </div>
-                            <button 
-                              onClick={() => {
-                                const newCollabs = (form.collaborators || []).filter((_, i) => i !== index);
-                                onUpdate({ collaborators: newCollabs });
-                                addSecurityLog(`Access revoked: ${collab.email}`);
-                              }}
-                              className="text-[10px] font-bold uppercase text-muted-foreground hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
-                            >
-                              Revoke
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="pt-8 space-y-6">
-                        <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Protocol Security</label>
-                        <div className="space-y-6">
-                          <div className="space-y-4">
-                            <p className="text-[11px] text-muted-foreground uppercase font-bold tracking-wider">Secure Collaboration Link</p>
-                            <div className="p-4 bg-secondary/20 border border-border/50 font-mono text-[10px] break-all text-muted-foreground leading-relaxed select-all">
-                              {`${window.location.origin}/collab/${btoa(JSON.stringify({ 
-                                id: form.id, 
-                                s: form.linkRotationSalt || 'v1',
-                                e: form.linkExpirationDate || '0',
-                                p: form.collaborationPassword ? '1' : '0' 
-                              }))}`}
-                            </div>
-                            <button
-                              onClick={() => {
-                                const url = `${window.location.origin}/collab/${btoa(JSON.stringify({ 
+                            <div className="flex gap-3">
+                              <div className="flex-1 p-4 bg-secondary/20 border border-border/50 font-mono text-[10px] break-all text-muted-foreground leading-relaxed">
+                                {`${window.location.origin}/collab/${btoa(JSON.stringify({ 
                                   id: form.id, 
-                                  s: form.linkRotationSalt || 'v1', 
+                                  s: form.linkRotationSalt || 'v1',
                                   e: form.linkExpirationDate || '0',
                                   p: form.collaborationPassword ? '1' : '0' 
-                                }))}`;
-                                navigator.clipboard.writeText(url);
-                                toast.success("Secure link copied");
-                              }}
-                              className="text-[10px] font-bold uppercase tracking-widest text-primary hover:underline"
-                            >
-                              Copy Link
-                            </button>
-                          </div>
-
-                          <div className="p-6 border border-red-500/10 bg-red-500/[0.02] space-y-4">
-                            <div className="flex items-center gap-2 text-red-500">
-                              <RefreshCw size={14} />
-                              <h4 className="text-[10px] font-bold uppercase tracking-wider">Emergency Token Rotation</h4>
+                                }))}`}
+                              </div>
+                              <button
+                                onClick={() => {
+                                  const url = `${window.location.origin}/collab/${btoa(JSON.stringify({ 
+                                    id: form.id, 
+                                    s: form.linkRotationSalt || 'v1', 
+                                    e: form.linkExpirationDate || '0',
+                                    p: form.collaborationPassword ? '1' : '0' 
+                                  }))}`;
+                                  navigator.clipboard.writeText(url);
+                                  toast.success("Protocol link cached");
+                                }}
+                                className="p-4 border border-border/50 bg-background hover:bg-secondary/10 transition-all text-primary"
+                              >
+                                <Copy size={16} />
+                              </button>
                             </div>
-                            <p className="text-[11px] text-muted-foreground leading-relaxed">
-                              Invalidate all active team links instantly. This action cannot be undone.
-                            </p>
-                            <button 
-                              onClick={() => {
-                                const newSalt = Math.random().toString(36).substring(2, 15);
-                                onUpdate({ linkRotationSalt: newSalt });
-                                addSecurityLog("Security token rotated");
-                                toast.success("Protocol tokens rotated");
-                              }}
-                              className="px-4 py-2 bg-red-500 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-red-600 transition-all"
-                            >
-                              Rotate Tokens
-                            </button>
+                            <div className="flex items-center justify-between pt-6 border-t border-border/20">
+                              <div className="flex items-center gap-4">
+                                <button 
+                                  onClick={() => {
+                                    const newSalt = Math.random().toString(36).substring(2, 15);
+                                    onUpdate({ linkRotationSalt: newSalt });
+                                    addSecurityLog("Link rotation salt updated");
+                                    toast.success("Access tokens rotated");
+                                  }}
+                                  className="text-[10px] font-bold uppercase tracking-widest text-primary flex items-center gap-2 hover:underline"
+                                >
+                                  <RefreshCw size={12} />
+                                  Rotate Access Tokens
+                                </button>
+                                <div className="h-4 w-px bg-border/50" />
+                                <button className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors">
+                                  Configure TTL
+                                </button>
+                              </div>
+                              <span className="text-[9px] font-mono text-muted-foreground/40">SALT: {form.linkRotationSalt || 'v1'}</span>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="space-y-10">
-                       <div className="space-y-6">
-                        <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Audit Ledger</label>
-                        <div className="space-y-6 max-h-[500px] overflow-y-auto no-scrollbar pr-4">
-                          {(form.securityLogs || []).map((log, i) => (
-                            <div key={i} className="text-[10px] font-mono leading-relaxed text-muted-foreground/80 flex items-start gap-4 border-l border-border/50 pl-4 relative">
-                              <div className="absolute -left-[3px] top-1.5 w-1.5 h-1.5 rounded-full bg-primary/40" />
-                              <div className="flex-1">
-                                <p className="text-foreground/90 font-sans font-medium">{log.action}</p>
-                                <p className="text-[9px] opacity-40 mt-0.5">{new Date(log.timestamp).toLocaleString()}</p>
+                    {/* Right Column: Ledger */}
+                    <div className="lg:col-span-5">
+                      <div className="space-y-8 h-full flex flex-col">
+                        <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.2em]">Security Ledger</label>
+                        <div className="flex-1 p-8 border border-border/50 bg-secondary/[0.02] relative overflow-hidden">
+                          <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:16px_16px]" />
+                          
+                          <div className="relative space-y-8 max-h-[700px] overflow-y-auto no-scrollbar pr-2">
+                            {(form.securityLogs || []).length === 0 ? (
+                              <div className="h-full flex flex-col items-center justify-center py-20 text-center space-y-4">
+                                <History className="w-8 h-8 text-muted-foreground/20" />
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/40">No records found</p>
                               </div>
-                            </div>
-                          ))}
+                            ) : (
+                              (form.securityLogs || []).slice().reverse().map((log, i) => (
+                                <div key={i} className="flex gap-4 group">
+                                  <div className="flex flex-col items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-primary/40 mt-1.5 shadow-[0_0_8px_rgba(49,91,232,0.3)] group-hover:scale-125 transition-transform" />
+                                    <div className="w-px flex-1 bg-border/50" />
+                                  </div>
+                                  <div className="pb-8 space-y-1">
+                                    <p className="text-[11px] font-bold text-foreground/90">{log.action}</p>
+                                    <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-tight">{new Date(log.timestamp).toLocaleString()}</p>
+                                    <div className="pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      <span className="text-[8px] font-mono bg-secondary px-1.5 py-0.5 rounded text-muted-foreground">SHA_256_VERIFIED</span>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
