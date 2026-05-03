@@ -8,7 +8,7 @@ import {
   CircleDot, CheckSquare, ChevronDown,
   Calendar, Clock, Upload, Star, Sliders,
   Heading, FileText, ToggleLeft, Plus, GitBranch, Palette, Eye, Layout, CheckCircle2,
-  CheckCircle, Link, Share2, Award, ExternalLink
+  CheckCircle, Link, Share2, Award, ExternalLink, Instagram, Globe, Twitter, Linkedin, Facebook
 } from 'lucide-react';
 import { THEME_LABELS, FormTheme } from '@/types/form';
 import {
@@ -598,6 +598,35 @@ const EditTab = ({ form, onUpdate }: Props) => {
                     )} />
                   </div>
                 </button>
+
+                {form.showSocialShare && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in slide-in-from-top-2 duration-300">
+                    {[
+                      { id: 'twitter', label: 'X (Twitter)', icon: Twitter, placeholder: 'https://x.com/yourhandle' },
+                      { id: 'linkedin', label: 'LinkedIn', icon: Linkedin, placeholder: 'https://linkedin.com/in/yourprofile' },
+                      { id: 'facebook', label: 'Facebook', icon: Facebook, placeholder: 'https://facebook.com/yourpage' },
+                      { id: 'instagram', label: 'Instagram', icon: Instagram, placeholder: 'https://instagram.com/yourprofile' },
+                      { id: 'website', label: 'Website', icon: Globe, placeholder: 'https://yourwebsite.com' },
+                    ].map((platform) => (
+                      <div key={platform.id} className="space-y-1.5">
+                        <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                          <platform.icon className="w-3 h-3" /> {platform.label}
+                        </label>
+                        <input 
+                          value={form.socialLinks?.[platform.id as keyof typeof form.socialLinks] || ''}
+                          onChange={(e) => onUpdate({ 
+                            socialLinks: { 
+                              ...(form.socialLinks || {}), 
+                              [platform.id]: e.target.value 
+                            } 
+                          })}
+                          placeholder={platform.placeholder}
+                          className="w-full bg-muted/30 border border-border px-3 py-2 rounded-lg text-xs outline-none focus:border-primary transition-all"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 

@@ -69,6 +69,7 @@ const FormBuilder = () => {
         isQuiz: settings.isQuiz ?? false,
         showQuizResultsToUsers: data.show_quiz_results_to_users ?? settings.showQuizResultsToUsers ?? false,
         showSocialShare: data.show_social_share ?? settings.showSocialShare ?? true,
+        socialLinks: settings.socialLinks || {},
         responseTheme: data.response_theme || settings.responseTheme || 'normal',
         restrictedDomain: data.restricted_domain || settings.restrictedDomain,
         requireRespondentData: data.require_respondent_data ?? settings.requireRespondentData ?? false,
@@ -125,6 +126,7 @@ const FormBuilder = () => {
         isQuiz: newForm.isQuiz,
         showQuizResultsToUsers: newForm.showQuizResultsToUsers,
         showSocialShare: newForm.showSocialShare,
+        socialLinks: newForm.socialLinks,
         responseTheme: newForm.responseTheme,
         restrictedDomain: newForm.restrictedDomain,
         requireRespondentData: newForm.requireRespondentData,
@@ -147,15 +149,8 @@ const FormBuilder = () => {
         style: newForm.style, 
         questions: newForm.questions,
         settings,
-        response_theme: newForm.responseTheme,
-        show_quiz_results_to_users: newForm.showQuizResultsToUsers,
-        show_social_share: newForm.showSocialShare,
-        restricted_domain: newForm.restrictedDomain,
-        require_respondent_data: newForm.requireRespondentData,
-        seo_indexable: newForm.seoIndexable,
-        seo_keywords: newForm.seoKeywords,
         updated_at: new Date().toISOString(),
-        status: 'published' // Ensure it's reachable
+        status: 'published'
       };
 
       const { error } = await supabase

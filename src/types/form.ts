@@ -107,6 +107,13 @@ export interface FormData {
   isQuiz?: boolean;
   showQuizResultsToUsers?: boolean;
   showSocialShare?: boolean;
+  socialLinks?: {
+    twitter?: string;
+    linkedin?: string;
+    facebook?: string;
+    instagram?: string;
+    website?: string;
+  };
   responseTheme?: ResponseTheme;
   restrictedDomain?: string;
   requireRespondentData?: boolean;

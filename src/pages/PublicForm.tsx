@@ -734,26 +734,53 @@ const PublicForm = () => {
           </div>
 
           {form.showSocialShare !== false && (
-            <div className="flex flex-col gap-4 max-w-xs mx-auto mb-10">
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 text-center">Share your results</p>
-              <div className="flex justify-center gap-3">
-                {[
-                  { name: 'Twitter', icon: '𝕏', color: '#000', url: `https://twitter.com/intent/tweet?text=I just completed ${form.title}!&url=${window.location.href}` },
-                  { name: 'LinkedIn', icon: 'in', color: '#0077b5', url: `https://www.linkedin.com/sharing/share-offsite/?url=${window.location.href}` },
-                  { name: 'Facebook', icon: 'f', color: '#1877f2', url: `https://www.facebook.com/sharer/sharer.php?u=${window.location.href}` }
-                ].map((social) => (
-                  <a 
-                    key={social.name}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`${style.card} w-10 h-10 flex items-center justify-center font-black text-lg hover:scale-110 transition-transform`}
-                    style={{ color: social.color }}
-                  >
-                    {social.icon}
-                  </a>
-                ))}
+            <div className="flex flex-col gap-6 max-w-md mx-auto mb-10">
+              {/* SHARING */}
+              <div className="space-y-4">
+                <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 text-center">Share your results</p>
+                <div className="flex justify-center gap-3">
+                  {[
+                    { name: 'Twitter', icon: '𝕏', color: '#000', url: `https://twitter.com/intent/tweet?text=I just completed ${form.title}!&url=${window.location.href}${form.socialLinks?.twitter ? `&via=${form.socialLinks.twitter.split('/').pop()}` : ''}` },
+                    { name: 'LinkedIn', icon: 'in', color: '#0077b5', url: `https://www.linkedin.com/sharing/share-offsite/?url=${window.location.href}` },
+                    { name: 'Facebook', icon: 'f', color: '#1877f2', url: `https://www.facebook.com/sharer/sharer.php?u=${window.location.href}` }
+                  ].map((social) => (
+                    <a 
+                      key={social.name}
+                      href={social.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`${style.card} w-10 h-10 flex items-center justify-center font-black text-lg hover:scale-110 transition-transform`}
+                      style={{ color: social.color }}
+                    >
+                      {social.icon}
+                    </a>
+                  ))}
+                </div>
               </div>
+
+              {/* PROFILE LINKS */}
+              {form.socialLinks && Object.values(form.socialLinks).some(link => link) && (
+                <div className="space-y-4 pt-6 border-t border-current/10">
+                  <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 text-center">Connect with us</p>
+                  <div className="flex justify-center flex-wrap gap-4">
+                    {Object.entries(form.socialLinks).map(([id, url]) => {
+                      if (!url) return null;
+                      const formattedUrl = url.startsWith('http') ? url : `https://${url}`;
+                      return (
+                        <a 
+                          key={id}
+                          href={formattedUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-bold uppercase hover:underline flex items-center gap-1.5 opacity-70 hover:opacity-100 transition-opacity"
+                        >
+                          <span className="capitalize">{id}</span>
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
