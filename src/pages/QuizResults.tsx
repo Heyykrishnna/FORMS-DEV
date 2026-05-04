@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
+import { apiClient } from '@/lib/apiClient';
 import { FormData, Question } from '@/types/form';
 import { Check, X, Trophy, AlertCircle, ArrowLeft, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -21,7 +21,7 @@ const QuizResults = () => {
 
   const loadResults = async () => {
     try {
-      const { data: responseData, error: responseError } = await supabase
+      const { data: responseData, error: responseError } = await apiClient
         .from('responses')
         .select('*')
         .eq('id', responseId)
@@ -35,7 +35,7 @@ const QuizResults = () => {
 
       setResponse(responseData);
 
-      const { data: formData, error: formError } = await supabase
+      const { data: formData, error: formError } = await apiClient
         .from('forms')
         .select('*')
         .eq('id', responseData.form_id)

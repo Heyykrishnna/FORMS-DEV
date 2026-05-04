@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
+import { apiClient } from '@/lib/apiClient';
 import { toast } from 'sonner';
 
 const CollabAccess = () => {
@@ -31,7 +31,7 @@ const CollabAccess = () => {
       }
 
       // 2. Fetch form to verify salt and password
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from('forms')
         .select('settings')
         .eq('id', id)
@@ -71,7 +71,7 @@ const CollabAccess = () => {
     if (!formId) return;
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from('forms')
         .select('settings')
         .eq('id', formId)

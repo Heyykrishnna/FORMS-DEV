@@ -6,7 +6,7 @@ import {
   DialogTitle,
   DialogDescription
 } from '@/components/ui/dialog';
-import { supabase } from '@/lib/supabase';
+import { apiClient } from '@/lib/apiClient';
 import { toast } from 'sonner';
 import { AlertTriangle, X } from 'lucide-react';
 
@@ -63,7 +63,7 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ isOpen, onClo
       // Small artificial delay for the funny loading messages to be seen
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      const { error } = await apiClient.auth.resetPasswordForEmail(email, {
         redirectTo: window.location.origin + '/reset-password',
       });
       

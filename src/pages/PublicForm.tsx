@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
+import { apiClient } from '@/lib/apiClient';
 import { FormData, FormResponse, FormTheme, Question } from '@/types/form';
 import { Button } from '@/components/ui/button';
 import { Star, Check, FormInput, Send, CheckCircle2, AlertCircle, Calendar, Lock } from 'lucide-react';
@@ -300,7 +300,7 @@ const PublicForm = () => {
   }, [form]);
   const loadForm = React.useCallback(async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from('forms')
         .select('*')
         .eq('id', id)
@@ -365,12 +365,12 @@ const PublicForm = () => {
       loadForm();
       
       // Increment views
-      supabase.rpc('increment_form_views', { form_id: id }).then(({ error }) => {
+      apiClient.rpc('increment_form_views', { form_id: id }).then(({ error }) => {
         if (error) console.error('Error incrementing views:', error);
       });
 
       // Load response count
-      supabase
+      apiClient
         .from('responses')
         .select('*', { count: 'exact', head: true })
         .eq('form_id', id)
@@ -567,7 +567,7 @@ const PublicForm = () => {
       } else if (emailsToCheck.size > 0) {
         // Fetch all existing responses and do strict client-side email matching
         // (avoids JSONB operator inconsistencies across DB versions)
-        const { data: allResponses, error: fetchError } = await supabase
+        const { data: allResponses, error: fetchError } = await apiClient
           .from('responses')
           .select('respondent_data, answers')
           .eq('form_id', form.id);
@@ -601,7 +601,7 @@ const PublicForm = () => {
 
     // Check submission limit again before saving
     if (form.submissionLimit) {
-      const { count } = await supabase
+      const { count } = await apiClient
         .from('responses')
         .select('*', { count: 'exact', head: true })
         .eq('form_id', form.id);
@@ -665,7 +665,7 @@ const PublicForm = () => {
       ...scoreData, // Include quiz scores if applicable
     };
 
-    const { data, error } = await supabase
+    const { data, error } = await apiClient
       .from('responses')
       .insert(responsePayload)
       .select('id')

@@ -1,6 +1,19 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
-import { User, Session } from '@supabase/supabase-js';
+import { apiClient } from '@/lib/apiClient';
+
+type User = {
+  id: string;
+  email: string;
+  role?: string;
+  created_at?: string;
+  user_metadata?: Record<string, unknown>;
+};
+
+type Session = {
+  access_token: string;
+  refresh_token: string;
+  user: User;
+};
 
 interface AuthContextType {
   user: User | null;
@@ -24,36 +37,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const checkAdminRole = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .eq('role', 'admin')
-        .maybeSingle();
-      
-      setIsAdmin(!!data && !error);
-    } catch {
-      setIsAdmin(false);
-    }
+  const checkAdminRole = async (sessionUser: User | null) => {
+    setIsAdmin(sessionUser?.role === 'admin');
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    apiClient.auth.getSession().then(({ data: { session } }: any) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        checkAdminRole(session.user.id);
+        checkAdminRole(session.user);
       }
       setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = apiClient.auth.onAuthStateChange((_event: any, session: any) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        checkAdminRole(session.user.id);
+        checkAdminRole(session.user);
       } else {
         setIsAdmin(false);
       }
@@ -64,7 +66,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    await apiClient.auth.signOut();
   };
 
   return (

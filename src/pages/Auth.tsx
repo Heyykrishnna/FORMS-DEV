@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { apiClient } from '@/lib/apiClient';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -77,7 +77,7 @@ const Auth = () => {
             throw new Error("WE NEED A NAME, AGENT.");
         }
         
-        const { data, error } = await supabase.auth.signUp({
+        const { data, error } = await apiClient.auth.signUp({
           email,
           password,
           options: {
@@ -91,7 +91,7 @@ const Auth = () => {
 
         // Manually update profile to ensure data consistency
         if (data.user) {
-            await supabase.from('profiles').upsert({
+            await apiClient.from('profiles').upsert({
                 id: data.user.id,
                 email: email,
                 username: username,
@@ -105,7 +105,7 @@ const Auth = () => {
           className: "font-black uppercase border-4 border-black"
         });
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { error } = await apiClient.auth.signInWithPassword({
           email,
           password,
         });

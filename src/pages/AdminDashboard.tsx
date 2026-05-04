@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { apiClient } from '@/lib/apiClient';
 import { Link } from 'react-router-dom';
 import {
   Users, FileText, MessageSquare, Activity, BarChart3,
@@ -77,13 +77,13 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (!user) return;
-    const channel = supabase
+    const channel = apiClient
       .channel('admin-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'complaints' }, () => loadAll())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'forms' }, () => loadStats())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'responses' }, () => loadStats())
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    return () => { apiClient.removeChannel(channel); };
   }, [user]);
 
   const loadAll = async () => {
@@ -98,15 +98,15 @@ const AdminDashboard = () => {
       const todayISO = today.toISOString();
 
       const [formsRes, responsesRes, complaintsRes, formsTodayRes, responsesTodayRes] = await Promise.all([
-        supabase.from('forms').select('*', { count: 'exact', head: true }),
-        supabase.from('responses').select('*', { count: 'exact', head: true }),
-        supabase.from('complaints').select('*', { count: 'exact', head: true }),
-        supabase.from('forms').select('*', { count: 'exact', head: true }).gte('created_at', todayISO),
-        supabase.from('responses').select('*', { count: 'exact', head: true }).gte('submitted_at', todayISO),
+        apiClient.from('forms').select('*', { count: 'exact', head: true }),
+        apiClient.from('responses').select('*', { count: 'exact', head: true }),
+        apiClient.from('complaints').select('*', { count: 'exact', head: true }),
+        apiClient.from('forms').select('*', { count: 'exact', head: true }).gte('created_at', todayISO),
+        apiClient.from('responses').select('*', { count: 'exact', head: true }).gte('submitted_at', todayISO),
       ]);
 
-      const { count: openCount } = await supabase.from('complaints').select('*', { count: 'exact', head: true }).eq('status', 'open');
-      const { count: resolvedCount } = await supabase.from('complaints').select('*', { count: 'exact', head: true }).eq('status', 'resolved');
+      const { count: openCount } = await apiClient.from('complaints').select('*', { count: 'exact', head: true }).eq('status', 'open');
+      const { count: resolvedCount } = await apiClient.from('complaints').select('*', { count: 'exact', head: true }).eq('status', 'resolved');
 
       setStats({
         totalUsers: 0, // Can't count auth.users from client side
@@ -126,7 +126,7 @@ const AdminDashboard = () => {
 
   const loadComplaints = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from('complaints')
         .select('*')
         .order('created_at', { ascending: false });
@@ -139,7 +139,7 @@ const AdminDashboard = () => {
 
   const updateComplaintStatus = async (id: string, newStatus: Complaint['status']) => {
     try {
-      const { error } = await supabase
+      const { error } = await apiClient
         .from('complaints')
         .update({ status: newStatus, updated_at: new Date().toISOString() })
         .eq('id', id);
@@ -155,7 +155,7 @@ const AdminDashboard = () => {
     const notes = editingNotes[id];
     if (notes === undefined) return;
     try {
-      const { error } = await supabase
+      const { error } = await apiClient
         .from('complaints')
         .update({ admin_notes: notes, updated_at: new Date().toISOString() })
         .eq('id', id);

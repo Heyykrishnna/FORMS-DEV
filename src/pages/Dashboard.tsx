@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { apiClient } from '@/lib/apiClient';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
  Plus, 
@@ -144,7 +144,7 @@ const Dashboard = () => {
 
  const loadProfile = React.useCallback(async () => {
   try {
-   const { data } = await supabase
+   const { data } = await apiClient
     .from('profiles')
     .select('username, avatar_url')
     .eq('id', user?.id)
@@ -158,7 +158,7 @@ const Dashboard = () => {
  const loadForms = React.useCallback(async () => {
   try {
    if (!user) return;
-   const { data, error } = await supabase
+   const { data, error } = await apiClient
     .from('forms')
     .select('*')
     .eq('user_id', user.id)
@@ -218,7 +218,7 @@ const Dashboard = () => {
   try {
    if (!user) return;
    // Fetch response counts for all user's forms
-   const { data: formIds } = await supabase
+   const { data: formIds } = await apiClient
     .from('forms')
     .select('id')
     .eq('user_id', user.id);
@@ -227,7 +227,7 @@ const Dashboard = () => {
    const counts: Record<string, number> = {};
    await Promise.all(
     formIds.map(async (f) => {
-     const { count } = await supabase
+     const { count } = await apiClient
       .from('responses')
       .select('*', { count: 'exact', head: true })
       .eq('form_id', f.id);
@@ -275,7 +275,7 @@ const Dashboard = () => {
    updated_at: new Date().toISOString()
   };
 
-  const { error } = await supabase
+  const { error } = await apiClient
    .from('forms')
    .upsert(dbForm);
    
@@ -362,7 +362,7 @@ const Dashboard = () => {
   e.stopPropagation();
   if (confirm('Are you sure you want to delete this form?')) {
    try {
-    const { error } = await supabase.from('forms').delete().eq('id', id);
+    const { error } = await apiClient.from('forms').delete().eq('id', id);
     if (error) throw error;
     setForms(prev => prev.filter(f => f.id !== id));
     toast.success('Form deleted');

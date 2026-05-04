@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { apiClient } from '@/lib/apiClient';
 import { useNavigate, Link } from 'react-router-dom';
 import { X, AlertTriangle, Box, Link as LinkIcon, CheckCheck, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -64,7 +64,7 @@ const Profile = () => {
 
   const loadProfile = React.useCallback(async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from('profiles')
         .select('*')
         .eq('id', user?.id)
@@ -72,7 +72,7 @@ const Profile = () => {
 
       if (error) throw error;
 
-      const { data: recentForms, error: activityError } = await supabase
+      const { data: recentForms, error: activityError } = await apiClient
         .from('forms')
         .select('id, title, updated_at, created_at')
         .eq('user_id', user?.id)
@@ -97,18 +97,18 @@ const Profile = () => {
 
   const loadStats = React.useCallback(async () => {
     try {
-      const { count: formsCount, error: formsError } = await supabase
+      const { count: formsCount, error: formsError } = await apiClient
         .from('forms')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user?.id);
 
       if (formsError) throw formsError;
 
-      const { data: forms } = await supabase.from('forms').select('id').eq('user_id', user?.id);
+      const { data: forms } = await apiClient.from('forms').select('id').eq('user_id', user?.id);
       let totalResponses = 0;
 
       if (forms && forms.length > 0) {
-        const { count } = await supabase
+        const { count } = await apiClient
           .from('responses')
           .select('*', { count: 'exact', head: true })
           .in('form_id', forms.map(f => f.id));
@@ -152,7 +152,7 @@ const Profile = () => {
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { error } = await supabase
+      const { error } = await apiClient
         .from('profiles')
         .update({
           username: editForm.username,

@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { supabase } from '@/lib/supabase';
+import { apiClient } from '@/lib/apiClient';
 import { FormResponse, FormData } from '@/types/form';
 import { 
   Download, Eye, BarChart3, Table as TableIcon, Search, Trash2, Filter, Clock, CheckCircle2,
@@ -72,11 +72,11 @@ const ResponsesTab = ({ form }: Props) => {
       const paper = await analyzeResponses(form, allResponses);
       setResearchPaper(paper);
       
-      const { error: rpcError } = await supabase.rpc('increment_research_generations', { form_id: form.id });
+      const { error: rpcError } = await apiClient.rpc('increment_research_generations', { form_id: form.id });
       
       if (rpcError) {
         const currentCount = form.researchGenerationsCount || 0;
-        await supabase
+        await apiClient
           .from('forms')
           .update({ research_generations_count: currentCount + 1 })
           .eq('id', form.id);
@@ -109,7 +109,7 @@ const ResponsesTab = ({ form }: Props) => {
 
   useEffect(() => {
     const fetchResponses = async () => {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from('responses')
         .select('*')
         .eq('form_id', form.id)
@@ -138,7 +138,7 @@ const ResponsesTab = ({ form }: Props) => {
 
     fetchResponses();
 
-    const channel = supabase
+    const channel = apiClient
       .channel(`responses-${form.id}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'responses', filter: `form_id=eq.${form.id}` }, (payload) => {
         const r = payload.new as any;
@@ -158,7 +158,7 @@ const ResponsesTab = ({ form }: Props) => {
       })
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    return () => { apiClient.removeChannel(channel); };
   }, [form.id]);
 
   const filteredResponses = useMemo(() => {
@@ -882,7 +882,7 @@ const ResponsesTab = ({ form }: Props) => {
                     onClick={async () => {
                       if (!confirm('Delete this response? This action is permanent.')) return;
                       try {
-                        const { error } = await supabase.from('responses').delete().eq('id', selectedResponse.id);
+                        const { error } = await apiClient.from('responses').delete().eq('id', selectedResponse.id);
                         if (error) throw error;
                         setAllResponses(prev => prev.filter(r => r.id !== selectedResponse.id));
                         setSelectedResponse(null);

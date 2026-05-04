@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MessageSquareWarning, X, Send, Bug, MessageCircle, Lightbulb, AlertTriangle } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { apiClient } from '@/lib/apiClient';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -30,7 +30,7 @@ const FeedbackWidget = () => {
 
     setLoading(true);
     try {
-      const { error } = await supabase.from('complaints').insert({
+      const { error } = await apiClient.from('complaints').insert({
         user_id: user?.id || null,
         user_email: user?.email || 'anonymous',
         type,

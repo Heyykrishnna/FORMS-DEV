@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
+import { apiClient } from '@/lib/apiClient';
 import { FormData } from '@/types/form';
 import EditTab from '@/components/builder/EditTab';
 import ResponsesTab from '@/components/builder/ResponsesTab';
@@ -28,7 +28,7 @@ const FormBuilder = () => {
 
   const loadForm = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from('forms')
         .select('*')
         .eq('id', id)
@@ -148,7 +148,7 @@ const FormBuilder = () => {
         status: 'published'
       };
 
-      const { error } = await supabase
+      const { error } = await apiClient
         .from('forms')
         .update(dbUpdate)
         .eq('id', id);
@@ -169,7 +169,7 @@ const FormBuilder = () => {
             updated_at: new Date().toISOString()
           };
           
-          const { error: retryError } = await supabase
+          const { error: retryError } = await apiClient
             .from('forms')
             .update(fallbackUpdate)
             .eq('id', id);
