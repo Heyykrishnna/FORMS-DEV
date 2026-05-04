@@ -190,39 +190,51 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
                             <ArrowRight className="h-3 w-3 text-primary shrink-0" />
                           </div>
                           <span className="text-[10px] font-black text-primary uppercase min-w-[60px]">If {v} →</span>
-                          <select
-                            value={opt?.navigateToQuestionId || opt?.navigateToSectionId || ''}
-                            onChange={(e) => {
-                              const targetId = e.target.value;
-                              const isSection = sections.some(s => s.id === targetId);
-                              const existingOptions = question.options || [];
-                              const otherOptions = existingOptions.filter(o => o.label !== v);
-                              onUpdate({
-                                options: [
-                                  ...otherOptions,
-                                  { 
-                                    id: opt?.id || crypto.randomUUID(), 
-                                    label: v, 
-                                    navigateToSectionId: isSection ? targetId : undefined,
-                                    navigateToQuestionId: isSection ? undefined : targetId 
-                                  }
-                                ]
-                              });
-                            }}
-                            className="flex-1 bg-white/50 dark:bg-black/20 border border-primary/20 px-3 py-1.5 text-[10px] font-bold rounded-lg outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-                          >
-                            <option value="">Default Flow (Continue)</option>
-                            <optgroup label="Sections">
-                              {sections.map(s => (
-                                <option key={s.id} value={s.id}>§ {s.title || 'Untitled Section'}</option>
-                              ))}
-                            </optgroup>
-                            <optgroup label="Questions">
-                              {otherQuestions.map((oq, oidx) => (
-                                <option key={oq.id} value={oq.id}>{oidx + 1}. {oq.title || 'Untitled Question'}</option>
-                              ))}
-                            </optgroup>
-                          </select>
+                          <div className="flex-1 min-w-0">
+                            <select
+                              value={opt?.navigateToQuestionId || opt?.navigateToSectionId || ''}
+                              onChange={(e) => {
+                                const targetId = e.target.value;
+                                const isSection = sections.some(s => s.id === targetId);
+                                const existingOptions = question.options || [];
+                                const otherOptions = existingOptions.filter(o => o.label !== v);
+                                onUpdate({
+                                  options: [
+                                    ...otherOptions,
+                                    { 
+                                      id: opt?.id || crypto.randomUUID(), 
+                                      label: v, 
+                                      navigateToSectionId: isSection ? targetId : undefined,
+                                      navigateToQuestionId: isSection ? undefined : targetId 
+                                    }
+                                  ]
+                                });
+                              }}
+                              className="w-full bg-white/50 dark:bg-black/20 border border-primary/20 px-3 py-1.5 text-[10px] font-bold rounded-lg outline-none focus:ring-2 focus:ring-primary/20 transition-all truncate"
+                            >
+                              <option value="">Default Flow (Continue)</option>
+                              <optgroup label="Sections">
+                                {sections.map(s => {
+                                  const title = s.title || 'Untitled Section';
+                                  return (
+                                    <option key={s.id} value={s.id}>
+                                      § {title.length > 40 ? title.substring(0, 37) + '...' : title}
+                                    </option>
+                                  );
+                                })}
+                              </optgroup>
+                              <optgroup label="Questions">
+                                {otherQuestions.map((oq, oidx) => {
+                                  const title = oq.title || 'Untitled Question';
+                                  return (
+                                    <option key={oq.id} value={oq.id}>
+                                      {oidx + 1}. {title.length > 40 ? title.substring(0, 37) + '...' : title}
+                                    </option>
+                                  );
+                                })}
+                              </optgroup>
+                            </select>
+                          </div>
                         </div>
                       );
                     })}
@@ -247,37 +259,46 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
                     
                     {showLogic && (
                       <div className="ml-7 flex items-center gap-3 bg-primary/5 p-2.5 rounded-xl border border-primary/10 animate-in slide-in-from-left-2 duration-300 group">
-                        <div className="bg-primary/20 p-1 rounded-md group-hover:bg-primary/30 transition-colors">
-                          <ArrowRight className="h-3 w-3 text-primary shrink-0" />
-                        </div>
                         <span className="text-[10px] font-black text-primary uppercase whitespace-nowrap min-w-[60px]">Jump to</span>
-                        <select
-                          value={opt.navigateToQuestionId || opt.navigateToSectionId || ''}
-                          onChange={(e) => {
-                            const targetId = e.target.value;
-                            const isSection = sections.some(s => s.id === targetId);
-                            onUpdate({
-                              options: (question.options || []).map(o => o.id === opt.id ? { 
-                                ...o, 
-                                navigateToSectionId: isSection ? targetId : undefined,
-                                navigateToQuestionId: isSection ? undefined : targetId 
-                              } : o)
-                            });
-                          }}
-                          className="flex-1 bg-white/50 dark:bg-black/20 border border-primary/20 px-3 py-1.5 text-[10px] font-bold rounded-lg outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-                        >
-                          <option value="">Default Flow (Continue)</option>
-                          <optgroup label="Sections">
-                            {sections.map(s => (
-                              <option key={s.id} value={s.id}>§ {s.title || 'Untitled Section'}</option>
-                            ))}
-                          </optgroup>
-                          <optgroup label="Questions">
-                            {otherQuestions.map((oq, oidx) => (
-                              <option key={oq.id} value={oq.id}>{oidx + 1}. {oq.title || 'Untitled Question'}</option>
-                            ))}
-                          </optgroup>
-                        </select>
+                        <div className="flex-1 min-w-0">
+                          <select
+                            value={opt.navigateToQuestionId || opt.navigateToSectionId || ''}
+                            onChange={(e) => {
+                              const targetId = e.target.value;
+                              const isSection = sections.some(s => s.id === targetId);
+                              onUpdate({
+                                options: (question.options || []).map(o => o.id === opt.id ? { 
+                                  ...o, 
+                                  navigateToSectionId: isSection ? targetId : undefined,
+                                  navigateToQuestionId: isSection ? undefined : targetId 
+                                } : o)
+                              });
+                            }}
+                            className="w-full bg-white/50 dark:bg-black/20 border border-primary/20 px-3 py-1.5 text-[10px] font-bold rounded-lg outline-none focus:ring-2 focus:ring-primary/20 transition-all truncate"
+                          >
+                            <option value="">Default Flow (Continue)</option>
+                            <optgroup label="Sections">
+                              {sections.map(s => {
+                                const title = s.title || 'Untitled Section';
+                                return (
+                                  <option key={s.id} value={s.id}>
+                                    § {title.length > 40 ? title.substring(0, 37) + '...' : title}
+                                  </option>
+                                );
+                              })}
+                            </optgroup>
+                            <optgroup label="Questions">
+                              {otherQuestions.map((oq, oidx) => {
+                                const title = oq.title || 'Untitled Question';
+                                return (
+                                  <option key={oq.id} value={oq.id}>
+                                    {oidx + 1}. {title.length > 40 ? title.substring(0, 37) + '...' : title}
+                                  </option>
+                                );
+                              })}
+                            </optgroup>
+                          </select>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -312,30 +333,42 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
                   </div>
                   <span className="text-[11px] font-black text-muted-foreground uppercase tracking-wider">Next Step Logic →</span>
                 </div>
-                <select
-                  value={question.logic?.jumpToId || ''}
-                  onChange={(e) => {
-                    const targetId = e.target.value;
-                    onUpdate({
-                      logic: { ...question.logic, jumpToId: targetId || undefined }
-                    });
-                  }}
-                  className="w-full sm:flex-1 bg-background border border-border px-4 py-2.5 text-[11px] font-black uppercase rounded-xl outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all shadow-sm cursor-pointer appearance-none"
-                  style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'currentColor\' stroke-width=\'2\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1rem' }}
-                >
-                  <option value="">Continue to next {isSectionHeader ? 'question' : 'step'}</option>
-                  <optgroup label="Jump to Section">
-                    {sections.map(s => (
-                      <option key={s.id} value={s.id}>§ {s.title || 'Untitled Section'}</option>
-                    ))}
-                  </optgroup>
-                  <optgroup label="Jump to Question">
-                    {otherQuestions.map((oq, oidx) => (
-                      <option key={oq.id} value={oq.id}>{oidx + 1}. {oq.title || 'Untitled Question'}</option>
-                    ))}
-                  </optgroup>
-                  <option value="submit">Final Submission (End Form)</option>
-                </select>
+                <div className="flex-1 min-w-0">
+                  <select
+                    value={question.logic?.jumpToId || ''}
+                    onChange={(e) => {
+                      const targetId = e.target.value;
+                      onUpdate({
+                        logic: { ...question.logic, jumpToId: targetId || undefined }
+                      });
+                    }}
+                    className="w-full bg-background border border-border px-4 py-2.5 text-[11px] font-black uppercase rounded-xl outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all shadow-sm cursor-pointer appearance-none truncate"
+                    style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'currentColor\' stroke-width=\'2\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1rem' }}
+                  >
+                    <option value="">Continue to next {isSectionHeader ? 'question' : 'step'}</option>
+                    <optgroup label="Jump to Section">
+                      {sections.map(s => {
+                        const title = s.title || 'Untitled Section';
+                        return (
+                          <option key={s.id} value={s.id}>
+                            § {title.length > 40 ? title.substring(0, 37) + '...' : title}
+                          </option>
+                        );
+                      })}
+                    </optgroup>
+                    <optgroup label="Jump to Question">
+                      {otherQuestions.map((oq, oidx) => {
+                        const title = oq.title || 'Untitled Question';
+                        return (
+                          <option key={oq.id} value={oq.id}>
+                            {oidx + 1}. {title.length > 40 ? title.substring(0, 37) + '...' : title}
+                          </option>
+                        );
+                      })}
+                    </optgroup>
+                    <option value="submit">Final Submission (End Form)</option>
+                  </select>
+                </div>
               </div>
               <p className="text-[10px] font-medium text-muted-foreground/60 leading-relaxed italic">
                 * Conditional logic (at option level) takes priority over step logic.
