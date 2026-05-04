@@ -2,9 +2,8 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import { FormResponse, FormData } from '@/types/form';
 import { 
-  Download, Eye, BarChart3, Table as TableIcon, Search, Trash2, Filter, Clock, CheckCircle2,
-  TrendingUp, LayoutDashboard, MoreHorizontal, ChevronRight, User, Mail, Calendar,
-  Share2, Copy, Printer, Info, Zap, FlaskConical, Trophy, Sparkles
+  Download, BarChart3, Table as TableIcon, Search, Trash2,
+  ChevronRight, Copy, Trophy
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -15,9 +14,9 @@ import {
   AreaChart, Area, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ComposedChart, Line, Scatter
 } from 'recharts';
 import { cn } from '@/lib/utils';
-import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { isAnswerCorrect } from '@/lib/quiz';
 
 interface Props {
   form: FormData;
@@ -50,7 +49,7 @@ const getCompletionRate = (answers: any[], totalResponses: number) => {
 
 const ResponsesTab = ({ form }: Props) => {
   const [allResponses, setAllResponses] = useState<FormResponse[]>([]);
-  const [view, setView] = useState<'table' | 'analytics'>('analytics');
+  const [view, setView] = useState<'table' | 'analytics' | 'quiz'>('analytics');
   const [selectedResponse, setSelectedResponse] = useState<FormResponse | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -188,9 +187,28 @@ const ResponsesTab = ({ form }: Props) => {
     
     const avgScore = total > 0 ? allResponses.reduce((acc, r) => acc + (r.scorePercent || 0), 0) / total : 0;
     const topScore = total > 0 ? Math.max(...allResponses.map(r => r.scorePercent || 0)) : 0;
+    const lowestScore = total > 0 ? Math.min(...allResponses.map(r => r.scorePercent || 0)) : 0;
     
-    return { total, completionRate, avgCompletionTime, avgScore, topScore };
-  }, [allResponses]);
+    const passCount = allResponses.filter(r => (r.scorePercent || 0) >= 50).length;
+    const passRate = total > 0 ? (passCount / total) * 100 : 0;
+
+    const questionPerformance = form.isQuiz ? form.questions
+      .filter(q => q.type !== 'section_header' && q.type !== 'description' && q.includeInQuiz !== false)
+      .map(q => {
+        const answers = allResponses.map(r => r.answers[q.id]);
+        const correctCount = answers.filter(a => isAnswerCorrect(q, a)).length;
+        const accuracy = total > 0 ? (correctCount / total) * 100 : 0;
+        return {
+          id: q.id,
+          title: q.title || 'Untitled Question',
+          accuracy,
+          correctCount,
+          total
+        };
+      }).sort((a, b) => a.accuracy - b.accuracy) : [];
+
+    return { total, completionRate, avgCompletionTime, avgScore, topScore, lowestScore, passRate, questionPerformance };
+  }, [allResponses, form]);
 
   const exportCSV = (data: FormResponse[]) => {
     if (data.length === 0) return;
@@ -359,6 +377,17 @@ const ResponsesTab = ({ form }: Props) => {
             >
               <BarChart3 className="h-4 w-4" /> Dashboard
             </button>
+            {form.isQuiz && (
+              <button
+                onClick={() => setView('quiz')}
+                className={cn(
+                  "px-5 py-2 text-sm font-medium rounded-lg flex items-center gap-2 transition-all",
+                  view === 'quiz' ? "bg-primary text-white shadow-sm border border-white/5" : "text-[#64748b] hover:text-[#e2e8f0]"
+                )}
+              >
+                <Trophy className="h-4 w-4" /> Quiz Analysis
+              </button>
+            )}
             <button
               onClick={() => setView('table')}
               className={cn(
@@ -445,7 +474,7 @@ const ResponsesTab = ({ form }: Props) => {
                     <span className="text-xs text-[#94a3b8]">Predicted</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-4 h-[2px] bg-[#6366f1] border-dashed border-b border-[#6366f1]" style={{ borderStyle: 'dashed' }} />
+                    <div className="w-4 border-b border-dotted border-[#6366f1]" />
                     <span className="text-xs text-[#94a3b8]">Bounds</span>
                   </div>
                 </div>
@@ -681,6 +710,106 @@ const ResponsesTab = ({ form }: Props) => {
               })}
             </div>
           </div>
+        ) : view === 'quiz' ? (
+          <div className="flex flex-col gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="bg-[#15161c] border border-white/10 rounded-2xl p-6 shadow-lg">
+                <p className="text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">Avg. Marks</p>
+                <p className="text-4xl font-light text-white tracking-tight">{stats.avgScore.toFixed(1)}%</p>
+                <div className="mt-4 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                  <div className="h-full bg-indigo-500" style={{ width: `${stats.avgScore}%` }} />
+                </div>
+              </div>
+              <div className="bg-[#15161c] border border-white/10 rounded-2xl p-6 shadow-lg">
+                <p className="text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">Pass Rate</p>
+                <p className="text-4xl font-light text-white tracking-tight">{stats.passRate.toFixed(1)}%</p>
+                <p className="text-[10px] text-[#64748b] mt-2 uppercase tracking-widest">Score ≥ 50%</p>
+              </div>
+              <div className="bg-[#15161c] border border-white/10 rounded-2xl p-6 shadow-lg">
+                <p className="text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">Highest Score</p>
+                <p className="text-4xl font-light text-emerald-400 tracking-tight">{stats.topScore}%</p>
+              </div>
+              <div className="bg-[#15161c] border border-white/10 rounded-2xl p-6 shadow-lg">
+                <p className="text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">Lowest Score</p>
+                <p className="text-4xl font-light text-rose-400 tracking-tight">{stats.lowestScore}%</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <div className="bg-[#111116] border border-white/5 rounded-2xl p-8 shadow-xl">
+                <div className="mb-8">
+                  <h3 className="text-lg font-medium text-white mb-1">Score Distribution</h3>
+                  <p className="text-xs text-[#64748b]">Frequency of scores across defined brackets.</p>
+                </div>
+                <div className="h-[300px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={scoreDistributionData}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#22222a" />
+                      <XAxis dataKey="name" stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
+                      <YAxis stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: '#15161c', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                        itemStyle={{ color: '#fff' }}
+                      />
+                      <Bar dataKey="count" fill="#818cf8" radius={[6, 6, 0, 0]} name="Responses" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="bg-[#111116] border border-white/5 rounded-2xl p-8 shadow-xl flex flex-col">
+                <div className="mb-8">
+                  <h3 className="text-lg font-medium text-white mb-1">Difficult Questions</h3>
+                  <p className="text-xs text-[#64748b]">Questions with the lowest accuracy rates.</p>
+                </div>
+                <div className="space-y-4 overflow-y-auto max-h-[300px] pr-2 scrollbar-thin">
+                  {stats.questionPerformance.slice(0, 5).map((q, i) => (
+                    <div key={q.id} className="bg-white/5 rounded-xl p-4 border border-white/5">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-medium text-white line-clamp-1 flex-1 pr-4">{q.title}</span>
+                        <Badge className="bg-rose-500/10 text-rose-400 border-rose-500/20">{q.accuracy.toFixed(0)}% Accuracy</Badge>
+                      </div>
+                      <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                        <div className="h-full bg-rose-400" style={{ width: `${q.accuracy}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                  {stats.questionPerformance.length === 0 && (
+                    <p className="text-center text-sm text-[#64748b] py-8">No quiz questions found.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-[#111116] border border-white/5 rounded-2xl p-8 shadow-xl">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h3 className="text-lg font-medium text-white mb-1">Top Performers</h3>
+                  <p className="text-xs text-[#64748b]">Respondents with the highest scores.</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {allResponses
+                  .sort((a, b) => (b.scorePercent || 0) - (a.scorePercent || 0))
+                  .slice(0, 6)
+                  .map((r, i) => (
+                    <div key={r.id} className="bg-[#15161c] border border-white/10 rounded-xl p-4 flex items-center gap-4 group hover:border-indigo-500/30 transition-colors">
+                      <div className="h-10 w-10 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold text-sm">
+                        {i + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white truncate">{r.respondentName || 'Anonymous'}</p>
+                        <p className="text-[10px] text-[#64748b] truncate">{r.respondentEmail || 'No Email'}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-emerald-400">{r.scorePercent}%</p>
+                        <p className="text-[10px] text-[#64748b]">{r.score}/{r.totalPoints} pts</p>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          </div>
         ) : (
           <div className="bg-[#15161c] border border-white/10 rounded-2xl shadow-lg overflow-hidden">
             <div className="overflow-x-auto">
@@ -748,7 +877,6 @@ const ResponsesTab = ({ form }: Props) => {
               <div className="p-6 border-b border-white/10 flex items-center justify-between bg-[#15161c]">
                 <div>
                   <h3 className="text-xl font-semibold text-white flex items-center gap-2">
-                    <Sparkles className="h-5 w-5 text-indigo-400" />
                     AI Insights & Research
                   </h3>
                   <p className="text-xs text-[#64748b] mt-1">Generated by Aqora</p>
@@ -834,20 +962,9 @@ const ResponsesTab = ({ form }: Props) => {
                       <div className={cn(
                         "bg-[#15161c] border p-4 rounded-xl text-sm text-[#cbd5e1]",
                         form.isQuiz && q.correctAnswer !== undefined 
-                          ? (() => {
-                              const userAns = selectedResponse.answers[q.id];
-                              let correct = false;
-                              if (Array.isArray(q.correctAnswer)) {
-                                const userArr = Array.isArray(userAns) ? [...userAns].sort() : [];
-                                const correctArr = [...q.correctAnswer].sort();
-                                correct = JSON.stringify(userArr) === JSON.stringify(correctArr);
-                              } else if (typeof q.correctAnswer === 'number') {
-                                correct = Number(userAns) === q.correctAnswer;
-                              } else {
-                                correct = String(userAns).trim().toLowerCase() === String(q.correctAnswer).trim().toLowerCase();
-                              }
-                              return correct ? "border-emerald-500/30" : "border-rose-500/30";
-                            })()
+                          ? isAnswerCorrect(q, selectedResponse.answers[q.id])
+                            ? "border-emerald-500/30"
+                            : "border-rose-500/30"
                           : "border-white/5"
                       )}>
                         <p className="whitespace-pre-wrap">

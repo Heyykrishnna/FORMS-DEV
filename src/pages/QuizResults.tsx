@@ -5,6 +5,26 @@ import { FormData, Question } from '@/types/form';
 import { Check, X, Trophy, AlertCircle, ArrowLeft, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 import Confetti from 'react-confetti';
+import { calculateQuizScore } from '@/lib/quiz';
+import { cn } from '@/lib/utils';
+
+const VerticalScale = ({ className }: { className?: string }) => (
+  <div
+    className={cn(
+      'w-10 h-full bg-[repeating-linear-gradient(315deg,_#d4d4d4_0px,_#d4d4d4_1px,_transparent_1px,_transparent_10px)] bg-[length:14px_14px] border-x border-[#d4d4d4]',
+      className
+    )}
+  />
+);
+
+const HorizontalScale = ({ className }: { className?: string }) => (
+  <div
+    className={cn(
+      'w-full h-10 bg-[repeating-linear-gradient(45deg,_#d4d4d4_0px,_#d4d4d4_1px,_transparent_1px,_transparent_10px)] bg-[length:14px_14px] border-y border-[#d4d4d4]',
+      className
+    )}
+  />
+);
 
 const QuizResults = () => {
   const { responseId } = useParams<{ responseId: string }>();
@@ -47,31 +67,34 @@ const QuizResults = () => {
         return;
       }
 
-      // Parse form data
+      const questions = typeof formData.questions === 'string' ? JSON.parse(formData.questions) : formData.questions || [];
+      const style = typeof formData.style === 'string' ? JSON.parse(formData.style) : formData.style || {};
+      const settings = typeof formData.settings === 'string' ? JSON.parse(formData.settings) : formData.settings || {};
+
       const parsedForm: FormData = {
         id: formData.id,
         title: formData.title,
         description: formData.description,
-        questions: formData.questions,
+        questions,
         theme: formData.theme,
         layout: formData.layout,
-        style: formData.style,
-        isAnonymous: formData.settings?.isAnonymous ?? true,
-        acceptingResponses: formData.settings?.acceptingResponses ?? true,
-        confirmationMessage: formData.settings?.confirmationMessage || 'Thank you!',
-        password: formData.settings?.password,
-        submissionLimit: formData.settings?.submissionLimit,
-        redirectUrl: formData.settings?.redirectUrl,
-        showProgressBar: formData.settings?.showProgressBar,
-        submitButtonText: formData.settings?.submitButtonText,
-        closeDate: formData.settings?.closeDate,
-        seoTitle: formData.settings?.seoTitle,
-        seoDescription: formData.settings?.seoDescription,
-        collectEmails: formData.settings?.collectEmails || 'do_not_collect',
-        allowResponseEditing: formData.settings?.allowResponseEditing ?? false,
-        limitOneResponse: formData.settings?.limitOneResponse ?? false,
-        isQuiz: formData.settings?.isQuiz ?? false,
-        showQuizResultsToUsers: formData.show_quiz_results_to_users ?? formData.settings?.showQuizResultsToUsers ?? false,
+        style,
+        isAnonymous: settings.isAnonymous ?? true,
+        acceptingResponses: settings.acceptingResponses ?? true,
+        confirmationMessage: settings.confirmationMessage || 'Thank you!',
+        password: settings.password,
+        submissionLimit: settings.submissionLimit,
+        redirectUrl: settings.redirectUrl,
+        showProgressBar: settings.showProgressBar,
+        submitButtonText: settings.submitButtonText,
+        closeDate: settings.closeDate,
+        seoTitle: settings.seoTitle,
+        seoDescription: settings.seoDescription,
+        collectEmails: settings.collectEmails || 'do_not_collect',
+        allowResponseEditing: settings.allowResponseEditing ?? false,
+        limitOneResponse: settings.limitOneResponse ?? false,
+        isQuiz: settings.isQuiz ?? false,
+        showQuizResultsToUsers: formData.show_quiz_results_to_users ?? settings.showQuizResultsToUsers ?? false,
         createdAt: formData.created_at,
         updatedAt: formData.updated_at,
         views: formData.views || 0,
@@ -100,37 +123,7 @@ const QuizResults = () => {
 
   const calculateQuestionResults = () => {
     if (!form || !response) return [];
-    
-    const answerableQs = form.questions.filter(q => q.type !== 'section_header' && q.type !== 'description');
-    // Include questions in quiz results by default unless explicitly opted out
-    const quizQuestions = answerableQs.filter(q => q.includeInQuiz !== false);
-    const answers = response.answers;
-    
-    return quizQuestions.map((q: Question) => {
-      const pts = q.points ?? 1;
-      const userAns = answers[q.id];
-      let correct = false;
-
-      if (q.correctAnswer !== undefined && q.correctAnswer !== '') {
-        if (Array.isArray(q.correctAnswer)) {
-          const userArr = Array.isArray(userAns) ? [...userAns].sort() : [];
-          const correctArr = [...q.correctAnswer].sort();
-          correct = JSON.stringify(userArr) === JSON.stringify(correctArr);
-        } else if (typeof q.correctAnswer === 'number') {
-          correct = Number(userAns) === q.correctAnswer;
-        } else {
-          correct = String(userAns).trim().toLowerCase() === String(q.correctAnswer).trim().toLowerCase();
-        }
-      }
-
-      return {
-        question: q,
-        userAnswer: userAns,
-        isCorrect: correct,
-        points: pts,
-        earned: correct ? pts : 0,
-      };
-    });
+    return calculateQuizScore(form.questions, response.answers || {}).results;
   };
 
   const handleShare = () => {
@@ -145,10 +138,10 @@ const QuizResults = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-foreground mx-auto mb-4"></div>
-          <p className="text-sm font-black uppercase tracking-widest">LOADING RESULTS...</p>
+      <div className="min-h-screen bg-[#F0F0F0] flex items-center justify-center font-mono">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-2 border-black border-t-transparent rounded-full animate-spin" />
+          <p className="text-xs font-bold uppercase tracking-widest opacity-50">Loading results...</p>
         </div>
       </div>
     );
@@ -156,21 +149,28 @@ const QuizResults = () => {
 
   if (error || !form || !response) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-8">
-        <div className="max-w-md text-center">
-          <AlertCircle className="w-20 h-20 mx-auto mb-6 text-destructive" />
-          <h1 className="text-3xl font-black uppercase mb-4">{error || 'ERROR'}</h1>
-          <p className="text-sm font-bold uppercase mb-8 opacity-60">
-            {error === 'Results viewing is disabled for this form' 
-              ? 'THE FORM OWNER HAS DISABLED RESULTS VIEWING' 
-              : 'WE COULDN\'T FIND YOUR RESULTS'}
-          </p>
-          <button
-            onClick={() => navigate('/')}
-            className="bg-foreground text-background px-8 py-3 font-black uppercase border-4 border-foreground shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
-          >
-            GO HOME
-          </button>
+      <div className="min-h-screen bg-[#F0F0F0] font-mono">
+        <VerticalScale className="fixed inset-y-0 left-0 z-20 pointer-events-none" />
+        <VerticalScale className="fixed inset-y-0 right-0 z-20 pointer-events-none" />
+        <div className="flex items-center justify-center min-h-screen p-8">
+          <div className="max-w-md text-center space-y-6">
+            <AlertCircle className="w-12 h-12 mx-auto text-foreground/30" />
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest opacity-40 mb-2">Error</p>
+              <h1 className="text-2xl font-bold tracking-tight">{error || 'Something went wrong'}</h1>
+              <p className="text-sm opacity-50 mt-2">
+                {error === 'Results viewing is disabled for this form'
+                  ? 'The form owner has disabled results viewing.'
+                  : "We couldn't find your results."}
+              </p>
+            </div>
+            <button
+              onClick={() => navigate('/')}
+              className="border border-foreground px-8 py-3 text-sm font-bold uppercase tracking-widest hover:bg-foreground hover:text-background transition-all"
+            >
+              Go Home
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -183,125 +183,229 @@ const QuizResults = () => {
   const correctCount = questionResults.filter(r => r.isCorrect).length;
   const wrongCount = questionResults.length - correctCount;
 
+  const grade =
+    scorePercent >= 90 ? 'A+' :
+    scorePercent >= 80 ? 'A' :
+    scorePercent >= 70 ? 'B' :
+    scorePercent >= 60 ? 'C' :
+    scorePercent >= 50 ? 'D' : 'F';
+
+  const gradeColor =
+    scorePercent >= 70 ? 'text-emerald-600' :
+    scorePercent >= 50 ? 'text-yellow-600' : 'text-red-500';
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {showConfetti && <Confetti recycle={false} numberOfPieces={500} />}
-      
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        {/* Header */}
-        <div className="mb-10">
+    <div className="relative min-h-screen bg-[#F0F0F0] text-foreground font-mono overflow-x-hidden">
+      {showConfetti && <Confetti recycle={false} numberOfPieces={400} />}
+
+      <VerticalScale className="fixed inset-y-0 left-0 z-20 pointer-events-none" />
+      <VerticalScale className="fixed inset-y-0 right-0 z-20 pointer-events-none" />
+
+      <div className="fixed inset-0 pointer-events-none opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+
+      <nav className="border-b border-foreground sticky top-0 bg-[#F0F0F0] z-50">
+        <div className="mx-auto flex items-center justify-between px-16 py-4">
+          <Link to="/" className="text-[24px] font-sans font-medium tracking-tight hover:text-accent transition-colors">
+            aqora
+          </Link>
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-sm font-black uppercase mb-6 opacity-60 hover:opacity-100 transition-opacity"
+            className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest opacity-50 hover:opacity-100 transition-opacity border border-transparent hover:border-foreground px-3 py-2"
           >
-            <ArrowLeft size={16} /> BACK
+            <ArrowLeft size={12} /> Back
           </button>
-          <div className="border-4 border-foreground p-8 bg-accent/5">
-            <div className="flex items-center justify-between mb-4">
-              <h1 className="text-2xl md:text-4xl font-black uppercase italic">QUIZ RESULTS</h1>
-            </div>
-            <p className="text-sm font-bold uppercase opacity-60">{form.title}</p>
+        </div>
+      </nav>
+
+      <HorizontalScale />
+
+      <main className="px-16 py-12 max-w-[1400px] mx-auto relative z-10">
+
+        <div className="flex items-end justify-between mb-10 pb-6 border-b border-black/10">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest opacity-40 mb-1">Quiz Results</p>
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight font-sans leading-none">
+              Results<span className="text-accent">.</span>
+            </h1>
+            <p className="text-sm opacity-50 mt-2 font-sans">{form.title}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-[10px] font-bold uppercase tracking-widest opacity-40 mb-1">Submitted</p>
+            <p className="text-sm font-bold">
+              {response.created_at ? new Date(response.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
+            </p>
           </div>
         </div>
 
-        {/* Score Card */}
-        <div className="mb-10">
-          <div className="border-4 border-foreground p-8 bg-background shadow-brutal">
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-50 mb-2 text-center">YOUR SCORE</p>
-            <p className="text-6xl md:text-8xl font-black italic mb-2 text-center">{scorePercent}%</p>
-            <p className="text-sm font-black uppercase opacity-60 text-center mb-6">{score} / {totalPoints} POINTS</p>
-            
-            {/* Score Bar */}
-            <div className="h-6 bg-foreground/10 w-full overflow-hidden mb-6">
-              <div 
-                className="h-full transition-all duration-1000 ease-out"
-                style={{ 
-                  width: `${scorePercent}%`, 
-                  backgroundColor: scorePercent >= 70 ? '#22c55e' : scorePercent >= 40 ? '#eab308' : '#ef4444',
-                }} 
-              />
+        <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-8 items-start">
+
+          <div className="space-y-4 lg:sticky lg:top-28">
+
+            <div className="bg-background border border-foreground rounded-xl overflow-hidden shadow-sm">
+              <div className="bg-foreground text-background px-5 py-3 flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
+                  <Trophy className="w-3 h-3" /> Score
+                </span>
+                <span className={cn("text-[10px] font-bold uppercase tracking-widest", gradeColor)}>
+                  Grade: {grade}
+                </span>
+              </div>
+
+              <div className="p-8 text-center space-y-6">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest opacity-40 mb-2">Your Score</p>
+                  <p className="text-7xl font-bold font-sans tracking-tight leading-none">{scorePercent}<span className="text-3xl opacity-40">%</span></p>
+                  <p className="text-sm font-bold opacity-50 mt-2">{score} / {totalPoints} points</p>
+                </div>
+
+                <div className="w-full bg-black/10 h-2 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-1000 ease-out"
+                    style={{
+                      width: `${scorePercent}%`,
+                      backgroundColor: scorePercent >= 70 ? '#16a34a' : scorePercent >= 50 ? '#ca8a04' : '#ef4444',
+                    }}
+                  />
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 pt-2">
+                  <div className="text-center border border-black/10 rounded-xl p-4">
+                    <p className="text-2xl font-bold font-sans text-emerald-600">{correctCount}</p>
+                    <p className="text-[9px] font-bold uppercase tracking-widest opacity-50 mt-1">Correct</p>
+                  </div>
+                  <div className="text-center border border-black/10 rounded-xl p-4">
+                    <p className="text-2xl font-bold font-sans text-red-500">{wrongCount}</p>
+                    <p className="text-[9px] font-bold uppercase tracking-widest opacity-50 mt-1">Wrong</p>
+                  </div>
+                  <div className="text-center border border-black/10 rounded-xl p-4">
+                    <p className="text-2xl font-bold font-sans">{questionResults.length}</p>
+                    <p className="text-[9px] font-bold uppercase tracking-widest opacity-50 mt-1">Total</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/*Stats Grid */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="text-center border-2 border-foreground/20 p-4">
-                <p className="text-3xl font-black" style={{ color: '#22c55e' }}>{correctCount}</p>
-                <p className="text-[9px] font-black uppercase tracking-widest opacity-50">CORRECT</p>
+            <div className="bg-background border border-foreground rounded-xl overflow-hidden shadow-sm">
+              <div className="bg-foreground text-background px-5 py-3">
+                <span className="text-[10px] font-bold uppercase tracking-widest">Accuracy</span>
               </div>
-              <div className="text-center border-2 border-foreground/20 p-4">
-                <p className="text-3xl font-black" style={{ color: '#ef4444' }}>{wrongCount}</p>
-                <p className="text-[9px] font-black uppercase tracking-widest opacity-50">WRONG</p>
-              </div>
-              <div className="text-center border-2 border-foreground/20 p-4">
-                <p className="text-3xl font-black">{questionResults.length}</p>
-                <p className="text-[9px] font-black uppercase tracking-widest opacity-50">TOTAL</p>
+              <div className="p-5 space-y-3">
+                {[
+                  { label: 'Correct', count: correctCount, total: questionResults.length, color: 'bg-emerald-500' },
+                  { label: 'Wrong', count: wrongCount, total: questionResults.length, color: 'bg-red-400' },
+                ].map(item => (
+                  <div key={item.label}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-[10px] font-bold uppercase tracking-widest opacity-50">{item.label}</span>
+                      <span className="text-[10px] font-bold font-sans">{item.total > 0 ? Math.round((item.count / item.total) * 100) : 0}%</span>
+                    </div>
+                    <div className="w-full bg-black/10 h-1.5 rounded-full overflow-hidden">
+                      <div
+                        className={cn("h-full rounded-full transition-all duration-700", item.color)}
+                        style={{ width: item.total > 0 ? `${(item.count / item.total) * 100}%` : '0%' }}
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Share Button */}
             <button
               onClick={handleShare}
-              className="mt-6 w-full bg-accent text-accent-foreground px-6 py-3 font-black uppercase border-4 border-foreground shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all flex items-center justify-center gap-2"
+              className="w-full border border-foreground bg-background px-6 py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-foreground hover:text-background transition-all flex items-center justify-center gap-2 rounded-xl shadow-sm"
             >
-              <Share2 size={16} /> SHARE YOUR SCORE
+              <Share2 size={12} /> Share Score
             </button>
+          </div>
+
+          <div className="space-y-4">
+            <HorizontalScale className="rounded-xl" />
+
+            <div className="flex items-center justify-between px-1 mb-2">
+              <p className="text-[10px] font-bold uppercase tracking-widest opacity-40">Detailed Breakdown</p>
+              <p className="text-[10px] font-bold opacity-40">{questionResults.length} questions</p>
+            </div>
+
+            {questionResults.map((result, idx) => (
+              <div
+                key={result.question.id}
+                className={cn(
+                  "bg-background border rounded-xl overflow-hidden shadow-sm transition-all",
+                  result.isCorrect ? "border-emerald-300" : "border-red-300"
+                )}
+              >
+                <div className={cn(
+                  "px-5 py-3 flex items-center justify-between",
+                  result.isCorrect ? "bg-emerald-50" : "bg-red-50"
+                )}>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] font-bold uppercase tracking-widest opacity-40">Q{idx + 1}</span>
+                    <div className={cn(
+                      "w-5 h-5 rounded-full flex items-center justify-center",
+                      result.isCorrect ? "bg-emerald-500" : "bg-red-400"
+                    )}>
+                      {result.isCorrect
+                        ? <Check className="w-3 h-3 text-white" />
+                        : <X className="w-3 h-3 text-white" />
+                      }
+                    </div>
+                    <span className={cn(
+                      "text-[10px] font-bold uppercase tracking-widest",
+                      result.isCorrect ? "text-emerald-700" : "text-red-600"
+                    )}>
+                      {result.isCorrect ? 'Correct' : 'Incorrect'}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-bold font-sans opacity-50">
+                    {result.earned}/{result.points} pts
+                  </span>
+                </div>
+
+                <div className="p-5 space-y-4">
+                  <p className="text-sm font-semibold font-sans leading-snug">{result.question.title || 'Untitled'}</p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="bg-[#F5F5F5] border border-black/10 rounded-xl p-4">
+                      <p className="text-[9px] font-bold uppercase tracking-widest opacity-40 mb-2">Your Answer</p>
+                      <p className="text-sm font-bold font-sans break-words">
+                        {Array.isArray(result.userAnswer)
+                          ? result.userAnswer.join(', ')
+                          : String(result.userAnswer ?? '—')}
+                      </p>
+                    </div>
+
+                    {result.question.correctAnswer !== undefined && result.question.correctAnswer !== '' && (
+                      <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+                        <p className="text-[9px] font-bold uppercase tracking-widest opacity-60 mb-2 text-emerald-700">Correct Answer</p>
+                        <p className="text-sm font-bold font-sans break-words text-emerald-700">
+                          {Array.isArray(result.question.correctAnswer)
+                            ? result.question.correctAnswer.join(', ')
+                            : String(result.question.correctAnswer)}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {questionResults.length === 0 && (
+              <div className="bg-background border border-foreground/20 rounded-xl p-16 text-center">
+                <Circle className="w-8 h-8 mx-auto mb-4 opacity-20" />
+                <p className="text-xs font-bold uppercase tracking-widest opacity-30">No questions found</p>
+              </div>
+            )}
+
+            <HorizontalScale className="rounded-xl" />
           </div>
         </div>
 
-        {/* Detailed Breakdown */}
-        <div className="space-y-4">
-          <h3 className="text-sm font-black uppercase tracking-widest opacity-40 mb-6">DETAILED BREAKDOWN</h3>
-          {questionResults.map((result, idx) => (
-            <div 
-              key={result.question.id} 
-              className="border-4 border-foreground p-6 flex flex-col gap-4 border-l-8"
-              style={{ 
-                borderLeftColor: result.isCorrect ? '#22c55e' : '#ef4444',
-              }}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <p className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-2">Q{idx + 1}</p>
-                  <p className="text-lg font-black uppercase">{result.question.title || 'UNTITLED'}</p>
-                </div>
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  {result.isCorrect ? (
-                    <Check className="w-6 h-6" style={{ color: '#22c55e' }} />
-                  ) : (
-                    <X className="w-6 h-6" style={{ color: '#ef4444' }} />
-                  )}
-                  <span className="text-xs font-black uppercase px-3 py-1.5 border-2 border-foreground" style={{ 
-                    backgroundColor: result.isCorrect ? '#22c55e' : '#ef4444',
-                    color: '#fff'
-                  }}>
-                    {result.isCorrect ? 'CORRECT' : 'WRONG'}
-                  </span>
-                  <span className="text-xs font-black opacity-40">{result.earned}/{result.points} PTS</span>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div className="bg-foreground/5 p-4 border-2 border-foreground/10">
-                  <p className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-2">YOUR ANSWER</p>
-                  <p className="font-bold">{Array.isArray(result.userAnswer) ? result.userAnswer.join(', ') : String(result.userAnswer ?? '—')}</p>
-                </div>
-                {result.question.correctAnswer !== undefined && result.question.correctAnswer !== '' && (
-                  <div className="bg-foreground/5 p-4 border-2 border-foreground/10">
-                    <p className="text-[9px] font-black uppercase tracking-widest opacity-40 mb-2">CORRECT ANSWER</p>
-                    <p className="font-bold" style={{ color: '#22c55e' }}>
-                      {Array.isArray(result.question.correctAnswer) ? result.question.correctAnswer.join(', ') : String(result.question.correctAnswer)}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
+        <div className="mt-12 flex items-center justify-between opacity-30">
+          <p className="text-[10px] font-mono uppercase tracking-widest">aqora · quiz results</p>
+          <p className="text-[10px] font-mono uppercase tracking-widest">{new Date().toLocaleDateString()}</p>
         </div>
 
-        {/* Footer */}
-        <div className="text-center mt-16">
-          <p className="text-xs opacity-40 font-black uppercase tracking-[0.5em]">AQORA.</p>
-        </div>
-      </div>
+      </main>
     </div>
   );
 };
