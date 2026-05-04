@@ -22,16 +22,23 @@ export async function generateFormFromPrompt(prompt: string): Promise<Partial<Fo
       body: JSON.stringify({ prompt }),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Generation failed");
+    const text = await response.text();
+    let data: any = null;
+    try {
+      if (text) data = JSON.parse(text);
+    } catch (e) {
     }
 
-    const generatedData = await response.json();
+    if (!response.ok) {
+      throw new Error(data?.error || text || `Request failed with status ${response.status}`);
+    }
+
+    if (!data) {
+      throw new Error("Empty or invalid JSON response from server");
+    }
     
-    // Add client-side metadata
     return {
-      ...generatedData,
+      ...data,
       id: crypto.randomUUID(),
       isAnonymous: true,
       acceptingResponses: true,
@@ -61,12 +68,21 @@ export async function analyzeResponses(form: FormData, responses: FormResponse[]
       body: JSON.stringify({ form, responses }),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Analysis failed");
+    const text = await response.text();
+    let data: any = null;
+    try {
+      if (text) data = JSON.parse(text);
+    } catch (e) {
     }
 
-    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data?.error || text || `Request failed with status ${response.status}`);
+    }
+
+    if (!data?.content) {
+      throw new Error("Empty or invalid response from server");
+    }
+
     return data.content;
   } catch (error) {
     console.error("Error analyzing responses:", error);
