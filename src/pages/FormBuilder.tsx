@@ -181,6 +181,7 @@ const FormBuilder = () => {
         style: newForm.style, 
         questions: newForm.questions,
         settings,
+        show_quiz_results_to_users: newForm.showQuizResultsToUsers,
         updated_at: new Date().toISOString(),
         status: 'published'
       };

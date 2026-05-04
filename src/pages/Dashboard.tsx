@@ -266,6 +266,8 @@ const Dashboard = () => {
    settings: {
     isAnonymous: form.isAnonymous,
     acceptingResponses: form.acceptingResponses,
+    isQuiz: form.isQuiz,
+    showQuizResultsToUsers: form.showQuizResultsToUsers,
     showProgressBar: form.showProgressBar,
     submissionLimit: form.submissionLimit,
     closeDate: form.closeDate,

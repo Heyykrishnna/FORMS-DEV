@@ -5,6 +5,7 @@ import { FormData, FormResponse, FormTheme, Question } from '@/types/form';
 import { Button } from '@/components/ui/button';
 import { Star, Check, FormInput, Send, CheckCircle2, AlertCircle, Calendar, Lock } from 'lucide-react';
 import { toast } from 'sonner';
+import { calculateQuizScore } from '@/lib/quiz';
 
 const THEME_STYLES: Record<FormTheme, { wrapper: string; card: string; accent: string; selected: string; input: string; button: string; label: string }> = {
   brutalist_dark: {
@@ -618,34 +619,7 @@ const PublicForm = () => {
     // Calculate quiz scores if in quiz mode
     let scoreData = {};
     if (form.isQuiz) {
-      const answerableQs = form.questions.filter(q => q.type !== 'section_header' && q.type !== 'description');
-      let totalPoints = 0;
-      let earnedPoints = 0;
-
-      answerableQs.forEach(q => {
-        const pts = q.points ?? 1;
-        totalPoints += pts;
-        const userAns = answers[q.id];
-        let correct = false;
-
-        if (q.correctAnswer !== undefined && q.correctAnswer !== '') {
-          if (Array.isArray(q.correctAnswer)) {
-            const userArr = Array.isArray(userAns) ? [...userAns].sort() : [];
-            const correctArr = [...q.correctAnswer].sort();
-            correct = JSON.stringify(userArr) === JSON.stringify(correctArr);
-          } else if (typeof q.correctAnswer === 'number') {
-            correct = Number(userAns) === q.correctAnswer;
-          } else {
-            correct = String(userAns).trim().toLowerCase() === String(q.correctAnswer).trim().toLowerCase();
-          }
-        }
-
-        if (correct) {
-          earnedPoints += pts;
-        }
-      });
-
-      const scorePercent = totalPoints > 0 ? Math.round((earnedPoints / totalPoints) * 100) : 0;
+      const { earnedPoints, totalPoints, scorePercent } = calculateQuizScore(form.questions, answers);
       scoreData = {
         score: earnedPoints,
         total_points: totalPoints,
@@ -771,49 +745,13 @@ const PublicForm = () => {
     const timeTaken = Math.round((Date.now() - startTime.current) / 1000);
     const answerableQs = form.questions.filter(q => q.type !== 'section_header' && q.type !== 'description');
     
-    // Quiz scoring
     const isQuizMode = form.isQuiz;
-    let totalPoints = 0;
-    let earnedPoints = 0;
-    let correctCount = 0;
-    let wrongCount = 0;
-    const questionResults: { question: Question; userAnswer: unknown; isCorrect: boolean; points: number; earned: number }[] = [];
-
-    if (isQuizMode) {
-      // Include questions by default unless explicitly opted out
-      const quizQuestions = answerableQs.filter(q => q.includeInQuiz !== false);
-      
-      quizQuestions.forEach(q => {
-        const pts = q.points ?? 1;
-        totalPoints += pts;
-        const userAns = answers[q.id];
-        let correct = false;
-
-        if (q.correctAnswer !== undefined && q.correctAnswer !== '') {
-          if (Array.isArray(q.correctAnswer)) {
-            // Multiple choice
-            const userArr = Array.isArray(userAns) ? [...userAns].sort() : [];
-            const correctArr = [...q.correctAnswer].sort();
-            correct = JSON.stringify(userArr) === JSON.stringify(correctArr);
-          } else if (typeof q.correctAnswer === 'number') {
-            correct = Number(userAns) === q.correctAnswer;
-          } else {
-            correct = String(userAns).trim().toLowerCase() === String(q.correctAnswer).trim().toLowerCase();
-          }
-        }
-
-        if (correct) {
-          earnedPoints += pts;
-          correctCount++;
-        } else {
-          wrongCount++;
-        }
-
-        questionResults.push({ question: q, userAnswer: userAns, isCorrect: correct, points: pts, earned: correct ? pts : 0 });
-      });
-    }
-
-    const scorePercent = totalPoints > 0 ? Math.round((earnedPoints / totalPoints) * 100) : 0;
+    const quizScore = isQuizMode
+      ? calculateQuizScore(form.questions, answers)
+      : { totalPoints: 0, earnedPoints: 0, scorePercent: 0, results: [] };
+    const { totalPoints, earnedPoints, scorePercent, results: questionResults } = quizScore;
+    const correctCount = questionResults.filter((result) => result.isCorrect).length;
+    const wrongCount = questionResults.length - correctCount;
 
     return (
       <div className={`${style.wrapper} flex flex-col items-center justify-center py-12`}>
@@ -913,7 +851,7 @@ const PublicForm = () => {
                     <p className="text-[9px] font-black uppercase tracking-widest opacity-50">WRONG</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-2xl font-black">{answerableQs.length}</p>
+                    <p className="text-2xl font-black">{questionResults.length}</p>
                     <p className="text-[9px] font-black uppercase tracking-widest opacity-50">TOTAL</p>
                   </div>
                 </div>
@@ -1217,12 +1155,20 @@ const PublicForm = () => {
             </div>
           )}
           {q.type === 'file_upload' && (
-            <div 
-              className={`${style.input} text-center py-12 cursor-pointer border-dashed border-4 opacity-50`}
+            <label
+              className={`${style.input} text-center py-12 cursor-pointer border-dashed border-4 block`}
               style={{ borderRadius: customCardStyle.borderRadius, borderWidth: customCardStyle.borderWidth }}
             >
-              <p className="text-xs font-black uppercase tracking-widest">FILE UPLOAD — COMING SOON</p>
-            </div>
+              <input
+                type="file"
+                className="sr-only"
+                onChange={(e) => setAnswer(q.id, e.target.files?.[0]?.name || '')}
+              />
+              <p className="text-xs font-black uppercase tracking-widest">
+                {answers[q.id] ? String(answers[q.id]) : 'CHOOSE FILE'}
+              </p>
+              <p className="text-[10px] font-bold uppercase opacity-50 mt-2">The selected file name is saved with your response.</p>
+            </label>
           )}
         </div>
         {errors[q.id] && (

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
-import { FormData, Question } from '@/types/form';
+import { FormData } from '@/types/form';
 import { Check, X, Trophy, AlertCircle, ArrowLeft, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 import Confetti from 'react-confetti';
+import { calculateQuizScore } from '@/lib/quiz';
 
 const QuizResults = () => {
   const { responseId } = useParams<{ responseId: string }>();
@@ -47,31 +48,34 @@ const QuizResults = () => {
         return;
       }
 
-      // Parse form data
+      const questions = typeof formData.questions === 'string' ? JSON.parse(formData.questions) : formData.questions || [];
+      const style = typeof formData.style === 'string' ? JSON.parse(formData.style) : formData.style || {};
+      const settings = typeof formData.settings === 'string' ? JSON.parse(formData.settings) : formData.settings || {};
+
       const parsedForm: FormData = {
         id: formData.id,
         title: formData.title,
         description: formData.description,
-        questions: formData.questions,
+        questions,
         theme: formData.theme,
         layout: formData.layout,
-        style: formData.style,
-        isAnonymous: formData.settings?.isAnonymous ?? true,
-        acceptingResponses: formData.settings?.acceptingResponses ?? true,
-        confirmationMessage: formData.settings?.confirmationMessage || 'Thank you!',
-        password: formData.settings?.password,
-        submissionLimit: formData.settings?.submissionLimit,
-        redirectUrl: formData.settings?.redirectUrl,
-        showProgressBar: formData.settings?.showProgressBar,
-        submitButtonText: formData.settings?.submitButtonText,
-        closeDate: formData.settings?.closeDate,
-        seoTitle: formData.settings?.seoTitle,
-        seoDescription: formData.settings?.seoDescription,
-        collectEmails: formData.settings?.collectEmails || 'do_not_collect',
-        allowResponseEditing: formData.settings?.allowResponseEditing ?? false,
-        limitOneResponse: formData.settings?.limitOneResponse ?? false,
-        isQuiz: formData.settings?.isQuiz ?? false,
-        showQuizResultsToUsers: formData.show_quiz_results_to_users ?? formData.settings?.showQuizResultsToUsers ?? false,
+        style,
+        isAnonymous: settings.isAnonymous ?? true,
+        acceptingResponses: settings.acceptingResponses ?? true,
+        confirmationMessage: settings.confirmationMessage || 'Thank you!',
+        password: settings.password,
+        submissionLimit: settings.submissionLimit,
+        redirectUrl: settings.redirectUrl,
+        showProgressBar: settings.showProgressBar,
+        submitButtonText: settings.submitButtonText,
+        closeDate: settings.closeDate,
+        seoTitle: settings.seoTitle,
+        seoDescription: settings.seoDescription,
+        collectEmails: settings.collectEmails || 'do_not_collect',
+        allowResponseEditing: settings.allowResponseEditing ?? false,
+        limitOneResponse: settings.limitOneResponse ?? false,
+        isQuiz: settings.isQuiz ?? false,
+        showQuizResultsToUsers: formData.show_quiz_results_to_users ?? settings.showQuizResultsToUsers ?? false,
         createdAt: formData.created_at,
         updatedAt: formData.updated_at,
         views: formData.views || 0,
@@ -100,37 +104,7 @@ const QuizResults = () => {
 
   const calculateQuestionResults = () => {
     if (!form || !response) return [];
-    
-    const answerableQs = form.questions.filter(q => q.type !== 'section_header' && q.type !== 'description');
-    // Include questions in quiz results by default unless explicitly opted out
-    const quizQuestions = answerableQs.filter(q => q.includeInQuiz !== false);
-    const answers = response.answers;
-    
-    return quizQuestions.map((q: Question) => {
-      const pts = q.points ?? 1;
-      const userAns = answers[q.id];
-      let correct = false;
-
-      if (q.correctAnswer !== undefined && q.correctAnswer !== '') {
-        if (Array.isArray(q.correctAnswer)) {
-          const userArr = Array.isArray(userAns) ? [...userAns].sort() : [];
-          const correctArr = [...q.correctAnswer].sort();
-          correct = JSON.stringify(userArr) === JSON.stringify(correctArr);
-        } else if (typeof q.correctAnswer === 'number') {
-          correct = Number(userAns) === q.correctAnswer;
-        } else {
-          correct = String(userAns).trim().toLowerCase() === String(q.correctAnswer).trim().toLowerCase();
-        }
-      }
-
-      return {
-        question: q,
-        userAnswer: userAns,
-        isCorrect: correct,
-        points: pts,
-        earned: correct ? pts : 0,
-      };
-    });
+    return calculateQuizScore(form.questions, response.answers || {}).results;
   };
 
   const handleShare = () => {

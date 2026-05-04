@@ -49,18 +49,52 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
   };
 
   const updateOption = (optId: string, label: string) => {
+    const previousLabel = (question.options || []).find(o => o.id === optId)?.label;
+    let nextCorrectAnswer = question.correctAnswer;
+
+    if (previousLabel && previousLabel !== label) {
+      if (Array.isArray(question.correctAnswer)) {
+        nextCorrectAnswer = question.correctAnswer.map(answer => answer === previousLabel ? label : answer);
+      } else if (question.correctAnswer === previousLabel) {
+        nextCorrectAnswer = label;
+      }
+    }
+
     onUpdate({
       options: (question.options || []).map(o => o.id === optId ? { ...o, label } : o),
+      correctAnswer: nextCorrectAnswer,
     });
   };
 
   const removeOption = (optId: string) => {
+    const removedLabel = (question.options || []).find(o => o.id === optId)?.label;
+    let nextCorrectAnswer = question.correctAnswer;
+
+    if (removedLabel) {
+      if (Array.isArray(question.correctAnswer)) {
+        nextCorrectAnswer = question.correctAnswer.filter(answer => answer !== removedLabel);
+      } else if (question.correctAnswer === removedLabel) {
+        nextCorrectAnswer = undefined;
+      }
+    }
+
     onUpdate({
       options: (question.options || []).filter(o => o.id !== optId),
+      correctAnswer: nextCorrectAnswer,
     });
   };
 
   const isLayout = question.type === 'section_header' || question.type === 'description';
+  const isQuizIncluded = question.includeInQuiz !== false;
+  const supportsExactAnswer = question.type !== 'file_upload';
+
+  const updateNumericCorrectAnswer = (value: string) => {
+    onUpdate({ correctAnswer: value === '' ? undefined : Number(value) });
+  };
+
+  const updateTextCorrectAnswer = (value: string) => {
+    onUpdate({ correctAnswer: value === '' ? undefined : value });
+  };
 
   const isSectionHeader = question.type === 'section_header';
   const sections = allQuestions.filter(q => q.type === 'section_header' && q.id !== question.id);
@@ -442,10 +476,10 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
             {isQuiz && (
               <div className="flex items-center justify-between bg-primary/5 p-3 border border-primary/20 rounded-lg">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium text-primary">Quiz question</span>
+                  <span className="text-xs font-medium text-primary">Scored question</span>
                 </div>
                 <Switch
-                  checked={question.includeInQuiz || false}
+                  checked={isQuizIncluded}
                   onCheckedChange={(checked) => onUpdate({ includeInQuiz: checked })}
                 />
               </div>
@@ -471,10 +505,16 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
           </div>
         )}
 
-        {isQuiz && !isLayout && question.includeInQuiz !== false && (
+        {isQuiz && !isLayout && isQuizIncluded && (
           <div className="pt-6 border-t border-primary/20 space-y-4">
             <div className="flex items-center gap-2 mb-2">
-              <h4 className="text-xs font-medium text-primary">Quiz Settings</h4>
+              <div className="bg-primary/10 p-1.5 rounded-md">
+                <Trophy className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-primary">Quiz Scoring</h4>
+                <p className="text-[10px] text-muted-foreground">Set marks and the answer used for automatic grading.</p>
+              </div>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -485,7 +525,7 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
                   type="number"
                   min={0}
                   value={question.points ?? 1}
-                  onChange={(e) => onUpdate({ points: parseInt(e.target.value) || 0 })}
+                  onChange={(e) => onUpdate({ points: Math.max(0, Number(e.target.value) || 0) })}
                   className="w-full h-8 text-sm border-primary/30 bg-transparent font-medium rounded-md"
                   placeholder="1"
                 />
@@ -535,20 +575,34 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
                   <Input
                     type="number"
                     value={question.correctAnswer !== undefined ? Number(question.correctAnswer) : ''}
-                    onChange={(e) => onUpdate({ correctAnswer: parseInt(e.target.value) || 0 })}
+                    min={question.type === 'rating' ? 1 : question.type === 'linear_scale' ? question.minScale : undefined}
+                    max={question.type === 'rating' ? question.maxRating || 5 : question.type === 'linear_scale' ? question.maxScale : undefined}
+                    onChange={(e) => updateNumericCorrectAnswer(e.target.value)}
                     className="w-full h-8 text-sm border-primary/30 bg-transparent font-medium rounded-md mt-1"
                     placeholder="Correct value"
+                  />
+                ) : question.type === 'date' || question.type === 'time' ? (
+                  <Input
+                    type={question.type}
+                    value={String(question.correctAnswer || '')}
+                    onChange={(e) => updateTextCorrectAnswer(e.target.value)}
+                    className="w-full h-8 text-sm border-primary/30 bg-transparent font-medium rounded-md mt-1"
                   />
                 ) : (
                   <Input
                     value={String(question.correctAnswer || '')}
-                    onChange={(e) => onUpdate({ correctAnswer: e.target.value })}
+                    onChange={(e) => updateTextCorrectAnswer(e.target.value)}
                     className="w-full h-8 text-sm border-primary/30 bg-transparent font-medium rounded-md mt-1"
-                    placeholder="Correct text answer"
+                    placeholder={supportsExactAnswer ? 'Correct text answer' : 'Expected uploaded file / rubric'}
                   />
                 )}
               </div>
             </div>
+            {question.type === 'file_upload' && (
+              <p className="text-[10px] font-medium text-muted-foreground">
+                File-upload quiz grading compares the selected file name with this answer.
+              </p>
+            )}
           </div>
         )}
       </div>

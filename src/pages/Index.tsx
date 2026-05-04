@@ -85,6 +85,8 @@ const Index = () => {
           settings: {
             isAnonymous: newForm.isAnonymous,
             acceptingResponses: newForm.acceptingResponses,
+            isQuiz: newForm.isQuiz,
+            showQuizResultsToUsers: newForm.showQuizResultsToUsers,
             showProgressBar: newForm.showProgressBar,
             confirmationMessage: newForm.confirmationMessage,
           },

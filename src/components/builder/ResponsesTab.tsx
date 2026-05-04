@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils';
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { isAnswerCorrect } from '@/lib/quiz';
 
 interface Props {
   form: FormData;
@@ -833,20 +834,9 @@ const ResponsesTab = ({ form }: Props) => {
                       <div className={cn(
                         "bg-[#15161c] border p-4 rounded-xl text-sm text-[#cbd5e1]",
                         form.isQuiz && q.correctAnswer !== undefined 
-                          ? (() => {
-                              const userAns = selectedResponse.answers[q.id];
-                              let correct = false;
-                              if (Array.isArray(q.correctAnswer)) {
-                                const userArr = Array.isArray(userAns) ? [...userAns].sort() : [];
-                                const correctArr = [...q.correctAnswer].sort();
-                                correct = JSON.stringify(userArr) === JSON.stringify(correctArr);
-                              } else if (typeof q.correctAnswer === 'number') {
-                                correct = Number(userAns) === q.correctAnswer;
-                              } else {
-                                correct = String(userAns).trim().toLowerCase() === String(q.correctAnswer).trim().toLowerCase();
-                              }
-                              return correct ? "border-emerald-500/30" : "border-rose-500/30";
-                            })()
+                          ? isAnswerCorrect(q, selectedResponse.answers[q.id])
+                            ? "border-emerald-500/30"
+                            : "border-rose-500/30"
                           : "border-white/5"
                       )}>
                         <p className="whitespace-pre-wrap">

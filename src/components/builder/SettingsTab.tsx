@@ -27,7 +27,8 @@ import {
   Calendar,
   History,
   Unlock,
-  AlertTriangle
+  AlertTriangle,
+  Trophy
 } from 'lucide-react';
 import AgentAvatar from '@/components/ui/smoothui/agent-avatar';
 import { toast } from 'sonner';
@@ -167,6 +168,76 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
                         placeholder="Briefly explain the purpose of this form..."
                       />
                     </div>
+                  </div>
+                </section>
+
+                <section>
+                  <div className="mb-8">
+                    <h3 className="text-xl font-semibold tracking-tight">Form Type</h3>
+                    <p className="text-sm text-muted-foreground mt-1.5">Choose whether this form collects responses only or grades answers as a quiz.</p>
+                  </div>
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {[
+                        {
+                          id: 'normal',
+                          title: 'Normal Form',
+                          description: 'Collect responses without scoring or correct answers.',
+                          icon: FileCheck,
+                        },
+                        {
+                          id: 'quiz',
+                          title: 'Quiz Based',
+                          description: 'Add marks and correct answers to every scored question.',
+                          icon: Trophy,
+                        },
+                      ].map((mode) => {
+                        const isSelected = mode.id === 'quiz' ? form.isQuiz : !form.isQuiz;
+                        const Icon = mode.icon;
+
+                        return (
+                          <button
+                            key={mode.id}
+                            onClick={() => onUpdate({
+                              isQuiz: mode.id === 'quiz',
+                              showQuizResultsToUsers: mode.id === 'quiz' ? form.showQuizResultsToUsers : false,
+                            })}
+                            className={`flex items-start gap-4 p-5 rounded-none border transition-all ${
+                              isSelected
+                                ? 'bg-primary/5 border-primary shadow-[0_0_20px_-10px_rgba(49,91,232,0.3)]'
+                                : 'border-border bg-background/50 hover:border-border/80'
+                            }`}
+                          >
+                            <div className={`mt-0.5 w-9 h-9 border flex items-center justify-center ${
+                              isSelected ? 'border-primary text-primary bg-primary/10' : 'border-border text-muted-foreground'
+                            }`}>
+                              <Icon size={16} />
+                            </div>
+                            <div className="text-left">
+                              <span className={`text-sm font-bold block mb-1 ${isSelected ? 'text-primary' : 'text-foreground'}`}>
+                                {mode.title}
+                              </span>
+                              <span className="text-[11px] text-muted-foreground leading-snug">
+                                {mode.description}
+                              </span>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {form.isQuiz && (
+                      <div className="flex items-center justify-between py-5 px-5 border border-primary/20 bg-primary/5 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <div>
+                          <p className="text-sm font-bold text-primary">Show Quiz Results</p>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">Let respondents see score, points, and answer breakdown after submission</p>
+                        </div>
+                        <Switch
+                          checked={form.showQuizResultsToUsers || false}
+                          onCheckedChange={(v) => onUpdate({ showQuizResultsToUsers: v })}
+                        />
+                      </div>
+                    )}
                   </div>
                 </section>
 
