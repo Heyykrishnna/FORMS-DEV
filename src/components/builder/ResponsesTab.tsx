@@ -445,7 +445,7 @@ const ResponsesTab = ({ form }: Props) => {
                     <span className="text-xs text-[#94a3b8]">Predicted</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-4 h-[2px] bg-[#6366f1] border-dashed border-b border-[#6366f1]" style={{ borderStyle: 'dashed' }} />
+                    <div className="w-4 border-b border-dotted border-[#6366f1]" />
                     <span className="text-xs text-[#94a3b8]">Bounds</span>
                   </div>
                 </div>
