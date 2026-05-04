@@ -53,12 +53,11 @@ const QUESTION_ICONS: Record<QuestionType, any> = {
   section_header: Heading,
   description: FileText,
   yes_no: ToggleLeft,
-  logic_mcq: GitBranch,
 };
 
 const GROUPS: { label: string; types: QuestionType[] }[] = [
   { label: 'TEXT', types: ['short_text', 'long_text', 'email', 'number', 'phone'] },
-  { label: 'CHOICE', types: ['single_choice', 'multiple_choice', 'dropdown', 'yes_no', 'logic_mcq'] },
+  { label: 'CHOICE', types: ['single_choice', 'multiple_choice', 'dropdown', 'yes_no'] },
   { label: 'INPUT', types: ['date', 'time', 'file_upload', 'rating', 'linear_scale'] },
   { label: 'LAYOUT', types: ['section_header', 'description'] },
 ];
@@ -515,7 +514,7 @@ const EditTab = ({ form, onUpdate }: Props) => {
                 question={q}
                 index={i}
                 total={form.questions.length}
-                sections={form.questions.filter(sq => sq.type === 'section_header')}
+                allQuestions={form.questions}
                 isQuiz={form.isQuiz}
                 onUpdate={(data) => updateQuestion(q.id, data)}
                 onDelete={() => removeQuestion(q.id)}

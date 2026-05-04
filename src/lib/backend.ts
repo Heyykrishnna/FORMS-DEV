@@ -574,7 +574,7 @@ async function handleAuthPayload(response: ApiHttpResponse) {
   return { data: { user: session.user, session }, error: null };
 }
 
-export const supabase = {
+export const backend = {
   from(table: string) {
     return new QueryBuilder(table);
   },
