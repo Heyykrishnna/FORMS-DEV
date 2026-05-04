@@ -27,7 +27,8 @@ import {
   Calendar,
   History,
   Unlock,
-  AlertTriangle
+  AlertTriangle,
+  Trophy
 } from 'lucide-react';
 import AgentAvatar from '@/components/ui/smoothui/agent-avatar';
 import { toast } from 'sonner';
@@ -69,6 +70,7 @@ type TabId = 'general' | 'appearance' | 'access' | 'submission' | 'analysis' | '
 
 const SettingsTab = ({ form, onUpdate }: Props) => {
   const [activeTab, setActiveTab] = useState<TabId>('general');
+  const [appearanceSection, setAppearanceSection] = useState<'colors' | 'typography' | 'images' | null>(null);
 
   const tabs = [
     { id: 'general', label: 'General', icon: Settings },
@@ -112,7 +114,7 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
 
         <div className="flex flex-col lg:flex-row items-start gap-16">
           
-          <div className="w-full lg:w-48 flex-shrink-0 sticky top-10">
+          <div className="w-full lg:w-48 flex-shrink-0 sticky top-40">
             <div className="flex lg:flex-col gap-1 overflow-x-auto lg:overflow-x-visible no-scrollbar pb-2 lg:pb-0">
               {tabs.map((tab) => {
                 const isActive = activeTab === tab.id;
@@ -171,6 +173,76 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
 
                 <section>
                   <div className="mb-8">
+                    <h3 className="text-xl font-semibold tracking-tight">Form Type</h3>
+                    <p className="text-sm text-muted-foreground mt-1.5">Choose whether this form collects responses only or grades answers as a quiz.</p>
+                  </div>
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {[
+                        {
+                          id: 'normal',
+                          title: 'Normal Form',
+                          description: 'Collect responses without scoring or correct answers.',
+                          icon: FileCheck,
+                        },
+                        {
+                          id: 'quiz',
+                          title: 'Quiz Based',
+                          description: 'Add marks and correct answers to every scored question.',
+                          icon: Trophy,
+                        },
+                      ].map((mode) => {
+                        const isSelected = mode.id === 'quiz' ? form.isQuiz : !form.isQuiz;
+                        const Icon = mode.icon;
+
+                        return (
+                          <button
+                            key={mode.id}
+                            onClick={() => onUpdate({
+                              isQuiz: mode.id === 'quiz',
+                              showQuizResultsToUsers: mode.id === 'quiz' ? form.showQuizResultsToUsers : false,
+                            })}
+                            className={`flex items-start gap-4 p-5 rounded-none border transition-all ${
+                              isSelected
+                                ? 'bg-primary/5 border-primary shadow-[0_0_20px_-10px_rgba(49,91,232,0.3)]'
+                                : 'border-border bg-background/50 hover:border-border/80'
+                            }`}
+                          >
+                            <div className={`mt-0.5 w-9 h-9 border flex items-center justify-center ${
+                              isSelected ? 'border-primary text-primary bg-primary/10' : 'border-border text-muted-foreground'
+                            }`}>
+                              <Icon size={16} />
+                            </div>
+                            <div className="text-left">
+                              <span className={`text-sm font-bold block mb-1 ${isSelected ? 'text-primary' : 'text-foreground'}`}>
+                                {mode.title}
+                              </span>
+                              <span className="text-[11px] text-muted-foreground leading-snug">
+                                {mode.description}
+                              </span>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {form.isQuiz && (
+                      <div className="flex items-center justify-between py-5 px-5 border border-primary/20 bg-primary/5 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <div>
+                          <p className="text-sm font-bold text-primary">Show Quiz Results</p>
+                          <p className="text-[11px] text-muted-foreground mt-0.5">Let respondents see score, points, and answer breakdown after submission</p>
+                        </div>
+                        <Switch
+                          checked={form.showQuizResultsToUsers || false}
+                          onCheckedChange={(v) => onUpdate({ showQuizResultsToUsers: v })}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </section>
+
+                <section>
+                  <div className="mb-8">
                     <h3 className="text-xl font-semibold tracking-tight">Structure</h3>
                     <p className="text-sm text-muted-foreground mt-1.5">Configure the physical layout and navigation experience of the form.</p>
                   </div>
@@ -220,113 +292,299 @@ const SettingsTab = ({ form, onUpdate }: Props) => {
             )}
 
             {activeTab === 'appearance' && (
-              <div className="space-y-12 animate-in fade-in duration-500">
-                <section>
-                  <div className="mb-8">
-                    <h3 className="text-xl font-semibold tracking-tight">Design System</h3>
-                    <p className="text-sm text-muted-foreground mt-1.5">Apply a curated visual language or customize individual design tokens.</p>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-12">
-                    {(Object.keys(THEME_LABELS) as FormTheme[]).map((theme) => {
-                      const preview = THEME_PREVIEWS[theme];
-                      const isSelected = form.theme === theme;
-                      return (
-                        <button
-                          key={theme}
-                          onClick={() => onUpdate({ theme })}
-                          className={`group relative flex flex-col p-3 rounded-none border transition-all ${
-                            isSelected 
-                              ? 'border-primary bg-primary/[0.02] shadow-[0_0_15px_-5px_rgba(49,91,232,0.2)]' 
-                              : 'border-border bg-background/50 hover:border-border/80'
-                          }`}
-                        >
-                          <div className={`aspect-[4/3] rounded-none mb-3 overflow-hidden border border-border/50 flex flex-col ${preview.bg}`}>
-                            <div className="flex-1 p-3">
-                              <div className={`text-[10px] font-bold ${preview.fg}`}>Aa</div>
-                              <div className={`h-1 w-1/2 rounded-none mt-1.5 ${preview.accent}`} />
-                              <div className={`h-1 w-1/3 rounded-none mt-1 opacity-20 ${preview.accent}`} />
-                            </div>
-                          </div>
-                          <span className={`text-[10px] font-bold uppercase tracking-widest truncate ${isSelected ? 'text-primary' : 'text-muted-foreground'}`}>
-                            {THEME_LABELS[theme]}
-                          </span>
-                        </button>
-                      );
-                    })}
+              <div className="space-y-10 animate-in fade-in duration-500">
+
+                <div className="pt-0">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground mb-4">Customize</p>
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {(['colors', 'typography', 'images'] as const).map((sec) => (
+                      <button
+                        key={sec}
+                        onClick={() => setAppearanceSection(appearanceSection === sec ? null : sec)}
+                        className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider border transition-all ${
+                          appearanceSection === sec
+                            ? 'bg-primary text-white border-primary shadow-[0_0_12px_-2px_rgba(49,91,232,0.4)]'
+                            : 'border-border text-muted-foreground hover:border-primary/50 hover:text-foreground'
+                        }`}
+                      >
+                        {sec === 'colors' ? 'Colors' : sec === 'typography' ? 'Typography' : 'Images'}
+                      </button>
+                    ))}
                   </div>
 
-                  <div className="space-y-10">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                      <div className="space-y-4">
-                        <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Brand Color</label>
-                        <div className="flex items-center gap-4">
-                          <div 
-                            className="w-12 h-12 rounded-none border border-border shadow-sm shrink-0" 
-                            style={{ backgroundColor: form.style.customAccentColor || '#315be8' }}
-                          />
-                          <div className="flex-1">
-                             <input
-                              type="color"
-                              value={form.style.customAccentColor || '#315be8'}
-                              onChange={(e) => onUpdate({ style: { ...form.style, customAccentColor: e.target.value } })}
-                              className="w-full h-8 bg-transparent cursor-pointer"
-                            />
-                            <p className="text-[10px] text-muted-foreground mt-1 font-mono uppercase">{form.style.customAccentColor || '#315be8'}</p>
+
+                  {appearanceSection === 'colors' && (
+                    <div className="animate-in slide-in-from-top-2 fade-in duration-300 space-y-8 p-6 rounded-xl border border-border/60 bg-secondary/20">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Accent / Brand</label>
+                          <div className="flex items-center gap-3">
+                            <label
+                              className="w-11 h-11 rounded-lg border-2 border-border shadow cursor-pointer shrink-0 hover:scale-105 transition-transform"
+                              style={{ backgroundColor: form.style.customAccentColor || '#315be8' }}
+                            >
+                              <input type="color" value={form.style.customAccentColor || '#315be8'}
+                                onChange={(e) => onUpdate({ style: { ...form.style, customAccentColor: e.target.value } })}
+                                className="sr-only" />
+                            </label>
+                            <div>
+                              <p className="text-xs font-semibold">{form.style.customAccentColor || '#315be8'}</p>
+                              <p className="text-[10px] text-muted-foreground">Buttons & highlights</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Background</label>
+                          <div className="flex items-center gap-3">
+                            <label
+                              className="w-11 h-11 rounded-lg border-2 border-border shadow cursor-pointer shrink-0 hover:scale-105 transition-transform"
+                              style={{ backgroundColor: form.style.backgroundColor || '#ffffff' }}
+                            >
+                              <input type="color" value={form.style.backgroundColor || '#ffffff'}
+                                onChange={(e) => onUpdate({ style: { ...form.style, backgroundColor: e.target.value } })}
+                                className="sr-only" />
+                            </label>
+                            <div>
+                              <p className="text-xs font-semibold">{form.style.backgroundColor || '#ffffff'}</p>
+                              <p className="text-[10px] text-muted-foreground">Page background fill</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Font Color</label>
+                          <div className="flex items-center gap-3">
+                            <label
+                              className="w-11 h-11 rounded-lg border-2 border-border shadow cursor-pointer shrink-0 hover:scale-105 transition-transform"
+                              style={{ backgroundColor: (form.style as any).fontColor || '#111111' }}
+                            >
+                              <input type="color" value={(form.style as any).fontColor || '#111111'}
+                                onChange={(e) => onUpdate({ style: { ...form.style, fontColor: e.target.value } as any })}
+                                className="sr-only" />
+                            </label>
+                            <div>
+                              <p className="text-xs font-semibold">{(form.style as any).fontColor || '#111111'}</p>
+                              <p className="text-[10px] text-muted-foreground">Primary text color</p>
+                            </div>
                           </div>
                         </div>
                       </div>
 
-                      <div className="space-y-4">
-                        <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Typography</label>
-                        <div className="flex gap-2">
-                          {(['mono', 'sans', 'serif'] as const).map((font) => (
-                            <button
-                              key={font}
+                      <div className="pt-6 border-t border-border/40 grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-end">
+                            <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Edge Roundness</label>
+                            <span className="text-xs font-mono font-bold">{form.style.borderRadius || 0}px</span>
+                          </div>
+                          <Slider value={[form.style.borderRadius || 0]} max={40} step={1}
+                            onValueChange={([v]) => onUpdate({ style: { ...form.style, borderRadius: v } })} />
+                        </div>
+                        <div className="space-y-4">
+                          <div className="flex justify-between items-end">
+                            <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Surface Opacity</label>
+                            <span className="text-xs font-mono font-bold">{form.style.cardOpacity || 100}%</span>
+                          </div>
+                          <Slider value={[form.style.cardOpacity || 100]} max={100} step={5}
+                            onValueChange={([v]) => onUpdate({ style: { ...form.style, cardOpacity: v } })} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+
+                  {appearanceSection === 'typography' && (
+                    <div className="animate-in slide-in-from-top-2 fade-in duration-300 space-y-8 p-6 rounded-xl border border-border/60 bg-secondary/20">
+                      <div>
+                        <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground block mb-4">Font Family</label>
+                        <div className="grid grid-cols-3 gap-3">
+                          {([['mono', 'Monospace', 'Code-like precision'], ['sans', 'Sans-Serif', 'Clean and modern'], ['serif', 'Serif', 'Classic and editorial']] as const).map(([font, label, desc]) => (
+                            <button key={font}
                               onClick={() => onUpdate({ style: { ...form.style, fontFamily: font } })}
-                              className={`flex-1 py-2 border text-[11px] font-bold uppercase tracking-wider transition-all ${
-                                form.style.fontFamily === font 
-                                  ? 'bg-primary text-primary-foreground border-primary' 
-                                  : 'border-border bg-background text-muted-foreground hover:border-border/80'
-                              }`}
-                            >
-                              {font}
+                              className={`p-4 rounded-lg border-2 text-left transition-all ${
+                                form.style.fontFamily === font
+                                  ? 'border-primary bg-primary/5'
+                                  : 'border-border/50 bg-background hover:border-border'
+                              }`}>
+                              <p className={`text-lg font-bold mb-1 ${
+                                font === 'mono' ? 'font-mono' : font === 'serif' ? 'font-serif' : 'font-sans'
+                              } ${form.style.fontFamily === font ? 'text-primary' : ''}`}>Aa</p>
+                              <p className="text-xs font-semibold">{label}</p>
+                              <p className="text-[10px] text-muted-foreground mt-0.5">{desc}</p>
                             </button>
                           ))}
                         </div>
                       </div>
-                    </div>
-
-                    <div className="pt-6 border-t border-border/50">
-                       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                        <div className="space-y-6">
-                          <div className="flex justify-between items-end">
-                            <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Edge Roundness</label>
-                            <span className="text-xs font-mono font-bold">{form.style.borderRadius || 0}px</span>
-                          </div>
-                          <Slider
-                            value={[form.style.borderRadius || 0]}
-                            max={40}
-                            step={1}
-                            onValueChange={([v]) => onUpdate({ style: { ...form.style, borderRadius: v } })}
-                          />
-                        </div>
-                        <div className="space-y-6">
-                          <div className="flex justify-between items-end">
-                            <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-[0.1em]">Surface Opacity</label>
-                            <span className="text-xs font-mono font-bold">{form.style.cardOpacity || 100}%</span>
-                          </div>
-                          <Slider
-                            value={[form.style.cardOpacity || 100]}
-                            max={100}
-                            step={5}
-                            onValueChange={([v]) => onUpdate({ style: { ...form.style, cardOpacity: v } })}
-                          />
+                      <div className="pt-4 border-t border-border/40">
+                        <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground block mb-4">Font Size</label>
+                        <div className="flex gap-3">
+                          {(['small', 'medium', 'large'] as const).map((size) => (
+                            <button key={size}
+                              onClick={() => onUpdate({ style: { ...form.style, fontSize: size } })}
+                              className={`flex-1 py-2.5 rounded-lg border-2 text-xs font-bold uppercase tracking-wider transition-all ${
+                                form.style.fontSize === size
+                                  ? 'border-primary bg-primary text-white'
+                                  : 'border-border text-muted-foreground hover:border-border/80'
+                              }`}>{size}</button>
+                          ))}
                         </div>
                       </div>
                     </div>
-                  </div>
-                </section>
+                  )}
+
+
+                  {appearanceSection === 'images' && (
+                    <div className="animate-in slide-in-from-top-2 fade-in duration-300 space-y-6">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+
+                        <div className="space-y-6 p-6 rounded-xl border border-border/60 bg-secondary/20">
+                          <div className="space-y-3">
+                            <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Banner Image URL</label>
+                            <input
+                              type="url"
+                              value={form.style.bannerImageUrl || ''}
+                              onChange={(e) => onUpdate({ style: { ...form.style, bannerImageUrl: e.target.value } })}
+                              placeholder="https://..."
+                              className="w-full bg-background px-3 py-2.5 border border-border rounded-lg outline-none focus:border-primary transition-all placeholder:text-muted-foreground/40 font-mono text-xs"
+                            />
+                            <p className="text-[10px] text-muted-foreground">Displayed at the top of the form as a hero banner.</p>
+                          </div>
+                          <div className="space-y-3">
+                            <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Background Image URL</label>
+                            <input
+                              type="url"
+                              value={form.style.backgroundImageUrl || ''}
+                              onChange={(e) => onUpdate({ style: { ...form.style, backgroundImageUrl: e.target.value } })}
+                              placeholder="https://..."
+                              className="w-full bg-background px-3 py-2.5 border border-border rounded-lg outline-none focus:border-primary transition-all placeholder:text-muted-foreground/40 font-mono text-xs"
+                            />
+                            <p className="text-[10px] text-muted-foreground">Full-page background image behind the form.</p>
+                          </div>
+                          <div className="space-y-3">
+                            <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Logo URL</label>
+                            <input
+                              type="url"
+                              value={form.style.logoUrl || ''}
+                              onChange={(e) => onUpdate({ style: { ...form.style, logoUrl: e.target.value } })}
+                              placeholder="https://..."
+                              className="w-full bg-background px-3 py-2.5 border border-border rounded-lg outline-none focus:border-primary transition-all placeholder:text-muted-foreground/40 font-mono text-xs"
+                            />
+                            <p className="text-[10px] text-muted-foreground">Brand logo shown above the form title.</p>
+                          </div>
+                          <div className="pt-4 border-t border-border/40 space-y-3">
+                            <label className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Background Pattern</label>
+                            <div className="flex gap-2">
+                              {(['none', 'grid', 'dots'] as const).map((p) => (
+                                <button key={p}
+                                  onClick={() => onUpdate({ style: { ...form.style, bgPattern: p } })}
+                                  className={`flex-1 py-2 rounded-lg border text-xs font-bold uppercase tracking-wider transition-all ${
+                                    (form.style.bgPattern || 'none') === p
+                                      ? 'bg-primary text-white border-primary'
+                                      : 'border-border text-muted-foreground hover:border-border/70'
+                                  }`}>{p}</button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+
+
+                        <div className="rounded-xl border border-border/60 overflow-hidden">
+                          <div className="px-4 py-3 border-b border-border/40 bg-secondary/30 flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-red-400" />
+                            <div className="w-2 h-2 rounded-full bg-yellow-400" />
+                            <div className="w-2 h-2 rounded-full bg-green-400" />
+                            <span className="text-[10px] font-mono text-muted-foreground ml-2">preview.form</span>
+                          </div>
+                          <div
+                            className="relative min-h-[320px] overflow-hidden"
+                            style={{
+                              backgroundColor: form.style.backgroundColor || '#f9fafb',
+                              backgroundImage: form.style.backgroundImageUrl
+                                ? `url(${form.style.backgroundImageUrl})`
+                                : form.style.bgPattern === 'dots'
+                                  ? 'radial-gradient(circle, #00000018 1px, transparent 1px)'
+                                  : form.style.bgPattern === 'grid'
+                                    ? 'linear-gradient(#00000010 1px, transparent 1px), linear-gradient(90deg, #00000010 1px, transparent 1px)'
+                                    : 'none',
+                              backgroundSize: form.style.backgroundImageUrl ? 'cover' : form.style.bgPattern === 'dots' ? '18px 18px' : '24px 24px',
+                              backgroundPosition: 'center',
+                            }}
+                          >
+                            {form.style.bannerImageUrl && (
+                              <div className="w-full h-20 overflow-hidden">
+                                <img src={form.style.bannerImageUrl} alt="banner" className="w-full h-full object-cover" />
+                              </div>
+                            )}
+                            <div className="p-5">
+                              {form.style.logoUrl && (
+                                <img src={form.style.logoUrl} alt="logo" className="h-8 mb-3 object-contain" />
+                              )}
+                              <div
+                                className="rounded-lg p-4 shadow-sm"
+                                style={{
+                                  backgroundColor: `rgba(255,255,255,${(form.style.cardOpacity ?? 100) / 100})`,
+                                  borderRadius: `${form.style.borderRadius || 8}px`,
+                                  color: (form.style as any).fontColor || '#111111',
+                                  fontFamily: form.style.fontFamily === 'mono' ? 'monospace' : form.style.fontFamily === 'serif' ? 'Georgia, serif' : 'system-ui, sans-serif',
+                                }}
+                              >
+                                <p className="text-xs font-bold mb-1" style={{ color: form.style.customAccentColor || '#315be8' }}>Question 1</p>
+                                <p className="text-sm font-semibold mb-3">{form.title || 'Untitled Form'}</p>
+                                <div className="h-1.5 rounded-full mb-2" style={{ backgroundColor: `${form.style.customAccentColor || '#315be8'}30`, width: '100%' }}>
+                                  <div className="h-full rounded-full w-1/3" style={{ backgroundColor: form.style.customAccentColor || '#315be8' }} />
+                                </div>
+                                <p className="text-[10px] text-gray-400 mt-2">Type your answer here...</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="pt-10 border-t border-border/50">
+                  <h3 className="text-xl font-semibold tracking-tight">Design System</h3>
+                  <p className="text-sm text-muted-foreground mt-1.5">Apply a curated visual theme or fine-tune individual design tokens.</p>
+                </div>
+
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3">
+                  {(Object.keys(THEME_LABELS) as FormTheme[]).map((theme) => {
+                    const preview = THEME_PREVIEWS[theme];
+                    const isSelected = form.theme === theme;
+                    return (
+                      <button
+                        key={theme}
+                        onClick={() => onUpdate({ theme })}
+                        className={`group relative flex flex-col p-2.5 rounded-lg border-2 transition-all ${
+                          isSelected
+                            ? 'border-primary shadow-[0_0_18px_-4px_rgba(49,91,232,0.35)]'
+                            : 'border-transparent bg-secondary/30 hover:border-border'
+                        }`}
+                      >
+                        <div className={`aspect-[4/3] rounded-md mb-2.5 overflow-hidden border border-white/10 flex flex-col ${preview.bg}`}>
+                          <div className="flex-1 p-2.5">
+                            <div className={`text-[11px] font-black ${preview.fg}`}>Aa</div>
+                            <div className={`h-1 w-10 rounded-full mt-1.5 ${preview.accent}`} />
+                            <div className={`h-1 w-6 rounded-full mt-1 opacity-30 ${preview.accent}`} />
+                          </div>
+                          <div className={`h-4 ${preview.accent} opacity-20`} />
+                        </div>
+                        <span className={`text-[9px] font-bold uppercase tracking-widest truncate text-left ${
+                          isSelected ? 'text-primary' : 'text-muted-foreground'
+                        }`}>{THEME_LABELS[theme]}</span>
+                        {isSelected && (
+                          <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                            <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             )}
 

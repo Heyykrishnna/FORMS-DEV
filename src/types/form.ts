@@ -15,7 +15,7 @@ export type QuestionType =
   | 'section_header'
   | 'description'
   | 'yes_no'
-  | 'logic_mcq';
+  | 'yes_no';
 
 export type FormTheme = 
   | 'brutalist_dark' 
@@ -70,6 +70,7 @@ export interface QuestionOption {
   id: string;
   label: string;
   navigateToSectionId?: string; // Optional: ID of the section to jump to
+  navigateToQuestionId?: string; // Optional: ID of the question to jump to
 }
 
 export interface Question {
@@ -87,6 +88,9 @@ export interface Question {
   includeInQuiz?: boolean; // Whether this question should be included in quiz scoring
   correctAnswer?: string | string[] | number;
   points?: number;
+  logic?: {
+    jumpToId?: string; // ID of question or section to jump to after this question/section
+  };
 }
 
 export type EmailCollection = 'do_not_collect' | 'verified' | 'responder_input';
@@ -171,7 +175,6 @@ export const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
   section_header: 'Section Header',
   description: 'Description',
   yes_no: 'Yes / No',
-  logic_mcq: 'MCQ With Logic',
 };
 
 export const THEME_LABELS: Record<FormTheme, string> = {

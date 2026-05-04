@@ -1,5 +1,5 @@
 import { Question, QuestionType, QUESTION_TYPE_LABELS } from '@/types/form';
-import { Trash2, Copy, ChevronUp, ChevronDown, GripVertical, Sliders, Trophy, CheckCircle2 } from 'lucide-react';
+import { Trash2, Copy, ChevronUp, ChevronDown, GripVertical, Sliders, Trophy, CheckCircle2, GitBranch, ArrowRight } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Plus, X } from 'lucide-react';
@@ -15,12 +15,16 @@ interface Props {
   onDelete: () => void;
   onDuplicate: () => void;
   onMove: (dir: -1 | 1) => void;
-  sections: Question[];
+  allQuestions: Question[];
   isQuiz?: boolean;
   themeStyles?: { wrapper: string; card: string; accent: string; selected: string; input: string; button: string; label: string };
 }
 
-const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate, onMove, sections, isQuiz, themeStyles }: Props) => {
+import { useState } from 'react';
+
+const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate, onMove, allQuestions, isQuiz, themeStyles }: Props) => {
+  const [showLogic, setShowLogic] = useState(false);
+
   const {
     attributes,
     listeners,
@@ -45,20 +49,56 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
   };
 
   const updateOption = (optId: string, label: string) => {
+    const previousLabel = (question.options || []).find(o => o.id === optId)?.label;
+    let nextCorrectAnswer = question.correctAnswer;
+
+    if (previousLabel && previousLabel !== label) {
+      if (Array.isArray(question.correctAnswer)) {
+        nextCorrectAnswer = question.correctAnswer.map(answer => answer === previousLabel ? label : answer);
+      } else if (question.correctAnswer === previousLabel) {
+        nextCorrectAnswer = label;
+      }
+    }
+
     onUpdate({
       options: (question.options || []).map(o => o.id === optId ? { ...o, label } : o),
+      correctAnswer: nextCorrectAnswer,
     });
   };
 
   const removeOption = (optId: string) => {
+    const removedLabel = (question.options || []).find(o => o.id === optId)?.label;
+    let nextCorrectAnswer = question.correctAnswer;
+
+    if (removedLabel) {
+      if (Array.isArray(question.correctAnswer)) {
+        nextCorrectAnswer = question.correctAnswer.filter(answer => answer !== removedLabel);
+      } else if (question.correctAnswer === removedLabel) {
+        nextCorrectAnswer = undefined;
+      }
+    }
+
     onUpdate({
       options: (question.options || []).filter(o => o.id !== optId),
+      correctAnswer: nextCorrectAnswer,
     });
   };
 
   const isLayout = question.type === 'section_header' || question.type === 'description';
+  const isQuizIncluded = question.includeInQuiz !== false;
+  const supportsExactAnswer = question.type !== 'file_upload';
+
+  const updateNumericCorrectAnswer = (value: string) => {
+    onUpdate({ correctAnswer: value === '' ? undefined : Number(value) });
+  };
+
+  const updateTextCorrectAnswer = (value: string) => {
+    onUpdate({ correctAnswer: value === '' ? undefined : value });
+  };
 
   const isSectionHeader = question.type === 'section_header';
+  const sections = allQuestions.filter(q => q.type === 'section_header' && q.id !== question.id);
+  const otherQuestions = allQuestions.filter(q => q.type !== 'section_header' && q.type !== 'description' && q.id !== question.id);
 
   return (
     <div 
@@ -98,6 +138,17 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
           </span>
         </div>
         <div className="flex items-center justify-end gap-2 sm:gap-1 border-t sm:border-t-0 border-foreground/5 pt-2 sm:pt-0">
+          <button 
+            onClick={() => setShowLogic(!showLogic)} 
+            className={cn(
+              "p-1.5 sm:p-1 flex items-center gap-1.5 px-2 rounded-md transition-all text-[10px] font-black uppercase",
+              showLogic ? "bg-primary text-primary-foreground" : "hover:bg-muted text-muted-foreground"
+            )}
+            title="Connect Logic"
+          >
+            <GitBranch className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Logic</span>
+          </button>
           <button onClick={() => onMove(-1)} disabled={index === 0} className={cn("p-1.5 sm:p-1 hover:bg-muted disabled:opacity-30", themeStyles ? "text-inherit hover:bg-white/10" : "")}>
             <ChevronUp className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
           </button>
@@ -154,62 +205,211 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
           />
         )}
 
-        {(question.type === 'single_choice' || question.type === 'multiple_choice' || question.type === 'dropdown' || question.type === 'logic_mcq') && (
+        {(question.type === 'single_choice' || question.type === 'multiple_choice' || question.type === 'dropdown' || question.type === 'yes_no') && (
           <div className="space-y-2 pt-2">
-            {(question.options || []).map((opt, i) => (
-              <div key={opt.id} className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground w-5">{i + 1}.</span>
-                <Input
-                  value={opt.label}
-                  onChange={(e) => updateOption(opt.id, e.target.value)}
-                  className="flex-1 border-foreground/30 bg-transparent text-sm h-8"
-                />
-                <button onClick={() => removeOption(opt.id)} className="p-1 hover:text-destructive">
-                  <X className="h-3.5 w-3.5" />
-                </button>
+            {question.type === 'yes_no' ? (
+              <div className="space-y-4">
+                <div className="flex gap-2">
+                  <div className="flex-1 p-3 bg-muted/30 border border-border rounded-lg text-xs font-bold uppercase text-center opacity-60">YES</div>
+                  <div className="flex-1 p-3 bg-muted/30 border border-border rounded-lg text-xs font-bold uppercase text-center opacity-60">NO</div>
+                </div>
+                
+                {showLogic && (
+                  <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                    {['Yes', 'No'].map(v => {
+                      const opt = (question.options || []).find(o => o.label === v);
+                      return (
+                        <div key={v} className="flex items-center gap-3 bg-primary/5 p-2.5 rounded-xl border border-primary/10 transition-all hover:bg-primary/10 group">
+                          <div className="bg-primary/20 p-1 rounded-md group-hover:bg-primary/30 transition-colors">
+                            <ArrowRight className="h-3 w-3 text-primary shrink-0" />
+                          </div>
+                          <span className="text-[10px] font-black text-primary uppercase min-w-[60px]">If {v} →</span>
+                          <div className="flex-1 min-w-0">
+                            <select
+                              value={opt?.navigateToQuestionId || opt?.navigateToSectionId || ''}
+                              onChange={(e) => {
+                                const targetId = e.target.value;
+                                const isSection = sections.some(s => s.id === targetId);
+                                const existingOptions = question.options || [];
+                                const otherOptions = existingOptions.filter(o => o.label !== v);
+                                onUpdate({
+                                  options: [
+                                    ...otherOptions,
+                                    { 
+                                      id: opt?.id || crypto.randomUUID(), 
+                                      label: v, 
+                                      navigateToSectionId: isSection ? targetId : undefined,
+                                      navigateToQuestionId: isSection ? undefined : targetId 
+                                    }
+                                  ]
+                                });
+                              }}
+                              className="w-full bg-white/50 dark:bg-black/20 border border-primary/20 px-3 py-1.5 text-[10px] font-bold rounded-lg outline-none focus:ring-2 focus:ring-primary/20 transition-all truncate"
+                            >
+                              <option value="">Default Flow (Continue)</option>
+                              <optgroup label="Sections">
+                                {sections.map(s => {
+                                  const title = s.title || 'Untitled Section';
+                                  return (
+                                    <option key={s.id} value={s.id}>
+                                      § {title.length > 40 ? title.substring(0, 37) + '...' : title}
+                                    </option>
+                                  );
+                                })}
+                              </optgroup>
+                              <optgroup label="Questions">
+                                {otherQuestions.map((oq, oidx) => {
+                                  const title = oq.title || 'Untitled Question';
+                                  return (
+                                    <option key={oq.id} value={oq.id}>
+                                      {oidx + 1}. {title.length > 40 ? title.substring(0, 37) + '...' : title}
+                                    </option>
+                                  );
+                                })}
+                              </optgroup>
+                            </select>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-            ))}
-            <button onClick={addOption} className="text-xs font-medium text-primary hover:underline flex items-center gap-1">
-              <Plus className="h-3 w-3" /> ADD OPTION
-            </button>
+            ) : (
+              <>
+                {(question.options || []).map((opt, i) => (
+                  <div key={opt.id} className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground w-5">{i + 1}.</span>
+                      <Input
+                        value={opt.label}
+                        onChange={(e) => updateOption(opt.id, e.target.value)}
+                        className="flex-1 border-foreground/30 bg-transparent text-sm h-8"
+                      />
+                      <button onClick={() => removeOption(opt.id)} className="p-1 hover:text-destructive">
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                    
+                    {showLogic && (
+                      <div className="ml-7 flex items-center gap-3 bg-primary/5 p-2.5 rounded-xl border border-primary/10 animate-in slide-in-from-left-2 duration-300 group">
+                        <span className="text-[10px] font-black text-primary uppercase whitespace-nowrap min-w-[60px]">Jump to</span>
+                        <div className="flex-1 min-w-0">
+                          <select
+                            value={opt.navigateToQuestionId || opt.navigateToSectionId || ''}
+                            onChange={(e) => {
+                              const targetId = e.target.value;
+                              const isSection = sections.some(s => s.id === targetId);
+                              onUpdate({
+                                options: (question.options || []).map(o => o.id === opt.id ? { 
+                                  ...o, 
+                                  navigateToSectionId: isSection ? targetId : undefined,
+                                  navigateToQuestionId: isSection ? undefined : targetId 
+                                } : o)
+                              });
+                            }}
+                            className="w-full bg-white/50 dark:bg-black/20 border border-primary/20 px-3 py-1.5 text-[10px] font-bold rounded-lg outline-none focus:ring-2 focus:ring-primary/20 transition-all truncate"
+                          >
+                            <option value="">Default Flow (Continue)</option>
+                            <optgroup label="Sections">
+                              {sections.map(s => {
+                                const title = s.title || 'Untitled Section';
+                                return (
+                                  <option key={s.id} value={s.id}>
+                                    § {title.length > 40 ? title.substring(0, 37) + '...' : title}
+                                  </option>
+                                );
+                              })}
+                            </optgroup>
+                            <optgroup label="Questions">
+                              {otherQuestions.map((oq, oidx) => {
+                                const title = oq.title || 'Untitled Question';
+                                return (
+                                  <option key={oq.id} value={oq.id}>
+                                    {oidx + 1}. {title.length > 40 ? title.substring(0, 37) + '...' : title}
+                                  </option>
+                                );
+                              })}
+                            </optgroup>
+                          </select>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                <button onClick={addOption} className="text-xs font-medium text-primary hover:underline flex items-center gap-1">
+                  <Plus className="h-3 w-3" /> ADD OPTION
+                </button>
+              </>
+            )}
           </div>
         )}
 
-        {question.type === 'logic_mcq' && sections.length > 0 && (
-          <div className="pt-6 border-t border-border space-y-4">
-            <div className="flex items-center gap-2">
-              <Sliders className="h-4 w-4 text-primary" />
-              <h4 className="text-xs font-medium text-muted-foreground text-left">Step Navigation Logic (Conditional Branching)</h4>
+        {showLogic && (
+          <div className="pt-6 border-t border-border space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="bg-primary/10 p-1.5 rounded-md">
+                  <GitBranch className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-foreground uppercase tracking-tight">Step Navigation Logic</h4>
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase opacity-60 italic">Define where to go after this {isSectionHeader ? 'section' : 'question'}</p>
+                </div>
+              </div>
             </div>
             
-            <div className="grid grid-cols-1 gap-3">
-              {(question.options || []).map(opt => (
-                <div key={opt.id} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 bg-muted/30 p-3 sm:p-4 border border-border rounded-lg transition-all hover:border-primary/20">
-                  <div className="w-full sm:w-1/3 text-xs sm:text-sm font-medium truncate border-l-2 border-primary pl-3">
-                    If user selects <span className="text-primary">"{opt.label}"</span>
+            <div className="bg-muted/30 p-4 border border-border rounded-xl space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-2 shrink-0">
+                  <div className="bg-muted p-1.5 rounded-lg border border-border/50">
+                    <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
                   </div>
-                  <div className="flex-1 flex items-center gap-2 sm:gap-3">
-                    <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">Then jump to →</span>
-                    <select
-                      value={opt.navigateToSectionId || ''}
-                      onChange={(e) => {
-                        const targetId = e.target.value;
-                        onUpdate({
-                          options: (question.options || []).map(o => o.id === opt.id ? { ...o, navigateToSectionId: targetId } : o)
-                        });
-                      }}
-                      className="flex-1 min-w-0 bg-background border border-border px-2 sm:px-3 py-1.5 sm:py-2 text-xs font-medium outline-none focus:border-primary transition-colors rounded-md"
-                    >
-                      <option value="">Follow normal flow</option>
-                      {sections.map(s => (
-                        <option key={s.id} value={s.id}>Section: {s.title || 'Untitled'}</option>
-                      ))}
-                    </select>
-                  </div>
+                  <span className="text-[11px] font-black text-muted-foreground uppercase tracking-wider">Next Step Logic →</span>
                 </div>
-              ))}
+                <div className="flex-1 min-w-0">
+                  <select
+                    value={question.logic?.jumpToId || ''}
+                    onChange={(e) => {
+                      const targetId = e.target.value;
+                      onUpdate({
+                        logic: { ...question.logic, jumpToId: targetId || undefined }
+                      });
+                    }}
+                    className="w-full bg-background border border-border px-4 py-2.5 text-[11px] font-black uppercase rounded-xl outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all shadow-sm cursor-pointer appearance-none truncate"
+                    style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'currentColor\' stroke-width=\'2\'%3E%3Cpath stroke-linecap=\'round\' stroke-linejoin=\'round\' d=\'M19 9l-7 7-7-7\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1rem' }}
+                  >
+                    <option value="">Continue to next {isSectionHeader ? 'question' : 'step'}</option>
+                    <optgroup label="Jump to Section">
+                      {sections.map(s => {
+                        const title = s.title || 'Untitled Section';
+                        return (
+                          <option key={s.id} value={s.id}>
+                            § {title.length > 40 ? title.substring(0, 37) + '...' : title}
+                          </option>
+                        );
+                      })}
+                    </optgroup>
+                    <optgroup label="Jump to Question">
+                      {otherQuestions.map((oq, oidx) => {
+                        const title = oq.title || 'Untitled Question';
+                        return (
+                          <option key={oq.id} value={oq.id}>
+                            {oidx + 1}. {title.length > 40 ? title.substring(0, 37) + '...' : title}
+                          </option>
+                        );
+                      })}
+                    </optgroup>
+                    <option value="submit">Final Submission (End Form)</option>
+                  </select>
+                </div>
+              </div>
+              <p className="text-[10px] font-medium text-muted-foreground/60 leading-relaxed italic">
+                * Conditional logic (at option level) takes priority over step logic.
+                <br />
+                * Branching only works in "Notebook mode" layout.
+              </p>
             </div>
-            <p className="text-xs font-medium text-muted-foreground">* Branching only works in "Notebook mode" layout.</p>
           </div>
         )}
 
@@ -276,10 +476,10 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
             {isQuiz && (
               <div className="flex items-center justify-between bg-primary/5 p-3 border border-primary/20 rounded-lg">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium text-primary">Quiz question</span>
+                  <span className="text-xs font-medium text-primary">Scored question</span>
                 </div>
                 <Switch
-                  checked={question.includeInQuiz || false}
+                  checked={isQuizIncluded}
                   onCheckedChange={(checked) => onUpdate({ includeInQuiz: checked })}
                 />
               </div>
@@ -305,10 +505,16 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
           </div>
         )}
 
-        {isQuiz && !isLayout && question.includeInQuiz !== false && (
+        {isQuiz && !isLayout && isQuizIncluded && (
           <div className="pt-6 border-t border-primary/20 space-y-4">
             <div className="flex items-center gap-2 mb-2">
-              <h4 className="text-xs font-medium text-primary">Quiz Settings</h4>
+              <div className="bg-primary/10 p-1.5 rounded-md">
+                <Trophy className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <h4 className="text-xs font-black uppercase tracking-wider text-primary">Quiz Scoring</h4>
+                <p className="text-[10px] text-muted-foreground">Set marks and the answer used for automatic grading.</p>
+              </div>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -319,7 +525,7 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
                   type="number"
                   min={0}
                   value={question.points ?? 1}
-                  onChange={(e) => onUpdate({ points: parseInt(e.target.value) || 0 })}
+                  onChange={(e) => onUpdate({ points: Math.max(0, Number(e.target.value) || 0) })}
                   className="w-full h-8 text-sm border-primary/30 bg-transparent font-medium rounded-md"
                   placeholder="1"
                 />
@@ -327,7 +533,7 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
 
               <div className="bg-primary/5 border border-primary/20 p-3 rounded-lg">
                 <label className="text-xs font-medium text-primary block mb-1">Correct Answer</label>
-                {(question.type === 'single_choice' || question.type === 'dropdown' || question.type === 'yes_no' || question.type === 'logic_mcq') ? (
+                {(question.type === 'single_choice' || question.type === 'dropdown' || question.type === 'yes_no') ? (
                   <select
                     value={String(question.correctAnswer || '')}
                     onChange={(e) => onUpdate({ correctAnswer: e.target.value })}
@@ -369,20 +575,34 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
                   <Input
                     type="number"
                     value={question.correctAnswer !== undefined ? Number(question.correctAnswer) : ''}
-                    onChange={(e) => onUpdate({ correctAnswer: parseInt(e.target.value) || 0 })}
+                    min={question.type === 'rating' ? 1 : question.type === 'linear_scale' ? question.minScale : undefined}
+                    max={question.type === 'rating' ? question.maxRating || 5 : question.type === 'linear_scale' ? question.maxScale : undefined}
+                    onChange={(e) => updateNumericCorrectAnswer(e.target.value)}
                     className="w-full h-8 text-sm border-primary/30 bg-transparent font-medium rounded-md mt-1"
                     placeholder="Correct value"
+                  />
+                ) : question.type === 'date' || question.type === 'time' ? (
+                  <Input
+                    type={question.type}
+                    value={String(question.correctAnswer || '')}
+                    onChange={(e) => updateTextCorrectAnswer(e.target.value)}
+                    className="w-full h-8 text-sm border-primary/30 bg-transparent font-medium rounded-md mt-1"
                   />
                 ) : (
                   <Input
                     value={String(question.correctAnswer || '')}
-                    onChange={(e) => onUpdate({ correctAnswer: e.target.value })}
+                    onChange={(e) => updateTextCorrectAnswer(e.target.value)}
                     className="w-full h-8 text-sm border-primary/30 bg-transparent font-medium rounded-md mt-1"
-                    placeholder="Correct text answer"
+                    placeholder={supportsExactAnswer ? 'Correct text answer' : 'Expected uploaded file / rubric'}
                   />
                 )}
               </div>
             </div>
+            {question.type === 'file_upload' && (
+              <p className="text-[10px] font-medium text-muted-foreground">
+                File-upload quiz grading compares the selected file name with this answer.
+              </p>
+            )}
           </div>
         )}
       </div>
