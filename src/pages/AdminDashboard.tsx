@@ -636,7 +636,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
+import { apiClient } from '@/lib/apiClient';
 import { Link } from 'react-router-dom';
 import {
   FileText, MessageSquare, AlertTriangle, BarChart3
@@ -697,17 +697,100 @@ export default function AdminDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  const load = async () => {
-    const { data: complaintsData } = await supabase.from('complaints').select('*');
+  useEffect(() => {
+    if (!user) return;
+    const channel = apiClient
+      .channel('admin-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'complaints' }, () => loadAll())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'forms' }, () => loadStats())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'responses' }, () => loadStats())
+      .subscribe();
+    return () => { apiClient.removeChannel(channel); };
+  }, [user]);
 
     setComplaints(complaintsData || []);
 
-    setStats({
-      totalForms: 120,
-      totalResponses: 430,
-      totalComplaints: complaintsData?.length || 0,
-      openComplaints: complaintsData?.filter(c => c.status === 'open').length || 0,
-      resolvedComplaints: complaintsData?.filter(c => c.status === 'resolved').length || 0,
+  const loadStats = async () => {
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayISO = today.toISOString();
+
+      const [formsRes, responsesRes, complaintsRes, formsTodayRes, responsesTodayRes] = await Promise.all([
+        apiClient.from('forms').select('*', { count: 'exact', head: true }),
+        apiClient.from('responses').select('*', { count: 'exact', head: true }),
+        apiClient.from('complaints').select('*', { count: 'exact', head: true }),
+        apiClient.from('forms').select('*', { count: 'exact', head: true }).gte('created_at', todayISO),
+        apiClient.from('responses').select('*', { count: 'exact', head: true }).gte('submitted_at', todayISO),
+      ]);
+
+      const { count: openCount } = await apiClient.from('complaints').select('*', { count: 'exact', head: true }).eq('status', 'open');
+      const { count: resolvedCount } = await apiClient.from('complaints').select('*', { count: 'exact', head: true }).eq('status', 'resolved');
+
+      setStats({
+        totalUsers: 0, // Can't count auth.users from client side
+        totalForms: formsRes.count || 0,
+        totalResponses: responsesRes.count || 0,
+        totalComplaints: complaintsRes.count || 0,
+        openComplaints: openCount || 0,
+        resolvedComplaints: resolvedCount || 0,
+        activeForms: 0,
+        formsToday: formsTodayRes.count || 0,
+        responsesToday: responsesTodayRes.count || 0,
+      });
+    } catch (err) {
+      console.error('Stats load error:', err);
+    }
+  };
+
+  const loadComplaints = async () => {
+    try {
+      const { data, error } = await apiClient
+        .from('complaints')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      setComplaints(data || []);
+    } catch (err) {
+      console.error('Complaints load error:', err);
+    }
+  };
+
+  const updateComplaintStatus = async (id: string, newStatus: Complaint['status']) => {
+    try {
+      const { error } = await apiClient
+        .from('complaints')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', id);
+      if (error) throw error;
+      setComplaints(prev => prev.map(c => c.id === id ? { ...c, status: newStatus } : c));
+      toast.success(`Status updated to ${newStatus.toUpperCase()}`);
+    } catch (err) {
+      toast.error('Failed to update status');
+    }
+  };
+
+  const updateAdminNotes = async (id: string) => {
+    const notes = editingNotes[id];
+    if (notes === undefined) return;
+    try {
+      const { error } = await apiClient
+        .from('complaints')
+        .update({ admin_notes: notes, updated_at: new Date().toISOString() })
+        .eq('id', id);
+      if (error) throw error;
+      setComplaints(prev => prev.map(c => c.id === id ? { ...c, admin_notes: notes } : c));
+      toast.success('Notes saved');
+    } catch (err) {
+      toast.error('Failed to save notes');
+    }
+  };
+
+  const filteredComplaints = useMemo(() => {
+    return complaints.filter(c => {
+      if (statusFilter !== 'all' && c.status !== statusFilter) return false;
+      if (typeFilter !== 'all' && c.type !== typeFilter) return false;
+      return true;
     });
 
     generateActivity();

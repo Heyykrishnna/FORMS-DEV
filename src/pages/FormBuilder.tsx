@@ -1,12 +1,49 @@
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
+import { apiClient } from '@/lib/apiClient';
 import { FormData } from '@/types/form';
 import EditTab from '@/components/builder/EditTab';
 import ResponsesTab from '@/components/builder/ResponsesTab';
 import ShareTab from '@/components/builder/ShareTab';
 import SettingsTab from '@/components/builder/SettingsTab';
 import { toast } from 'sonner';
+import { Plus, Type, AlignLeft, Mail, Hash, Phone, CircleDot, CheckSquare, ChevronDown, Calendar, Clock, Upload, Star, Sliders, Heading, FileText, ToggleLeft } from 'lucide-react';
+import { createBlankQuestion } from '@/lib/formStore';
+import { QuestionType, QUESTION_TYPE_LABELS } from '@/types/form';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from '@/components/ui/dropdown-menu';
+
+const QUESTION_ICONS: Record<QuestionType, any> = {
+  short_text: Type,
+  long_text: AlignLeft,
+  email: Mail,
+  number: Hash,
+  phone: Phone,
+  single_choice: CircleDot,
+  multiple_choice: CheckSquare,
+  dropdown: ChevronDown,
+  date: Calendar,
+  time: Clock,
+  file_upload: Upload,
+  rating: Star,
+  linear_scale: Sliders,
+  section_header: Heading,
+  description: FileText,
+  yes_no: ToggleLeft,
+};
+
+const GROUPS: { label: string; types: QuestionType[] }[] = [
+  { label: 'TEXT', types: ['short_text', 'long_text', 'email', 'number', 'phone'] },
+  { label: 'CHOICE', types: ['single_choice', 'multiple_choice', 'dropdown', 'yes_no'] },
+  { label: 'INPUT', types: ['date', 'time', 'file_upload', 'rating', 'linear_scale'] },
+  { label: 'LAYOUT', types: ['section_header', 'description'] },
+];
 
 const TABS = ['edit', 'responses', 'share', 'settings'] as const;
 type Tab = typeof TABS[number];
@@ -28,7 +65,7 @@ const FormBuilder = () => {
 
   const loadForm = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from('forms')
         .select('*')
         .eq('id', id)
@@ -144,11 +181,12 @@ const FormBuilder = () => {
         style: newForm.style, 
         questions: newForm.questions,
         settings,
+        show_quiz_results_to_users: newForm.showQuizResultsToUsers,
         updated_at: new Date().toISOString(),
         status: 'published'
       };
 
-      const { error } = await supabase
+      const { error } = await apiClient
         .from('forms')
         .update(dbUpdate)
         .eq('id', id);
@@ -169,7 +207,7 @@ const FormBuilder = () => {
             updated_at: new Date().toISOString()
           };
           
-          const { error: retryError } = await supabase
+          const { error: retryError } = await apiClient
             .from('forms')
             .update(fallbackUpdate)
             .eq('id', id);
@@ -215,6 +253,30 @@ const FormBuilder = () => {
     );
   }
 
+  const handlePreview = () => {
+    if (!form) return;
+    toast.info('Opening preview...');
+    window.open(`/form/${form.id}`, '_blank');
+  };
+
+  const handleAddQuestion = (type: QuestionType = 'short_text') => {
+    if (!form) return;
+    const newQuestion = createBlankQuestion(type);
+    const updatedQuestions = [...form.questions, newQuestion];
+    handleUpdate({ questions: updatedQuestions });
+    
+    if (activeTab !== 'edit') {
+      switchTab('edit');
+    }
+    
+    toast.success(`${QUESTION_TYPE_LABELS[type]} added!`);
+    
+    setTimeout(() => {
+      const el = document.getElementById(`question-${newQuestion.id}`);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 300);
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       
@@ -232,13 +294,47 @@ const FormBuilder = () => {
               placeholder="Form title"
             />
           </div>
-          <Link
-            to={`/form/${form.id}`}
-            target="_blank"
-            className="bg-primary text-primary-foreground px-4 py-1.5 text-xs font-medium rounded-md hover:opacity-90 transition-opacity whitespace-nowrap shadow-sm"
-          >
-            Preview
-          </Link>
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="bg-accent text-accent-foreground px-4 py-1.5 text-xs font-medium rounded-md hover:opacity-90 transition-opacity whitespace-nowrap shadow-sm cursor-pointer flex items-center gap-1.5"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Add Question
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-popover border border-border rounded-xl shadow-lg z-[60] w-56 max-h-[400px] overflow-y-auto" align="end">
+                {GROUPS.map((group) => (
+                  <div key={group.label}>
+                    <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground px-2 py-1.5">
+                      {group.label}
+                    </DropdownMenuLabel>
+                    {group.types.map((type) => {
+                      const Icon = QUESTION_ICONS[type];
+                      return (
+                        <DropdownMenuItem 
+                          key={type} 
+                          onClick={() => handleAddQuestion(type)}
+                          className="flex items-center gap-2 text-xs py-2 cursor-pointer"
+                        >
+                          <Icon className="h-3.5 w-3.5 opacity-60" />
+                          {QUESTION_TYPE_LABELS[type]}
+                        </DropdownMenuItem>
+                      );
+                    })}
+                    <DropdownMenuSeparator />
+                  </div>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <button
+              onClick={handlePreview}
+              className="bg-primary text-primary-foreground px-4 py-1.5 text-xs font-medium rounded-md hover:opacity-90 transition-opacity whitespace-nowrap shadow-sm cursor-pointer"
+            >
+              Preview
+            </button>
+          </div>
         </div>
       </header>
 

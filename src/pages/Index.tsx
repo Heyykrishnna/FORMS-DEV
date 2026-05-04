@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Star, Loader2 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { apiClient } from '@/lib/apiClient';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { generateFormFromPrompt } from '@/services/groq';
@@ -71,7 +71,7 @@ const Index = () => {
       };
 
       // Save to Supabase
-      const { error } = await supabase
+      const { error } = await apiClient
         .from('forms')
         .insert([{
           id: newForm.id,
@@ -85,6 +85,8 @@ const Index = () => {
           settings: {
             isAnonymous: newForm.isAnonymous,
             acceptingResponses: newForm.acceptingResponses,
+            isQuiz: newForm.isQuiz,
+            showQuizResultsToUsers: newForm.showQuizResultsToUsers,
             showProgressBar: newForm.showProgressBar,
             confirmationMessage: newForm.confirmationMessage,
           },
@@ -113,7 +115,7 @@ const Index = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const { data, error } = await supabase.from('forms').select('*', { count: 'exact', head: true });
+        const { data, error } = await apiClient.from('forms').select('*', { count: 'exact', head: true });
         if (error) {
           console.log(error);
         }

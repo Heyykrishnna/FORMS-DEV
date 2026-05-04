@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { supabase } from '@/lib/supabase';
+import { apiClient } from '@/lib/apiClient';
 import { FormData, FormResponse, FormTheme, Question } from '@/types/form';
 import { Button } from '@/components/ui/button';
 import { Star, Check, FormInput, Send, CheckCircle2, AlertCircle, Calendar, Lock } from 'lucide-react';
 import { toast } from 'sonner';
+import { calculateQuizScore } from '@/lib/quiz';
 
 const THEME_STYLES: Record<FormTheme, { wrapper: string; card: string; accent: string; selected: string; input: string; button: string; label: string }> = {
   brutalist_dark: {
@@ -300,7 +301,7 @@ const PublicForm = () => {
   }, [form]);
   const loadForm = React.useCallback(async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await apiClient
         .from('forms')
         .select('*')
         .eq('id', id)
@@ -365,12 +366,12 @@ const PublicForm = () => {
       loadForm();
       
       // Increment views
-      supabase.rpc('increment_form_views', { form_id: id }).then(({ error }) => {
+      apiClient.rpc('increment_form_views', { form_id: id }).then(({ error }) => {
         if (error) console.error('Error incrementing views:', error);
       });
 
       // Load response count
-      supabase
+      apiClient
         .from('responses')
         .select('*', { count: 'exact', head: true })
         .eq('form_id', id)
@@ -567,7 +568,7 @@ const PublicForm = () => {
       } else if (emailsToCheck.size > 0) {
         // Fetch all existing responses and do strict client-side email matching
         // (avoids JSONB operator inconsistencies across DB versions)
-        const { data: allResponses, error: fetchError } = await supabase
+        const { data: allResponses, error: fetchError } = await apiClient
           .from('responses')
           .select('respondent_data, answers')
           .eq('form_id', form.id);
@@ -601,7 +602,7 @@ const PublicForm = () => {
 
     // Check submission limit again before saving
     if (form.submissionLimit) {
-      const { count } = await supabase
+      const { count } = await apiClient
         .from('responses')
         .select('*', { count: 'exact', head: true })
         .eq('form_id', form.id);
@@ -618,34 +619,7 @@ const PublicForm = () => {
     // Calculate quiz scores if in quiz mode
     let scoreData = {};
     if (form.isQuiz) {
-      const answerableQs = form.questions.filter(q => q.type !== 'section_header' && q.type !== 'description');
-      let totalPoints = 0;
-      let earnedPoints = 0;
-
-      answerableQs.forEach(q => {
-        const pts = q.points ?? 1;
-        totalPoints += pts;
-        const userAns = answers[q.id];
-        let correct = false;
-
-        if (q.correctAnswer !== undefined && q.correctAnswer !== '') {
-          if (Array.isArray(q.correctAnswer)) {
-            const userArr = Array.isArray(userAns) ? [...userAns].sort() : [];
-            const correctArr = [...q.correctAnswer].sort();
-            correct = JSON.stringify(userArr) === JSON.stringify(correctArr);
-          } else if (typeof q.correctAnswer === 'number') {
-            correct = Number(userAns) === q.correctAnswer;
-          } else {
-            correct = String(userAns).trim().toLowerCase() === String(q.correctAnswer).trim().toLowerCase();
-          }
-        }
-
-        if (correct) {
-          earnedPoints += pts;
-        }
-      });
-
-      const scorePercent = totalPoints > 0 ? Math.round((earnedPoints / totalPoints) * 100) : 0;
+      const { earnedPoints, totalPoints, scorePercent } = calculateQuizScore(form.questions, answers);
       scoreData = {
         score: earnedPoints,
         total_points: totalPoints,
@@ -665,7 +639,7 @@ const PublicForm = () => {
       ...scoreData, // Include quiz scores if applicable
     };
 
-    const { data, error } = await supabase
+    const { data, error } = await apiClient
       .from('responses')
       .insert(responsePayload)
       .select('id')
@@ -718,24 +692,33 @@ const PublicForm = () => {
       return;
     }
 
-    // --- CONDITIONAL LOGIC (BRANCHING) ---
     const answer = answers[currentQuestion.id];
     let jumpTargetId: string | undefined = undefined;
 
-    if (answer && (currentQuestion.type === 'single_choice' || currentQuestion.type === 'dropdown' || currentQuestion.type === 'yes_no' || currentQuestion.type === 'logic_mcq')) {
+    if (answer && (currentQuestion.type === 'single_choice' || currentQuestion.type === 'dropdown' || currentQuestion.type === 'yes_no')) {
       const selectedOption = currentQuestion.options?.find(opt => opt.label === answer);
       if (selectedOption?.navigateToSectionId) {
         jumpTargetId = selectedOption.navigateToSectionId;
+      } else if (selectedOption?.navigateToQuestionId) {
+        jumpTargetId = selectedOption.navigateToQuestionId;
       }
+    }
+
+    if (!jumpTargetId && currentQuestion.logic?.jumpToId) {
+      jumpTargetId = currentQuestion.logic.jumpToId;
     }
 
     setErrors({});
     
     if (jumpTargetId) {
-      // Find the first question AFTER the target section header
+      const targetFilteredIndex = getFilteredQuestions().findIndex(q => q.id === jumpTargetId);
+      if (targetFilteredIndex !== -1) {
+        setCurrentIndex(targetFilteredIndex);
+        return;
+      }
+
       const targetSectionIndex = form.questions.findIndex(q => q.id === jumpTargetId);
       if (targetSectionIndex !== -1) {
-        // Find the index in the FILTERED questions list that comes after this section header
         const targetQuestionInForm = form.questions.slice(targetSectionIndex + 1).find(q => q.type !== 'section_header' && q.type !== 'description');
         if (targetQuestionInForm) {
           const newFilteredIndex = getFilteredQuestions().findIndex(q => q.id === targetQuestionInForm.id);
@@ -762,49 +745,13 @@ const PublicForm = () => {
     const timeTaken = Math.round((Date.now() - startTime.current) / 1000);
     const answerableQs = form.questions.filter(q => q.type !== 'section_header' && q.type !== 'description');
     
-    // Quiz scoring
     const isQuizMode = form.isQuiz;
-    let totalPoints = 0;
-    let earnedPoints = 0;
-    let correctCount = 0;
-    let wrongCount = 0;
-    const questionResults: { question: Question; userAnswer: unknown; isCorrect: boolean; points: number; earned: number }[] = [];
-
-    if (isQuizMode) {
-      // Include questions by default unless explicitly opted out
-      const quizQuestions = answerableQs.filter(q => q.includeInQuiz !== false);
-      
-      quizQuestions.forEach(q => {
-        const pts = q.points ?? 1;
-        totalPoints += pts;
-        const userAns = answers[q.id];
-        let correct = false;
-
-        if (q.correctAnswer !== undefined && q.correctAnswer !== '') {
-          if (Array.isArray(q.correctAnswer)) {
-            // Multiple choice
-            const userArr = Array.isArray(userAns) ? [...userAns].sort() : [];
-            const correctArr = [...q.correctAnswer].sort();
-            correct = JSON.stringify(userArr) === JSON.stringify(correctArr);
-          } else if (typeof q.correctAnswer === 'number') {
-            correct = Number(userAns) === q.correctAnswer;
-          } else {
-            correct = String(userAns).trim().toLowerCase() === String(q.correctAnswer).trim().toLowerCase();
-          }
-        }
-
-        if (correct) {
-          earnedPoints += pts;
-          correctCount++;
-        } else {
-          wrongCount++;
-        }
-
-        questionResults.push({ question: q, userAnswer: userAns, isCorrect: correct, points: pts, earned: correct ? pts : 0 });
-      });
-    }
-
-    const scorePercent = totalPoints > 0 ? Math.round((earnedPoints / totalPoints) * 100) : 0;
+    const quizScore = isQuizMode
+      ? calculateQuizScore(form.questions, answers)
+      : { totalPoints: 0, earnedPoints: 0, scorePercent: 0, results: [] };
+    const { totalPoints, earnedPoints, scorePercent, results: questionResults } = quizScore;
+    const correctCount = questionResults.filter((result) => result.isCorrect).length;
+    const wrongCount = questionResults.length - correctCount;
 
     return (
       <div className={`${style.wrapper} flex flex-col items-center justify-center py-12`}>
@@ -904,7 +851,7 @@ const PublicForm = () => {
                     <p className="text-[9px] font-black uppercase tracking-widest opacity-50">WRONG</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-2xl font-black">{answerableQs.length}</p>
+                    <p className="text-2xl font-black">{questionResults.length}</p>
                     <p className="text-[9px] font-black uppercase tracking-widest opacity-50">TOTAL</p>
                   </div>
                 </div>
@@ -1094,20 +1041,26 @@ const PublicForm = () => {
               style={{ borderRadius: customCardStyle.borderRadius, borderWidth: customCardStyle.borderWidth }}
             />
           )}
-          {(q.type === 'single_choice' || q.type === 'logic_mcq') && (
+          {q.type === 'single_choice' && (
             <div className="space-y-2">
-              {(q.options || []).map(opt => (
-                <button
-                  key={opt.id}
-                  onClick={() => setAnswer(q.id, opt.label)}
-                  className={`w-full text-left p-3 border-2 text-sm font-bold uppercase transition-all ${
-                    answers[q.id] === opt.label ? `${style.selected} shadow-brutal-sm` : 'border-current hover:border-current/70'
-                  }`}
-                  style={{ borderRadius: customCardStyle.borderRadius, borderWidth: customCardStyle.borderWidth }}
-                >
-                  {opt.label}
-                </button>
-              ))}
+              {(q.options || []).map(opt => {
+                const selected = answers[q.id] === opt.label;
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => setAnswer(q.id, opt.label)}
+                    className={`w-full text-left p-3 border-2 text-sm font-bold uppercase transition-all flex items-center gap-3 ${
+                      selected ? `${style.selected} shadow-brutal-sm` : 'border-current hover:border-current/70'
+                    }`}
+                    style={{ borderRadius: customCardStyle.borderRadius, borderWidth: customCardStyle.borderWidth }}
+                  >
+                    <div className={`w-5 h-5 border-2 border-current rounded-full flex items-center justify-center text-[10px] bg-transparent`}>
+                      {selected && '●'}
+                    </div>
+                    {opt.label}
+                  </button>
+                );
+              })}
             </div>
           )}
           {q.type === 'multiple_choice' && (
@@ -1202,12 +1155,20 @@ const PublicForm = () => {
             </div>
           )}
           {q.type === 'file_upload' && (
-            <div 
-              className={`${style.input} text-center py-12 cursor-pointer border-dashed border-4 opacity-50`}
+            <label
+              className={`${style.input} text-center py-12 cursor-pointer border-dashed border-4 block`}
               style={{ borderRadius: customCardStyle.borderRadius, borderWidth: customCardStyle.borderWidth }}
             >
-              <p className="text-xs font-black uppercase tracking-widest">FILE UPLOAD — COMING SOON</p>
-            </div>
+              <input
+                type="file"
+                className="sr-only"
+                onChange={(e) => setAnswer(q.id, e.target.files?.[0]?.name || '')}
+              />
+              <p className="text-xs font-black uppercase tracking-widest">
+                {answers[q.id] ? String(answers[q.id]) : 'CHOOSE FILE'}
+              </p>
+              <p className="text-[10px] font-bold uppercase opacity-50 mt-2">The selected file name is saved with your response.</p>
+            </label>
           )}
         </div>
         {errors[q.id] && (

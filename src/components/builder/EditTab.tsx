@@ -53,12 +53,11 @@ const QUESTION_ICONS: Record<QuestionType, any> = {
   section_header: Heading,
   description: FileText,
   yes_no: ToggleLeft,
-  logic_mcq: GitBranch,
 };
 
 const GROUPS: { label: string; types: QuestionType[] }[] = [
   { label: 'TEXT', types: ['short_text', 'long_text', 'email', 'number', 'phone'] },
-  { label: 'CHOICE', types: ['single_choice', 'multiple_choice', 'dropdown', 'yes_no', 'logic_mcq'] },
+  { label: 'CHOICE', types: ['single_choice', 'multiple_choice', 'dropdown', 'yes_no'] },
   { label: 'INPUT', types: ['date', 'time', 'file_upload', 'rating', 'linear_scale'] },
   { label: 'LAYOUT', types: ['section_header', 'description'] },
 ];
@@ -388,14 +387,6 @@ const EditTab = ({ form, onUpdate }: Props) => {
               )} />
             </div>
           </button>
-
-          <button 
-            onClick={() => setShowThemeSelector(true)}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl border border-border bg-background hover:bg-muted transition-all text-xs font-medium text-foreground"
-          >
-            <Palette className="w-3.5 h-3.5" />
-            Design & Themes
-          </button>
         </div>
 
         <h3 className="font-medium text-sm text-foreground mb-4 border-b border-border pb-2 flex items-center gap-2">
@@ -523,7 +514,7 @@ const EditTab = ({ form, onUpdate }: Props) => {
                 question={q}
                 index={i}
                 total={form.questions.length}
-                sections={form.questions.filter(sq => sq.type === 'section_header')}
+                allQuestions={form.questions}
                 isQuiz={form.isQuiz}
                 onUpdate={(data) => updateQuestion(q.id, data)}
                 onDelete={() => removeQuestion(q.id)}

@@ -1258,7 +1258,7 @@
 
 
 import React, { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { apiClient } from '@/lib/apiClient';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -1310,9 +1310,11 @@ const Auth = () => {
 
     try {
       if (mode === 'signup') {
-        if (!username.trim()) throw new Error("Username required");
-
-        const { data, error } = await supabase.auth.signUp({
+        if (!username.trim()) {
+            throw new Error("WE NEED A NAME, AGENT.");
+        }
+        
+        const { data, error } = await apiClient.auth.signUp({
           email,
           password,
           options: {
@@ -1326,18 +1328,18 @@ const Auth = () => {
         if (error) throw error;
 
         if (data.user) {
-          await supabase.from('profiles').upsert({
-            id: data.user.id,
-            email,
-            username,
-            avatar_url: avatar,
-            updated_at: new Date().toISOString(),
-          });
+            await apiClient.from('profiles').upsert({
+                id: data.user.id,
+                email: email,
+                username: username,
+                avatar_url: avatar,
+                updated_at: new Date().toISOString(),
+            });
         }
 
         toast.success('Account created. Check your email.');
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { error } = await apiClient.auth.signInWithPassword({
           email,
           password,
         });

@@ -1,17 +1,36 @@
-import React, { useState } from 'react';
+import React, { FormEvent, useEffect, useRef, useState } from 'react';
 import { MessageSquareWarning, X, Send, Bug, MessageCircle, Lightbulb, AlertTriangle } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { apiClient } from '@/lib/apiClient';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 type ComplaintType = 'bug' | 'feedback' | 'complaint' | 'feature_request';
 
-const typeConfig: Record<ComplaintType, { label: string; icon: React.ReactNode; color: string }> = {
-  bug: { label: 'BUG REPORT', icon: <Bug size={14} />, color: 'bg-destructive text-destructive-foreground' },
-  feedback: { label: 'FEEDBACK', icon: <MessageCircle size={14} />, color: 'bg-accent text-accent-foreground' },
-  complaint: { label: 'COMPLAINT', icon: <AlertTriangle size={14} />, color: 'bg-foreground text-background' },
-  feature_request: { label: 'FEATURE REQ', icon: <Lightbulb size={14} />, color: 'bg-accent text-accent-foreground' },
+const typeConfig: Record<ComplaintType, { label: string; description: string; icon: React.ReactNode }> = {
+  feedback: {
+    label: 'Feedback',
+    description: 'Share product thoughts',
+    icon: <MessageCircle size={15} />,
+  },
+  bug: {
+    label: 'Bug report',
+    description: 'Something is broken',
+    icon: <Bug size={15} />,
+  },
+  feature_request: {
+    label: 'Feature request',
+    description: 'Request an improvement',
+    icon: <Lightbulb size={15} />,
+  },
+  complaint: {
+    label: 'Complaint',
+    description: 'Escalate an issue',
+    icon: <AlertTriangle size={15} />,
+  },
 };
 
 const FeedbackWidget = () => {
@@ -20,9 +39,27 @@ const FeedbackWidget = () => {
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const subjectRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
 
-  const handleSubmit = async () => {
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const focusTimer = window.setTimeout(() => subjectRef.current?.focus(), 100);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsOpen(false);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.clearTimeout(focusTimer);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
     if (!subject.trim() || !message.trim()) {
       toast.error('Please fill in all fields');
       return;
@@ -30,7 +67,7 @@ const FeedbackWidget = () => {
 
     setLoading(true);
     try {
-      const { error } = await supabase.from('complaints').insert({
+      const { error } = await apiClient.from('complaints').insert({
         user_id: user?.id || null,
         user_email: user?.email || 'anonymous',
         type,
@@ -55,103 +92,149 @@ const FeedbackWidget = () => {
     }
   };
 
+  const canSubmit = Boolean(subject.trim() && message.trim()) && !loading;
+
   return (
     <>
-      {/* Floating Button */}
-      <button
+      <Button
+        type="button"
         onClick={() => setIsOpen(true)}
+        variant="default"
+        size="icon"
         className={cn(
-          "fixed bottom-6 right-6 z-50 w-14 h-14 border-4 border-foreground bg-accent text-accent-foreground shadow-brutal flex items-center justify-center hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all",
+          "fixed bottom-5 right-5 z-50 h-12 w-12 border border-foreground/15 bg-foreground text-background shadow-brutal-sm hover:bg-foreground/90 focus-visible:ring-accent md:bottom-6 md:right-6",
           isOpen && "hidden"
         )}
         title="Report Issue / Feedback"
-        
+        aria-label="Open report and feedback form"
       >
-        <MessageSquareWarning size={24} />
-      </button>
+        <MessageSquareWarning size={20} />
+      </Button>
 
-      {/* Panel */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 w-[360px] max-h-[520px] border-4 border-foreground bg-background shadow-brutal-lg flex flex-col font-mono animate-in slide-in-from-bottom-10 fade-in zoom-in-95 duration-300"
-          
+        <div
+          className="fixed inset-x-3 bottom-3 z-50 mx-auto flex max-h-[calc(100vh-1.5rem)] w-auto max-w-[420px] flex-col overflow-hidden border border-foreground/15 bg-background shadow-brutal-sm animate-in fade-in slide-in-from-bottom-4 zoom-in-95 duration-200 sm:inset-x-auto sm:right-6 sm:bottom-6 sm:w-[390px]"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="feedback-widget-title"
         >
-          {/* Header */}
-          <div className="bg-foreground text-background p-4 flex items-center justify-between">
-            <h3 className="text-sm font-black uppercase tracking-widest">⚡ REPORT / FEEDBACK</h3>
-            <button onClick={() => setIsOpen(false)} className="hover:text-accent transition-colors">
-              <X size={18} />
-            </button>
+          <div className="flex items-start justify-between gap-4 border-b border-foreground/10 px-4 py-4">
+            <div>
+              <h3 id="feedback-widget-title" className="text-sm font-bold uppercase tracking-[0.08em]">
+                Report / Feedback
+              </h3>
+              <p className="mt-1 text-xs font-medium text-muted-foreground">
+                Send bugs, feedback, complaints, or requests.
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsOpen(false)}
+              className="h-8 w-8 shrink-0"
+              aria-label="Close report and feedback form"
+            >
+              <X size={16} />
+            </Button>
           </div>
 
-          <div className="p-4 flex-1 overflow-y-auto space-y-4">
-            {/* Type Selector */}
-            <div>
-              <label className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-2 block">TYPE</label>
-              <div className="grid grid-cols-2 gap-2">
+          <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+            <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-4">
+              <div>
+                <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+                  Type
+                </label>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {(Object.entries(typeConfig) as [ComplaintType, typeof typeConfig[ComplaintType]][]).map(([key, cfg]) => (
                   <button
                     key={key}
+                    type="button"
                     onClick={() => setType(key)}
+                    aria-pressed={type === key}
                     className={cn(
-                      "border-2 border-foreground p-2 text-[10px] font-black uppercase flex items-center gap-1.5 transition-all",
-                      type === key ? cfg.color : "bg-background hover:bg-secondary"
+                      "flex min-h-[58px] items-start gap-2 border border-foreground/15 bg-background p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2",
+                      type === key && "border-foreground bg-foreground text-background hover:bg-foreground/90"
                     )}
                   >
-                    {cfg.icon} {cfg.label}
+                    <span className="min-w-0">
+                      <span className="block text-xs font-semibold leading-tight">{cfg.label}</span>
+                      <span className={cn("mt-1 block text-[11px] leading-tight text-muted-foreground", type === key && "text-background/75")}>
+                        {cfg.description}
+                      </span>
+                    </span>
                   </button>
                 ))}
+                </div>
               </div>
-            </div>
 
-            {/* Subject */}
-            <div>
-              <label className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1 block">SUBJECT</label>
-              <input
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                placeholder="Brief title..."
-                maxLength={100}
-                className="w-full border-2 border-foreground bg-background px-3 py-2 text-sm font-bold focus:outline-none focus:border-accent"
-              />
-            </div>
+              <div className="space-y-1.5">
+                <label htmlFor="feedback-subject" className="block text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+                  Subject
+                </label>
+                <Input
+                  ref={subjectRef}
+                  id="feedback-subject"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  placeholder="Brief title"
+                  maxLength={100}
+                  disabled={loading}
+                  className="border-foreground/20 font-medium focus-visible:ring-accent"
+                />
+              </div>
 
-            {/* Message */}
-            <div>
-              <label className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1 block">DETAILS</label>
-              <textarea
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Describe your issue or feedback..."
-                rows={4}
-                maxLength={1000}
-                className="w-full border-2 border-foreground bg-background px-3 py-2 text-sm font-bold resize-none focus:outline-none focus:border-accent"
-              />
-              <span className="text-[9px] opacity-40 font-bold">{message.length}/1000</span>
-            </div>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between gap-3">
+                  <label htmlFor="feedback-message" className="block text-[11px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+                    Details
+                  </label>
+                  <span className="text-[11px] font-medium text-muted-foreground">{message.length}/1000</span>
+                </div>
+                <Textarea
+                  id="feedback-message"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder="Describe what happened or what you need"
+                  rows={5}
+                  maxLength={1000}
+                  disabled={loading}
+                  className="min-h-[132px] resize-none border-foreground/20 font-medium focus-visible:ring-accent"
+                />
+              </div>
 
-            {user && (
-              <p className="text-[9px] font-bold opacity-40">
-                SUBMITTING AS: {user.email}
-              </p>
-            )}
-          </div>
-
-          {/* Submit */}
-          <div className="p-4 border-t-4 border-foreground">
-            <button
-              onClick={handleSubmit}
-              disabled={loading || !subject.trim() || !message.trim()}
-              className="w-full border-2 border-foreground bg-accent text-accent-foreground py-3 font-black uppercase text-sm flex items-center justify-center gap-2 shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all disabled:opacity-50 disabled:pointer-events-none"
-            >
-              {loading ? (
-                <span className="animate-pulse">SENDING...</span>
-              ) : (
-                <>
-                  <Send size={14} /> SUBMIT REPORT
-                </>
+              {user?.email && (
+                <p className="border border-foreground/10 bg-secondary/60 px-3 py-2 text-xs font-medium text-muted-foreground">
+                  Submitting as <span className="text-foreground">{user.email}</span>
+                </p>
               )}
-            </button>
-          </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 border-t border-foreground/10 bg-secondary/35 px-4 py-3">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setIsOpen(false)}
+                disabled={loading}
+                className="h-9"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={!canSubmit}
+                className="h-9 min-w-[132px] bg-accent text-accent-foreground hover:bg-accent/90"
+              >
+                {loading ? (
+                  <span className="animate-pulse">Sending...</span>
+                ) : (
+                  <>
+                    <Send size={14} /> Submit
+                  </>
+                )}
+              </Button>
+            </div>
+          </form>
         </div>
       )}
     </>
