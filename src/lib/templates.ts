@@ -139,7 +139,7 @@ export const FORM_TEMPLATES: FormTemplate[] = [
         { id: 'sec1', type: 'section_header', title: 'DEPLOYMENT_STATUS', required: false } as Question,
         { 
           id: 'q1', 
-          type: 'logic_mcq', 
+          type: 'single_choice', 
           title: 'WILL_YOU_DEPLOY?', 
           required: true,
           options: [

@@ -718,24 +718,33 @@ const PublicForm = () => {
       return;
     }
 
-    // --- CONDITIONAL LOGIC (BRANCHING) ---
     const answer = answers[currentQuestion.id];
     let jumpTargetId: string | undefined = undefined;
 
-    if (answer && (currentQuestion.type === 'single_choice' || currentQuestion.type === 'dropdown' || currentQuestion.type === 'yes_no' || currentQuestion.type === 'logic_mcq')) {
+    if (answer && (currentQuestion.type === 'single_choice' || currentQuestion.type === 'dropdown' || currentQuestion.type === 'yes_no')) {
       const selectedOption = currentQuestion.options?.find(opt => opt.label === answer);
       if (selectedOption?.navigateToSectionId) {
         jumpTargetId = selectedOption.navigateToSectionId;
+      } else if (selectedOption?.navigateToQuestionId) {
+        jumpTargetId = selectedOption.navigateToQuestionId;
       }
+    }
+
+    if (!jumpTargetId && currentQuestion.logic?.jumpToId) {
+      jumpTargetId = currentQuestion.logic.jumpToId;
     }
 
     setErrors({});
     
     if (jumpTargetId) {
-      // Find the first question AFTER the target section header
+      const targetFilteredIndex = getFilteredQuestions().findIndex(q => q.id === jumpTargetId);
+      if (targetFilteredIndex !== -1) {
+        setCurrentIndex(targetFilteredIndex);
+        return;
+      }
+
       const targetSectionIndex = form.questions.findIndex(q => q.id === jumpTargetId);
       if (targetSectionIndex !== -1) {
-        // Find the index in the FILTERED questions list that comes after this section header
         const targetQuestionInForm = form.questions.slice(targetSectionIndex + 1).find(q => q.type !== 'section_header' && q.type !== 'description');
         if (targetQuestionInForm) {
           const newFilteredIndex = getFilteredQuestions().findIndex(q => q.id === targetQuestionInForm.id);
@@ -1094,20 +1103,26 @@ const PublicForm = () => {
               style={{ borderRadius: customCardStyle.borderRadius, borderWidth: customCardStyle.borderWidth }}
             />
           )}
-          {(q.type === 'single_choice' || q.type === 'logic_mcq') && (
+          {q.type === 'single_choice' && (
             <div className="space-y-2">
-              {(q.options || []).map(opt => (
-                <button
-                  key={opt.id}
-                  onClick={() => setAnswer(q.id, opt.label)}
-                  className={`w-full text-left p-3 border-2 text-sm font-bold uppercase transition-all ${
-                    answers[q.id] === opt.label ? `${style.selected} shadow-brutal-sm` : 'border-current hover:border-current/70'
-                  }`}
-                  style={{ borderRadius: customCardStyle.borderRadius, borderWidth: customCardStyle.borderWidth }}
-                >
-                  {opt.label}
-                </button>
-              ))}
+              {(q.options || []).map(opt => {
+                const selected = answers[q.id] === opt.label;
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => setAnswer(q.id, opt.label)}
+                    className={`w-full text-left p-3 border-2 text-sm font-bold uppercase transition-all flex items-center gap-3 ${
+                      selected ? `${style.selected} shadow-brutal-sm` : 'border-current hover:border-current/70'
+                    }`}
+                    style={{ borderRadius: customCardStyle.borderRadius, borderWidth: customCardStyle.borderWidth }}
+                  >
+                    <div className={`w-5 h-5 border-2 border-current rounded-full flex items-center justify-center text-[10px] bg-transparent`}>
+                      {selected && '●'}
+                    </div>
+                    {opt.label}
+                  </button>
+                );
+              })}
             </div>
           )}
           {q.type === 'multiple_choice' && (

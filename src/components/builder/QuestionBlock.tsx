@@ -1,5 +1,5 @@
 import { Question, QuestionType, QUESTION_TYPE_LABELS } from '@/types/form';
-import { Trash2, Copy, ChevronUp, ChevronDown, GripVertical, Sliders, Trophy, CheckCircle2 } from 'lucide-react';
+import { Trash2, Copy, ChevronUp, ChevronDown, GripVertical, Sliders, Trophy, CheckCircle2, GitBranch, ArrowRight } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Plus, X } from 'lucide-react';
@@ -15,12 +15,16 @@ interface Props {
   onDelete: () => void;
   onDuplicate: () => void;
   onMove: (dir: -1 | 1) => void;
-  sections: Question[];
+  allQuestions: Question[];
   isQuiz?: boolean;
   themeStyles?: { wrapper: string; card: string; accent: string; selected: string; input: string; button: string; label: string };
 }
 
-const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate, onMove, sections, isQuiz, themeStyles }: Props) => {
+import { useState } from 'react';
+
+const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate, onMove, allQuestions, isQuiz, themeStyles }: Props) => {
+  const [showLogic, setShowLogic] = useState(false);
+
   const {
     attributes,
     listeners,
@@ -59,6 +63,8 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
   const isLayout = question.type === 'section_header' || question.type === 'description';
 
   const isSectionHeader = question.type === 'section_header';
+  const sections = allQuestions.filter(q => q.type === 'section_header' && q.id !== question.id);
+  const otherQuestions = allQuestions.filter(q => q.type !== 'section_header' && q.type !== 'description' && q.id !== question.id);
 
   return (
     <div 
@@ -98,6 +104,17 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
           </span>
         </div>
         <div className="flex items-center justify-end gap-2 sm:gap-1 border-t sm:border-t-0 border-foreground/5 pt-2 sm:pt-0">
+          <button 
+            onClick={() => setShowLogic(!showLogic)} 
+            className={cn(
+              "p-1.5 sm:p-1 flex items-center gap-1.5 px-2 rounded-md transition-all text-[10px] font-black uppercase",
+              showLogic ? "bg-primary text-primary-foreground" : "hover:bg-muted text-muted-foreground"
+            )}
+            title="Connect Logic"
+          >
+            <GitBranch className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Logic</span>
+          </button>
           <button onClick={() => onMove(-1)} disabled={index === 0} className={cn("p-1.5 sm:p-1 hover:bg-muted disabled:opacity-30", themeStyles ? "text-inherit hover:bg-white/10" : "")}>
             <ChevronUp className="h-4 w-4 sm:h-3.5 sm:w-3.5" />
           </button>
@@ -154,62 +171,170 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
           />
         )}
 
-        {(question.type === 'single_choice' || question.type === 'multiple_choice' || question.type === 'dropdown' || question.type === 'logic_mcq') && (
+        {(question.type === 'single_choice' || question.type === 'multiple_choice' || question.type === 'dropdown' || question.type === 'yes_no') && (
           <div className="space-y-2 pt-2">
-            {(question.options || []).map((opt, i) => (
-              <div key={opt.id} className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground w-5">{i + 1}.</span>
-                <Input
-                  value={opt.label}
-                  onChange={(e) => updateOption(opt.id, e.target.value)}
-                  className="flex-1 border-foreground/30 bg-transparent text-sm h-8"
-                />
-                <button onClick={() => removeOption(opt.id)} className="p-1 hover:text-destructive">
-                  <X className="h-3.5 w-3.5" />
-                </button>
+            {question.type === 'yes_no' ? (
+              <div className="space-y-4">
+                <div className="flex gap-2">
+                  <div className="flex-1 p-3 bg-muted/30 border border-border rounded-lg text-xs font-bold uppercase text-center opacity-60">YES</div>
+                  <div className="flex-1 p-3 bg-muted/30 border border-border rounded-lg text-xs font-bold uppercase text-center opacity-60">NO</div>
+                </div>
+                
+                {showLogic && (
+                  <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                    {['Yes', 'No'].map(v => {
+                      const opt = (question.options || []).find(o => o.label === v);
+                      return (
+                        <div key={v} className="flex items-center gap-2 bg-primary/5 p-2 rounded-lg border border-primary/10">
+                          <ArrowRight className="h-3 w-3 text-primary shrink-0" />
+                          <span className="text-[10px] font-black text-primary uppercase w-12">If {v} →</span>
+                          <select
+                            value={opt?.navigateToQuestionId || opt?.navigateToSectionId || ''}
+                            onChange={(e) => {
+                              const targetId = e.target.value;
+                              const isSection = sections.some(s => s.id === targetId);
+                              const existingOptions = question.options || [];
+                              const otherOptions = existingOptions.filter(o => o.label !== v);
+                              onUpdate({
+                                options: [
+                                  ...otherOptions,
+                                  { 
+                                    id: opt?.id || crypto.randomUUID(), 
+                                    label: v, 
+                                    navigateToSectionId: isSection ? targetId : undefined,
+                                    navigateToQuestionId: isSection ? undefined : targetId 
+                                  }
+                                ]
+                              });
+                            }}
+                            className="flex-1 bg-transparent text-[10px] font-bold outline-none focus:text-primary transition-colors"
+                          >
+                            <option value="">Default Flow</option>
+                            <optgroup label="Sections">
+                              {sections.map(s => (
+                                <option key={s.id} value={s.id}>§ {s.title || 'Untitled Section'}</option>
+                              ))}
+                            </optgroup>
+                            <optgroup label="Questions">
+                              {otherQuestions.map((oq, oidx) => (
+                                <option key={oq.id} value={oq.id}>{oidx + 1}. {oq.title || 'Untitled Question'}</option>
+                              ))}
+                            </optgroup>
+                          </select>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-            ))}
-            <button onClick={addOption} className="text-xs font-medium text-primary hover:underline flex items-center gap-1">
-              <Plus className="h-3 w-3" /> ADD OPTION
-            </button>
+            ) : (
+              <>
+                {(question.options || []).map((opt, i) => (
+                  <div key={opt.id} className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground w-5">{i + 1}.</span>
+                      <Input
+                        value={opt.label}
+                        onChange={(e) => updateOption(opt.id, e.target.value)}
+                        className="flex-1 border-foreground/30 bg-transparent text-sm h-8"
+                      />
+                      <button onClick={() => removeOption(opt.id)} className="p-1 hover:text-destructive">
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                    
+                    {showLogic && (
+                      <div className="ml-7 flex items-center gap-2 bg-primary/5 p-2 rounded-lg border border-primary/10 animate-in slide-in-from-left-2 duration-300">
+                        <ArrowRight className="h-3 w-3 text-primary shrink-0" />
+                        <span className="text-[10px] font-bold text-primary uppercase whitespace-nowrap">Jump to</span>
+                        <select
+                          value={opt.navigateToQuestionId || opt.navigateToSectionId || ''}
+                          onChange={(e) => {
+                            const targetId = e.target.value;
+                            const isSection = sections.some(s => s.id === targetId);
+                            onUpdate({
+                              options: (question.options || []).map(o => o.id === opt.id ? { 
+                                ...o, 
+                                navigateToSectionId: isSection ? targetId : undefined,
+                                navigateToQuestionId: isSection ? undefined : targetId 
+                              } : o)
+                            });
+                          }}
+                          className="flex-1 bg-transparent text-[10px] font-bold outline-none focus:text-primary transition-colors"
+                        >
+                          <option value="">Default Flow</option>
+                          <optgroup label="Sections">
+                            {sections.map(s => (
+                              <option key={s.id} value={s.id}>§ {s.title || 'Untitled Section'}</option>
+                            ))}
+                          </optgroup>
+                          <optgroup label="Questions">
+                            {otherQuestions.map((oq, oidx) => (
+                              <option key={oq.id} value={oq.id}>{oidx + 1}. {oq.title || 'Untitled Question'}</option>
+                            ))}
+                          </optgroup>
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                <button onClick={addOption} className="text-xs font-medium text-primary hover:underline flex items-center gap-1">
+                  <Plus className="h-3 w-3" /> ADD OPTION
+                </button>
+              </>
+            )}
           </div>
         )}
 
-        {question.type === 'logic_mcq' && sections.length > 0 && (
-          <div className="pt-6 border-t border-border space-y-4">
-            <div className="flex items-center gap-2">
-              <Sliders className="h-4 w-4 text-primary" />
-              <h4 className="text-xs font-medium text-muted-foreground text-left">Step Navigation Logic (Conditional Branching)</h4>
+        {showLogic && (
+          <div className="pt-6 border-t border-border space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="bg-primary/10 p-1.5 rounded-md">
+                  <GitBranch className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-foreground uppercase tracking-tight">Step Navigation Logic</h4>
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase opacity-60 italic">Define where to go after this {isSectionHeader ? 'section' : 'question'}</p>
+                </div>
+              </div>
             </div>
             
-            <div className="grid grid-cols-1 gap-3">
-              {(question.options || []).map(opt => (
-                <div key={opt.id} className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 bg-muted/30 p-3 sm:p-4 border border-border rounded-lg transition-all hover:border-primary/20">
-                  <div className="w-full sm:w-1/3 text-xs sm:text-sm font-medium truncate border-l-2 border-primary pl-3">
-                    If user selects <span className="text-primary">"{opt.label}"</span>
-                  </div>
-                  <div className="flex-1 flex items-center gap-2 sm:gap-3">
-                    <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">Then jump to →</span>
-                    <select
-                      value={opt.navigateToSectionId || ''}
-                      onChange={(e) => {
-                        const targetId = e.target.value;
-                        onUpdate({
-                          options: (question.options || []).map(o => o.id === opt.id ? { ...o, navigateToSectionId: targetId } : o)
-                        });
-                      }}
-                      className="flex-1 min-w-0 bg-background border border-border px-2 sm:px-3 py-1.5 sm:py-2 text-xs font-medium outline-none focus:border-primary transition-colors rounded-md"
-                    >
-                      <option value="">Follow normal flow</option>
-                      {sections.map(s => (
-                        <option key={s.id} value={s.id}>Section: {s.title || 'Untitled'}</option>
-                      ))}
-                    </select>
-                  </div>
+            <div className="bg-muted/30 p-4 border border-border rounded-xl space-y-3">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black text-muted-foreground uppercase">Next Step →</span>
                 </div>
-              ))}
+                <select
+                  value={question.logic?.jumpToId || ''}
+                  onChange={(e) => {
+                    const targetId = e.target.value;
+                    onUpdate({
+                      logic: { ...question.logic, jumpToId: targetId || undefined }
+                    });
+                  }}
+                  className="flex-1 bg-background border border-border px-3 py-2 text-xs font-bold rounded-lg outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                >
+                  <option value="">Continue to next {isSectionHeader ? 'question' : 'step'}</option>
+                  <optgroup label="Jump to Section">
+                    {sections.map(s => (
+                      <option key={s.id} value={s.id}>§ {s.title || 'Untitled Section'}</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Jump to Question">
+                    {otherQuestions.map((oq, oidx) => (
+                      <option key={oq.id} value={oq.id}>{oidx + 1}. {oq.title || 'Untitled Question'}</option>
+                    ))}
+                  </optgroup>
+                  <option value="submit">Final Submission (End Form)</option>
+                </select>
+              </div>
+              <p className="text-[10px] font-medium text-muted-foreground/60 leading-relaxed italic">
+                * Conditional logic (at option level) takes priority over step logic.
+                <br />
+                * Branching only works in "Notebook mode" layout.
+              </p>
             </div>
-            <p className="text-xs font-medium text-muted-foreground">* Branching only works in "Notebook mode" layout.</p>
           </div>
         )}
 
@@ -327,7 +452,7 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
 
               <div className="bg-primary/5 border border-primary/20 p-3 rounded-lg">
                 <label className="text-xs font-medium text-primary block mb-1">Correct Answer</label>
-                {(question.type === 'single_choice' || question.type === 'dropdown' || question.type === 'yes_no' || question.type === 'logic_mcq') ? (
+                {(question.type === 'single_choice' || question.type === 'dropdown' || question.type === 'yes_no') ? (
                   <select
                     value={String(question.correctAnswer || '')}
                     onChange={(e) => onUpdate({ correctAnswer: e.target.value })}
