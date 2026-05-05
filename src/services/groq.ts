@@ -1,13 +1,13 @@
 import { FormData, FormResponse } from "@/types/form";
-import { apiClient } from "@/lib/backend";
+import { apiClient } from "@/lib/apiClient";
 
 export async function generateFormFromPrompt(prompt: string): Promise<Partial<FormData>> {
-  const { data: { session } } = await apiclient.auth.getSession();
+  const { data: { session } } = await apiClient.auth.getSession();
   if (!session) {
     throw new Error("You must be logged in to generate forms with AI.");
   }
 
-  const { data, error } = await apiclient.functions.invoke("generate-form", {
+  const { data, error } = await apiClient.functions.invoke("generate-form", {
     body: { prompt },
   });
 
@@ -31,12 +31,12 @@ export async function generateFormFromPrompt(prompt: string): Promise<Partial<Fo
 }
 
 export async function analyzeResponses(form: FormData, responses: FormResponse[]): Promise<string> {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await apiClient.auth.getSession();
   if (!session) {
     throw new Error("You must be logged in to analyze responses with AI.");
   }
 
-  const { data, error } = await supabase.functions.invoke("analyze-responses", {
+  const { data, error } = await apiClient.functions.invoke("analyze-responses", {
     body: { form, responses },
   });
 

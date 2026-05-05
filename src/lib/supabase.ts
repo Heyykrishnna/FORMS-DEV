@@ -578,6 +578,20 @@ export const supabase = {
   from(table: string) {
     return new QueryBuilder(table);
   },
+  functions: {
+    async invoke(name: string, options: { body: any }) {
+      const response = await apiFetch(`/api/functions/${name}`, {
+        method: "POST",
+        body: JSON.stringify(options.body)
+      }, "required");
+      
+      const payload = await parseJsonSafe(response);
+      if (!response.ok) {
+        return { data: null, error: toError(payload?.message || `Function ${name} failed`) };
+      }
+      return { data: payload, error: null };
+    }
+  },
   async rpc(functionName: string, params: Record<string, any>) {
     if (functionName === "increment_form_views") {
       const response = await apiFetch(`/api/forms/${params.form_id}/increment-views`, { method: "POST" });
