@@ -631,14 +631,6 @@ const Dashboard = () => {
       <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 rounded-full -mr-32 -mt-32 blur-[100px] group-hover:bg-accent/10 transition-colors" />
       
       <div className="max-w-xl mx-auto relative z-10">
-       <div className="flex justify-center mb-8 gap-4">
-        <div className="p-4 border border-foreground bg-white shadow-sm group-hover:rotate-6 transition-transform">
-         <Bot className="h-12 w-12 text-accent" />
-        </div>
-        <div className="p-4 border border-foreground bg-accent text-accent-foreground shadow-sm -rotate-6 group-hover:rotate-0 transition-transform">
-         <Sparkles className="h-12 w-12" />
-        </div>
-       </div>
        
        <p className="text-4xl md:text-6xl font-medium mb-6 tracking-tight leading-none">
         No forms yet.
@@ -648,12 +640,6 @@ const Dashboard = () => {
        </p>
        
        <div className="flex flex-col sm:flex-row gap-6">
-        <button
-         onClick={() => setIsAIModalOpen(true)}
-         className="flex-1 border rounded-xl bg-foreground px-12 py-5 text-xl font-medium text-background shadow-md hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all flex items-center justify-center gap-3"
-        >
-         Ask Aqora AI
-        </button>
         <button
          onClick={handleCreate}
          className="flex-1 border rounded-xl bg-accent px-12 py-5 text-xl font-medium text-accent-foreground shadow-md hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all"
