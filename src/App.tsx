@@ -16,6 +16,7 @@ import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import FeedbackWidget from "./components/FeedbackWidget";
+import AqoraAI from "@/pages/AqoraAI";
 
 import { Analytics } from '@vercel/analytics/react';
 import ScrollToTop from "./components/ScrollToTop";
@@ -48,6 +49,7 @@ const AnimatedRoutes = () => {
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/ai" element={<AqoraAI />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
