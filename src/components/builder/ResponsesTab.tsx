@@ -412,10 +412,10 @@ const ResponsesTab = ({ form }: Props) => {
                 />
               </div>
             )}
-            <button onClick={() => exportCSV(filteredResponses)} disabled={filteredResponses.length === 0} className="bg-[#1f2029] hover:bg-[#2a2c3a] border border-white/10 text-white px-4 py-2 text-sm font-medium rounded-xl flex items-center gap-2 transition-all">
+            <button onClick={() => exportCSV(filteredResponses)} disabled={filteredResponses.length === 0} className="border border-foreground bg-background hover:bg-foreground hover:text-background text-foreground px-4 py-2 text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all shadow-[2px_2px_0px_#000] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] disabled:opacity-30">
               <Download className="h-4 w-4" /> Export
             </button>
-            <button onClick={handleAIAnalysis} disabled={filteredResponses.length < 5 || isAnalyzing} className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 text-sm font-medium rounded-xl flex items-center gap-2 transition-all shadow-[0_0_20px_rgba(79,70,229,0.3)] border border-indigo-400/30">
+            <button onClick={handleAIAnalysis} disabled={filteredResponses.length < 5 || isAnalyzing} className="border border-foreground bg-foreground text-background hover:bg-accent hover:border-accent px-4 py-2 text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all shadow-[2px_2px_0px_#000] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] disabled:opacity-30">
              {isAnalyzing ? 'Analyzing...' : 'Research Paper'}
             </button>
           </div>
@@ -883,11 +883,11 @@ const ResponsesTab = ({ form }: Props) => {
                 </div>
                 <div className="flex items-center gap-3">
                   {!isAnalyzing && researchPaper && (
-                    <button onClick={handleDownloadPDF} className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 text-sm font-medium rounded-lg flex items-center gap-2 transition-colors">
+                    <button onClick={handleDownloadPDF} className="border border-foreground bg-background hover:bg-foreground hover:text-background text-foreground px-4 py-2 text-xs font-black uppercase tracking-wider flex items-center gap-2 transition-all shadow-[2px_2px_0px_#000] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]">
                       <Download size={14} /> Download PDF
                     </button>
                   )}
-                  <button onClick={() => !isAnalyzing && setShowAnalysisModal(false)} disabled={isAnalyzing} className="text-[#64748b] hover:text-white p-2 rounded-lg transition-colors">
+                  <button onClick={() => !isAnalyzing && setShowAnalysisModal(false)} disabled={isAnalyzing} className="border border-white/20 hover:border-white/60 text-[#64748b] hover:text-white px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors disabled:opacity-30">
                     Close
                   </button>
                 </div>
@@ -991,7 +991,7 @@ const ResponsesTab = ({ form }: Props) => {
                       navigator.clipboard.writeText(JSON.stringify(selectedResponse, null, 2));
                       toast.success("Raw data copied to clipboard");
                     }}
-                    className="flex-1 bg-[#15161c] hover:bg-[#1a1b23] border border-white/10 text-white py-3 rounded-xl text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                    className="flex-1 border border-white/20 hover:border-white/60 bg-[#15161c] hover:bg-[#1a1b23] text-white py-3 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2"
                   >
                     <Copy className="h-4 w-4" /> Copy Raw Data
                   </button>
@@ -1008,7 +1008,7 @@ const ResponsesTab = ({ form }: Props) => {
                         toast.error('Failed to delete response');
                       }
                     }}
-                    className="flex-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 py-3 rounded-xl text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                    className="flex-1 border border-rose-500/40 hover:border-rose-500 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 py-3 text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2"
                   >
                     <Trash2 className="h-4 w-4" /> Delete Entry
                   </button>
