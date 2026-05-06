@@ -17,6 +17,7 @@ import VerifyEmail from "./pages/VerifyEmail";
 import AdminDashboard from "./pages/AdminDashboard";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import FeedbackWidget from "./components/FeedbackWidget";
+import AqoraAI from "@/pages/AqoraAI";
 import InterviewMode from "./pages/InterviewMode";
 import ResearchMode from "./pages/ResearchMode";
 
@@ -51,6 +52,7 @@ const AnimatedRoutes = () => {
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/ai" element={<AqoraAI />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

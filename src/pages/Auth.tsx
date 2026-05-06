@@ -1,78 +1,561 @@
+// // import React, { useState, useEffect } from "react";
+// // import { supabase } from "@/lib/supabase";
+// // import { useNavigate } from "react-router-dom";
+// // import { useAuth } from "@/contexts/AuthContext";
+// // import { ArrowRight, Eye, EyeOff } from "lucide-react";
+// // import { toast } from "sonner";
+
+// // const Auth = () => {
+// //   const [mode, setMode] = useState<"login" | "signup">("login");
+// //   const [email, setEmail] = useState("");
+// //   const [password, setPassword] = useState("");
+// //   const [username, setUsername] = useState("");
+// //   const [showPassword, setShowPassword] = useState(false);
+// //   const [loading, setLoading] = useState(false);
+
+// //   const navigate = useNavigate();
+// //   const { session } = useAuth();
+
+// //   useEffect(() => {
+// //     if (session) navigate("/dashboard");
+// //   }, [session]);
+
+// //   const handleAuth = async (e: React.FormEvent) => {
+// //     e.preventDefault();
+// //     setLoading(true);
+
+// //     try {
+// //       if (mode === "signup") {
+// //         const { error } = await supabase.auth.signUp({
+// //           email,
+// //           password,
+// //           options: { data: { username } },
+// //         });
+// //         if (error) throw error;
+// //         toast.success("Account created");
+// //       } else {
+// //         const { error } = await supabase.auth.signInWithPassword({
+// //           email,
+// //           password,
+// //         });
+// //         if (error) throw error;
+// //         navigate("/dashboard");
+// //       }
+// //     } catch (err: any) {
+// //       toast.error(err.message);
+// //     } finally {
+// //       setLoading(false);
+// //     }
+// //   };
+
+// //   return (
+// //     <div className="min-h-screen flex bg-[#f7f6f2] text-black">
+
+// //       {/* SHARED BACKGROUND (applies to whole screen) */}
+// //       <div
+// //         className="fixed inset-0 opacity-[0.4] pointer-events-none"
+// //         style={{
+// //           backgroundImage: `
+// //             linear-gradient(#d4d4d4 1px, transparent 1px),
+// //             linear-gradient(90deg, #d4d4d4 1px, transparent 1px)
+// //           `,
+// //           backgroundSize: '48px 48px'
+// //         }}
+// //       />
+
+// //       <div
+// //         className="fixed inset-0 opacity-[0.25] pointer-events-none"
+// //         style={{
+// //           backgroundImage: 'radial-gradient(#a3a3a3 1px, transparent 1px)',
+// //           backgroundSize: '18px 18px'
+// //         }}
+// //       />
+
+// //       <div
+// //         className="fixed inset-0 opacity-[0.2] pointer-events-none"
+// //         style={{
+// //           backgroundImage:
+// //             'repeating-linear-gradient(315deg, #d4d4d4 0px, #d4d4d4 1px, transparent 1px, transparent 12px)',
+// //           backgroundSize: '14px 14px'
+// //         }}
+// //       />
+
+// //       <div className="fixed inset-0 bg-gradient-to-br from-white/40 via-transparent to-black/[0.03]" />
+
+// //       {/* LEFT PANEL */}
+// //       <div className="hidden lg:flex w-1/2 relative z-10 p-20 flex-col justify-between">
+
+// //         <div>
+// //           <p className="text-[11px] tracking-[0.2em] opacity-40 mb-6">
+// //             FIG. AUTH
+// //           </p>
+
+// //           <h1 className="text-[64px] leading-[1.05] font-semibold tracking-[-0.04em]">
+// //             FORMS,{" "}
+// //             <span className="italic font-serif text-indigo-500">
+// //               THOUGHTFULLY
+// //             </span>
+// //             <br />
+// //             BUILT FOR TEAMS.
+// //           </h1>
+
+// //           <p className="mt-6 text-[15px] opacity-60 max-w-md leading-relaxed">
+// //             AI-powered forms with real-time analytics, branching logic,
+// //             and team collaboration.
+// //           </p>
+// //         </div>
+
+// //         <div className="space-y-3 text-sm opacity-60">
+// //           <p>01 — AI Forge — describe and generate</p>
+// //           <p>02 — Real-time response analytics</p>
+// //           <p>03 — Branching logic & quiz mode</p>
+// //           <p>04 — Domain-locked sharing & embeds</p>
+// //         </div>
+
+// //         <div className="text-xs opacity-40">
+// //           AQORA SYSTEMS • 2026
+// //         </div>
+// //       </div>
+
+// //       {/* RIGHT PANEL */}
+// //       <div className="w-full lg:w-1/2 flex items-center justify-center px-8 relative z-10">
+
+// //         {/* CLEAN FORM AREA (no grid interference) */}
+// //         <div className="w-full max-w-md bg-[#f7f6f2] px-6 py-10">
+
+// //           {/* header */}
+// //           <h2 className="text-[34px] font-semibold tracking-[-0.03em] leading-tight">
+// //             {mode === "login" ? "WELCOME BACK" : "CREATE ACCOUNT"}
+// //             <span className="text-indigo-500">.</span>
+// //           </h2>
+
+// //           <p className="text-[14px] text-neutral-600 mt-3 mb-8 leading-relaxed">
+// //             {mode === "login"
+// //               ? "Sign in to continue to your dashboard."
+// //               : "Start building forms for your team."}
+// //           </p>
+
+// //           {/* form */}
+// //           <form onSubmit={handleAuth} className="space-y-6">
+
+// //             {mode === "signup" && (
+// //               <div>
+// //                 <label className="text-[11px] tracking-[0.15em] text-neutral-500 mb-2 block uppercase">
+// //                   Username
+// //                 </label>
+// //                 <input
+// //                   value={username}
+// //                   onChange={(e) => setUsername(e.target.value)}
+// //                   className="w-full border-b border-neutral-400 px-1 py-2 text-[15px] bg-transparent outline-none focus:border-black transition"
+// //                 />
+// //               </div>
+// //             )}
+
+// //             <div>
+// //               <label className="text-[11px] tracking-[0.15em] text-neutral-500 mb-2 block uppercase">
+// //                 Email Address
+// //               </label>
+// //               <input
+// //                 type="email"
+// //                 required
+// //                 value={email}
+// //                 onChange={(e) => setEmail(e.target.value)}
+// //                 className="w-full border-b border-neutral-400 px-1 py-2 text-[15px] bg-transparent outline-none focus:border-black transition"
+// //               />
+// //             </div>
+
+// //             <div>
+// //               <label className="text-[11px] tracking-[0.15em] text-neutral-500 mb-2 block uppercase">
+// //                 Password
+// //               </label>
+// //               <div className="relative">
+// //                 <input
+// //                   type={showPassword ? "text" : "password"}
+// //                   required
+// //                   value={password}
+// //                   onChange={(e) => setPassword(e.target.value)}
+// //                   className="w-full border-b border-neutral-400 px-1 py-2 text-[15px] bg-transparent outline-none focus:border-black transition"
+// //                 />
+// //                 <button
+// //                   type="button"
+// //                   onClick={() => setShowPassword(!showPassword)}
+// //                   className="absolute right-0 top-1/2 -translate-y-1/2 opacity-40 hover:opacity-70"
+// //                 >
+// //                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+// //                 </button>
+// //               </div>
+// //             </div>
+
+// //             <button
+// //               type="submit"
+// //               disabled={loading}
+// //               className="w-full mt-6 bg-black text-white py-3 text-[14px] flex items-center justify-center gap-2 hover:opacity-90 transition"
+// //             >
+// //               {mode === "login" ? "Sign in" : "Create account"}
+// //               <ArrowRight size={14} />
+// //             </button>
+// //           </form>
+
+// //           {/* switch */}
+// //           <div className="mt-8 text-[14px] text-neutral-600">
+// //             {mode === "login" ? (
+// //               <>
+// //                 Don’t have an account?{" "}
+// //                 <button
+// //                   onClick={() => setMode("signup")}
+// //                   className="text-black underline"
+// //                 >
+// //                   Sign up
+// //                 </button>
+// //               </>
+// //             ) : (
+// //               <>
+// //                 Already have an account?{" "}
+// //                 <button
+// //                   onClick={() => setMode("login")}
+// //                   className="text-black underline"
+// //                 >
+// //                   Sign in
+// //                 </button>
+// //               </>
+// //             )}
+// //           </div>
+// //         </div>
+// //       </div>
+// //     </div>
+// //   );
+// // };
+
+// // export default Auth;
+
+
+// import React, { useState, useEffect } from "react";
+// import { supabase } from "@/lib/supabase";
+// import { useNavigate } from "react-router-dom";
+// import { useAuth } from "@/contexts/AuthContext";
+// import { ArrowRight, Eye, EyeOff } from "lucide-react";
+// import { toast } from "sonner";
+
+// const Auth = () => {
+//   const [mode, setMode] = useState<"login" | "signup">("login");
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [username, setUsername] = useState("");
+//   const [showPassword, setShowPassword] = useState(false);
+//   const [loading, setLoading] = useState(false);
+
+//   const navigate = useNavigate();
+//   const { session } = useAuth();
+
+//   useEffect(() => {
+//     if (session) navigate("/dashboard");
+//   }, [session]);
+
+//   const handleAuth = async (e: React.FormEvent) => {
+//     e.preventDefault();
+//     setLoading(true);
+
+//     try {
+//       if (mode === "signup") {
+//         const { error } = await supabase.auth.signUp({
+//           email,
+//           password,
+//           options: { data: { username } },
+//         });
+//         if (error) throw error;
+//         toast.success("Account created");
+//       } else {
+//         const { error } = await supabase.auth.signInWithPassword({
+//           email,
+//           password,
+//         });
+//         if (error) throw error;
+//         navigate("/dashboard");
+//       }
+//     } catch (err: any) {
+//       toast.error(err.message);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="min-h-screen flex bg-white text-black">
+
+//       {/* LEFT PANEL */}
+//       <div className="hidden lg:flex w-1/2 relative bg-[#0e0e0e] text-white overflow-hidden">
+
+//         {/* noise */}
+//         <div
+//           className="absolute inset-0 opacity-[0.08] mix-blend-overlay pointer-events-none"
+//           style={{
+//             backgroundImage: `url("https://grainy-gradients.vercel.app/noise.svg")`,
+//           }}
+//         />
+
+//         {/* grid */}
+//         <div
+//           className="absolute inset-0 opacity-[0.06]"
+//           style={{
+//             backgroundImage: `
+//               linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+//               linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)
+//             `,
+//             backgroundSize: "48px 48px",
+//           }}
+//         />
+
+//         <div className="relative z-10 p-20 flex flex-col justify-between h-full">
+
+//           <div>
+//             <p className="text-[11px] tracking-[0.2em] opacity-40 mb-6">
+//               FIG. AUTH
+//             </p>
+
+//             <h1 className="text-[64px] leading-[1.05] font-semibold tracking-[-0.02em]">
+//               FORMS,{" "}
+//               <span className="italic text-indigo-400 font-serif">
+//                 THOUGHTFULLY
+//               </span>
+//               <br />
+//               BUILT FOR TEAMS.
+//             </h1>
+
+//             <p className="mt-6 text-sm opacity-50 max-w-md">
+//               AI-powered forms with real-time analytics, branching logic,
+//               and team collaboration.
+//             </p>
+//           </div>
+
+//           <div className="space-y-3 text-sm opacity-50">
+//             <p>01 — AI Forge — describe and generate</p>
+//             <p>02 — Real-time response analytics</p>
+//             <p>03 — Branching logic & quiz mode</p>
+//             <p>04 — Domain-locked sharing & embeds</p>
+//           </div>
+
+//           <div className="text-xs opacity-30">
+//             AQORA SYSTEMS • 2026
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* RIGHT PANEL */}
+//       <div className="w-full lg:w-1/2 flex items-center justify-center px-6 relative">
+
+//         {/* subtle dots */}
+//         <div
+//           className="absolute inset-0 opacity-[0.03] pointer-events-none"
+//           style={{
+//             backgroundImage: "radial-gradient(#000 1px, transparent 1px)",
+//             backgroundSize: "18px 18px",
+//           }}
+//         />
+
+//         <div className="w-full max-w-md border border-neutral-300 bg-white p-10 relative z-10">
+
+//           {/* header */}
+//           <h2 className="text-[28px] font-semibold tracking-tight">
+//             {mode === "login" ? "WELCOME BACK" : "CREATE ACCOUNT"}
+//             <span className="text-blue-500">.</span>
+//           </h2>
+
+//           <p className="text-sm text-neutral-500 mt-2 mb-6">
+//             {mode === "login"
+//               ? "Sign in to continue to your dashboard."
+//               : "Start building forms for your team."}
+//           </p>
+
+//           {/* google */}
+//           {/* <button className="w-full border border-neutral-300 py-3 text-sm flex items-center justify-center gap-2 hover:bg-neutral-50 transition">
+//             Continue with Google
+//           </button>
+
+//           <p className="text-[10px] text-center text-neutral-400 my-4 tracking-wide">
+//             OR CONTINUE WITH EMAIL
+//           </p> */}
+
+//           {/* form */}
+//           <form onSubmit={handleAuth} className="space-y-5">
+
+//             {mode === "signup" && (
+//               <div>
+//                 <label className="text-[11px] tracking-wide text-neutral-500 mb-1 block uppercase">
+//                   Username
+//                 </label>
+//                 <input
+//                   value={username}
+//                   onChange={(e) => setUsername(e.target.value)}
+//                   className="w-full border border-neutral-300 px-4 py-3 text-sm outline-none focus:border-black transition"
+//                 />
+//               </div>
+//             )}
+
+//             <div>
+//               <label className="text-[11px] tracking-wide text-neutral-500 mb-1 block uppercase">
+//                 Email Address
+//               </label>
+//               <input
+//                 type="email"
+//                 required
+//                 value={email}
+//                 onChange={(e) => setEmail(e.target.value)}
+//                 className="w-full border border-neutral-300 px-4 py-3 text-sm outline-none focus:border-black transition"
+//               />
+//             </div>
+
+//             <div>
+//               <label className="text-[11px] tracking-wide text-neutral-500 mb-1 block uppercase">
+//                 Password
+//               </label>
+//               <div className="relative">
+//                 <input
+//                   type={showPassword ? "text" : "password"}
+//                   required
+//                   value={password}
+//                   onChange={(e) => setPassword(e.target.value)}
+//                   className="w-full border border-neutral-300 px-4 py-3 text-sm outline-none focus:border-black transition"
+//                 />
+//                 <button
+//                   type="button"
+//                   onClick={() => setShowPassword(!showPassword)}
+//                   className="absolute right-3 top-1/2 -translate-y-1/2 opacity-40 hover:opacity-70"
+//                 >
+//                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+//                 </button>
+//               </div>
+//             </div>
+
+//             <button
+//               type="submit"
+//               disabled={loading}
+//               className="w-full bg-black text-white py-3 text-sm flex items-center justify-center gap-2 hover:opacity-90 transition"
+//             >
+//               {mode === "login" ? "Sign in" : "Create account"}
+//               <ArrowRight size={14} />
+//             </button>
+//           </form>
+
+//           {/* switch */}
+//           <div className="mt-6 text-center text-sm text-neutral-500">
+//             {mode === "login" ? (
+//               <>
+//                 Don’t have an account?{" "}
+//                 <button
+//                   onClick={() => setMode("signup")}
+//                   className="text-black underline"
+//                 >
+//                   Sign up
+//                 </button>
+//               </>
+//             ) : (
+//               <>
+//                 Already have an account?{" "}
+//                 <button
+//                   onClick={() => setMode("login")}
+//                   className="text-black underline"
+//                 >
+//                   Sign in
+//                 </button>
+//               </>
+//             )}
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Auth;
+
+
 
 import React, { useState, useEffect } from 'react';
-import { apiClient } from '@/lib/apiClient';
-import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/lib/supabase';
+import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { Eye, EyeOff, ArrowRight, Skull, Fingerprint, Ghost, Bot, Pizza, Zap, Crown, User, AlertTriangle, Box, Link as LinkIcon, CheckCheck, Info } from 'lucide-react';
-
-const FUNNY_LOADING_MESSAGES = [
-  "Hacking the mainframe...",
-  "Stealing your cookies...",
-  "Consulting the oracle...",
-  "Generating fake credentials...",
-  "Deleting system32...",
-  "Mining crypto on your GPU...",
-  "Ping 999ms...",
-  "Breaching firewalls...",
-  "Downloading RAM...",
-  "Establishing neural handshake..."
-];
-
-const AVATARS = [
-  { id: 'user', icon: <User className="w-6 h-6" />, label: 'USER' },
-  { id: 'ghost', icon: <Ghost className="w-6 h-6" />, label: 'GHOST' },
-  { id: 'bot', icon: <Bot className="w-6 h-6" />, label: 'BOT' },
-  { id: 'skull', icon: <Skull className="w-6 h-6" />, label: 'SKULL' },
-  { id: 'pizza', icon: <Pizza className="w-6 h-6" />, label: 'PIZZA' },
-  { id: 'zap', icon: <Zap className="w-6 h-6" />, label: 'ZAP' },
-  { id: 'crown', icon: <Crown className="w-6 h-6" />, label: 'KING' },
-];
-
+import { Eye, EyeOff, ArrowRight, AlertTriangle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import ForgotPasswordModal from '@/components/auth/ForgotPasswordModal';
 
+const HorizontalScale = ({ className }: { className?: string }) => (
+  <div
+    className={cn(
+      'h-10 w-full bg-[repeating-linear-gradient(315deg,_#d4d4d4_0px,_#d4d4d4_1px,_transparent_1px,_transparent_10px)] bg-[length:14px_14px] border-y border-[#d4d4d4]',
+      className,
+    )}
+  />
+);
+
+const VerticalScale = ({ className }: { className?: string }) => (
+  <div
+    className={cn(
+      'w-10 h-full bg-[repeating-linear-gradient(315deg,_#d4d4d4_0px,_#d4d4d4_1px,_transparent_1px,_transparent_10px)] bg-[length:14px_14px] border-x border-[#d4d4d4]',
+      className,
+    )}
+  />
+);
+
+const HorizontalScaleDark = ({ className }: { className?: string }) => (
+  <div
+    className={cn(
+      'h-10 w-full bg-[repeating-linear-gradient(315deg,_rgba(255,255,255,0.08)_0px,_rgba(255,255,255,0.08)_1px,_transparent_1px,_transparent_10px)] bg-[length:14px_14px] border-y border-white/10',
+      className,
+    )}
+  />
+);
+
+const VerticalScaleDark = ({ className }: { className?: string }) => (
+  <div
+    className={cn(
+      'w-10 h-full bg-[repeating-linear-gradient(315deg,_rgba(255,255,255,0.08)_0px,_rgba(255,255,255,0.08)_1px,_transparent_1px,_transparent_10px)] bg-[length:14px_14px] border-x border-white/10',
+      className,
+    )}
+  />
+);
+
+const FieldLabel = ({ children }: { children: React.ReactNode }) => (
+  <p className="text-[10px] font-mono font-bold uppercase tracking-widest text-black/40 mb-1.5">
+    {children}
+  </p>
+);
 const getVerificationRedirectUrl = () => `${window.location.origin}/verify-email`;
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
-  const [avatar, setAvatar] = useState(AVATARS[0].id);
-  const [avatarMode, setAvatarMode] = useState<'preset' | 'custom'>('preset');
   const [mode, setMode] = useState<'login' | 'signup'>('login');
   const [showPassword, setShowPassword] = useState(false);
   const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
-  const [loadingMsg, setLoadingMsg] = useState(FUNNY_LOADING_MESSAGES[0]);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const navigate = useNavigate();
   const { session, loading: authLoading } = useAuth();
 
   useEffect(() => {
-    if (!authLoading && session) {
-      navigate('/dashboard');
-    }
+    if (!authLoading && session) navigate('/dashboard');
   }, [session, authLoading, navigate]);
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (loading) {
-      interval = setInterval(() => {
-        setLoadingMsg(FUNNY_LOADING_MESSAGES[Math.floor(Math.random() * FUNNY_LOADING_MESSAGES.length)]);
-      }, 800);
+  const handleGoogleAuth = async () => {
+    setGoogleLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${window.location.origin}/dashboard` },
+      });
+      if (error) throw error;
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Google sign-in failed.';
+      toast.error(msg, { className: 'font-mono text-xs uppercase' });
+      setGoogleLoading(false);
     }
-    return () => clearInterval(interval);
-  }, [loading]);
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const { clientX, clientY } = e;
-    setMousePos({ x: clientX, y: clientY });
   };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       if (mode === 'signup') {
         if (!username.trim()) {
@@ -82,12 +565,7 @@ const Auth = () => {
         const { error } = await apiClient.auth.signUp({
           email,
           password,
-          options: {
-            data: {
-              username,
-              avatar_url: avatar,
-            }
-          }
+          options: { data: { username, avatar_url: 'user' } },
         });
         if (error) throw error;
 
@@ -117,22 +595,17 @@ const Auth = () => {
           return;
         }
         if (error) throw error;
-        toast.success('Access granted. Welcome to the void.', {
-          className: "font-black uppercase border-4 border-black"
-        });
+        toast.success('Welcome back.');
         navigate('/dashboard');
       }
-    } catch (error: any) {
-      if (error.message?.includes('rate limit') || error.status === 429) {
-          toast.error("SYSTEM OVERLOAD.", {
-              description: "You're spamming the mainframe. Chill out for a minute.",
-              className: "font-black uppercase border-4 border-[#FF4500] text-[#FF4500]",
-              icon: <AlertTriangle className="w-5 h-5" />
-          });
+    } catch (error: unknown) {
+      const err = error as { message?: string; status?: number };
+      if (err.message?.includes('rate limit') || err.status === 429) {
+        toast.error('Too many attempts — please wait a moment.', {
+          icon: <AlertTriangle className="w-4 h-4" />,
+        });
       } else {
-          toast.error(error.message || 'System rejection.', {
-            className: "font-black uppercase border-4 border-red-500 text-red-500"
-          });
+        toast.error(err.message || 'Authentication failed.');
       }
     } finally {
       setLoading(false);
@@ -140,380 +613,298 @@ const Auth = () => {
   };
 
   return (
-    <div 
-      className="min-h-screen bg-background flex font-mono overflow-hidden" 
-      onMouseMove={handleMouseMove}
-    >
-      {/* LEFT SIDE - VISUAL CHAOS */}
-      <div className="hidden lg:flex w-1/2 relative bg-black text-white flex-col justify-between p-12 overflow-hidden border-r-8 border-foreground">
-        
-        {/* Animated Background Grid */}
-        <div 
-          className="absolute inset-0 pointer-events-none opacity-20" 
-          style={{ 
-            backgroundImage: `
-              linear-gradient(to right, #333 1px, transparent 1px),
-              linear-gradient(to bottom, #333 1px, transparent 1px)
-            `,
-            backgroundSize: '40px 40px',
-            transform: `translate(${mousePos.x * -0.02}px, ${mousePos.y * -0.02}px)`
-          }} 
-        />
-        
-        {/* Dots at intersections */}
-        <div 
-            className="absolute inset-0 pointer-events-none opacity-40"
-            style={{
-                backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)',
-                backgroundSize: '40px 40px',
-                backgroundPosition: '20px 20px',
-                transform: `translate(${mousePos.x * -0.02}px, ${mousePos.y * -0.02}px)`
-            }}
+    <div className="min-h-screen flex overflow-hidden font-sans">
+
+      <div className="hidden lg:flex w-[52%] bg-[#0e0e0e] flex-col relative overflow-hidden">
+
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: 'radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px)',
+            backgroundSize: '22px 22px',
+          }}
         />
 
-        <div className="relative z-10">
-          <h1 className="text-8xl font-black uppercase tracking-tighter leading-[0.8]">
-            DATA<br />
-            IS THE<br />
-            <span className="text-[#FF4500]">NEW OIL</span>.
-          </h1>
-          <div className="mt-8 border-l-4 border-[#FF4500] pl-6 py-2">
-            <p className="text-xl font-bold uppercase tracking-widest opacity-80">
-              "WE ARE THE DRILL."
-            </p>
-          </div>
-        </div>
+        <VerticalScaleDark className="absolute inset-y-0 left-0 pointer-events-none" />
+        <VerticalScaleDark className="absolute inset-y-0 right-0 pointer-events-none" />
 
-        <div className="relative z-10 space-y-4">
-          <div className="flex items-center gap-4 text-[#FF4500]">
-            <span className="font-bold uppercase tracking-[0.2em] text-sm typing-effect">
-              SECURE CONNECTION: UNVERIFIED
+        <HorizontalScaleDark />
+
+        <div className="flex-1 flex flex-col px-16 py-14 relative z-10">
+
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2.5 group mb-auto w-fit"
+          >
+            <span className="text-white font-semibold text-[15px] tracking-tight group-hover:text-accent transition-colors">
+              aqora
             </span>
-          </div>
-          <div className="p-6 border-4 border-white/20 bg-white/5 backdrop-blur-sm transform transition-transform duration-300">
-            <p className="text-xs font-bold uppercase leading-relaxed opacity-60">
-              WARNING: UNAUTHORIZED ACCESS WILL BE MET WITH EXTREME PREJUDICE. 
-              YOUR IP ADDRESS HAS BEEN LOGGED, PRINTED, AND FAXED TO THE FBI. 
-              (NOT REALLY, BUT BEHAVE).
+          </Link>
+
+          <div className="mt-16 mb-12">
+            <p className="text-[11px] font-mono tracking-[0.18em] uppercase text-white/30 mb-5">
+              FIG.AUTH
+            </p>
+            <h1 className="text-[52px] font-semibold text-white leading-[1.05] tracking-[-0.03em]">
+              Forms,{' '}
+              <em
+                className="not-italic"
+                style={{
+                  fontFamily: "'Instrument Serif', serif",
+                  fontStyle: 'italic',
+                  color: 'hsl(226 80% 70%)',
+                }}
+              >
+                thoughtfully
+              </em>
+              <br />built for teams.
+            </h1>
+            <p className="mt-6 text-[15px] text-white/40 leading-relaxed max-w-xs">
+              AI-powered forms with real-time analytics, branching logic, and team collaboration.
             </p>
           </div>
+
+          <HorizontalScaleDark className="mb-10" />
+
+          <div className="space-y-0">
+            {[
+              ['01', 'AI Forge — describe and generate'],
+              ['02', 'Real-time response analytics'],
+              ['03', 'Branching logic & quiz mode'],
+              ['04', 'Domain-locked sharing & embeds'],
+            ].map(([n, label]) => (
+              <div
+                key={n}
+                className="flex items-center gap-4 py-3.5 border-b border-white/[0.06]"
+              >
+                <span className="text-[10px] font-mono text-accent/70 w-5 shrink-0">{n}</span>
+                <div className="w-px h-3.5 bg-white/15 shrink-0" />
+                <span className="text-[13px] text-white/50 font-sans">{label}</span>
+              </div>
+            ))}
+          </div>
         </div>
+
+        <HorizontalScaleDark />
       </div>
 
-      {/* RIGHT SIDE - THE FORM */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-[#F0F0F0] relative overflow-y-auto">
-        {/* Mobile Background Elements */}
-        <div className="lg:hidden absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+      <div className="hidden lg:block w-px bg-black/10 shrink-0" />
 
-        <div className="w-full max-w-md bg-white p-8 md:p-12 border-4 border-black shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[4px] hover:translate-y-[4px] transition-all duration-300 my-auto">
-          <div className="mb-10 text-center relative">
-            <div className="w-24 h-24 bg-black mx-auto mb-6 flex items-center justify-center rotate-3 transition-transform duration-500 border-4 border-black overflow-hidden relative group">
-              {/* LIVE PREVIEW */}
-              {mode === 'signup' ? (
-                avatar && avatarMode === 'preset' ? (
-                  <div className="scale-150 text-white">
-                     {AVATARS.find(a => a.id === avatar)?.icon}
-                  </div>
-                ) : avatar && avatarMode === 'custom' ? (
-                   <img 
-                      src={avatar} 
-                      alt="Avatar Preview" 
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                         (e.target as HTMLImageElement).src = 'https://api.dicebear.com/7.x/pixel-art/svg?seed=' + username;
-                      }}
-                   />
-                ) : (
-                   <User className="text-white w-12 h-12" />
-                )
-              ) : (
-                 <Fingerprint className="text-white w-10 h-10" />
-              )}
-              
-              {mode === 'signup' && (
-                <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                    <span className="text-[8px] font-black uppercase text-white tracking-widest text-center px-1">
-                        YOUR<br/>FACE
-                    </span>
-                </div>
-              )}
-            </div>
-            <h2 className="text-4xl font-black uppercase tracking-tighter mb-2">
-              {mode === 'login' ? 'IDENTIFY' : 'INITIATE'}
-            </h2>
-            <p className="text-sm font-bold uppercase text-muted-foreground tracking-widest">
-              {mode === 'login' ? 'NO BOTS ALLOWED' : 'JOIN THE RESISTANCE'}
+      <div className="flex-1 bg-[#F0F0F0] flex flex-col relative overflow-y-auto min-h-screen">
+
+        <div
+          className="fixed inset-0 pointer-events-none opacity-[0.04]"
+          style={{
+            backgroundImage: 'radial-gradient(#000 1px, transparent 1px)',
+            backgroundSize: '20px 20px',
+          }}
+        />
+
+        <VerticalScale className="fixed inset-y-0 left-[52%] z-0 pointer-events-none hidden lg:block" />
+
+        <HorizontalScale />
+
+        <nav className="relative z-10 border-b border-black/10 bg-[#F0F0F0]">
+          <div className="px-10 py-4 flex items-center justify-between">
+            <Link
+              to="/"
+              className="lg:hidden inline-flex items-center gap-2 group"
+            >
+              <div className="w-6 h-6 rounded-md bg-accent flex items-center justify-center">
+                <svg viewBox="0 0 16 16" fill="none" className="w-3.5 h-3.5 text-white" aria-hidden>
+                  <path d="M3 13L8 3l5 10H3z" fill="currentColor" />
+                </svg>
+              </div>
+              <span className="font-semibold text-[14px] tracking-tight">aqora</span>
+            </Link>
+            <div className="hidden lg:block" />
+
+            <p className="text-[10px] font-mono uppercase tracking-widest text-black/30">
+              {mode === 'login' ? 'Sign in to your account' : 'Create a new account'}
             </p>
           </div>
+        </nav>
 
-          <form onSubmit={handleAuth} className="space-y-6">
-            
-            {mode === 'signup' && (
-              <div className="animate-in fade-in slide-in-from-top-4 duration-500 space-y-6">
-                <div className="space-y-2 group">
-                  <label className="text-xs font-black uppercase tracking-widest flex items-center gap-2 group-focus-within:text-[#FF4500] transition-colors">
-                    CODENAME <span className="text-xs opacity-50 lowercase">(unique identifier)</span>
-                  </label>
+        <div className="relative z-10 flex-1 flex items-center justify-center px-10 py-14">
+          <div className="w-full max-w-[500px]">
+
+            <div className="mb-10">
+              <p className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] text-black/30 mb-4">
+                {mode === 'login' ? 'Authentication' : 'Registration'}
+              </p>
+              <h2 className="text-[44px] font-semibold tracking-[-0.035em] leading-[1.02] text-foreground">
+                {mode === 'login' ? (
+                  <>Welcome back<span className="text-accent">.</span></>
+                ) : (
+                  <>Get started<span className="text-accent">.</span></>
+                )}
+              </h2>
+              <p className="mt-3 text-[15px] text-black/40 leading-relaxed">
+                {mode === 'login'
+                  ? 'Sign in to continue to your dashboard.'
+                  : 'Create your account — it only takes a moment.'}
+              </p>
+            </div>
+
+            {/* <button
+              type="button"
+              onClick={handleGoogleAuth}
+              disabled={googleLoading || loading}
+              className="w-full flex items-center justify-center gap-3 bg-white border border-black/12 rounded-xl px-5 py-4 text-[15px] font-medium text-foreground hover:bg-black/[0.025] hover:border-black/20 transition-all disabled:opacity-50 shadow-sm mb-6"
+            >
+              {googleLoading ? (
+                <div className="w-5 h-5 border-2 border-black/20 border-t-black/60 rounded-full animate-spin" />
+              ) : (
+                <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" aria-hidden>
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05" />
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                </svg>
+              )}
+              Continue with Google
+            </button> */}
+
+            {/* <div className="flex items-center gap-4 mb-7">
+              <div className="flex-1 h-px bg-black/10" />
+              <span className="text-[11px] font-mono uppercase tracking-[0.15em] text-black/30">
+                or continue with email
+              </span>
+              <div className="flex-1 h-px bg-black/10" />
+            </div> */}
+
+            <form onSubmit={handleAuth} className="space-y-5">
+
+              {mode === 'signup' && (
+                <div>
+                  <FieldLabel>Display name</FieldLabel>
                   <input
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     required={mode === 'signup'}
-                    className="w-full bg-[#F5F5F5] border-4 border-black p-4 text-lg font-bold outline-none focus:bg-[#FF4500]/10 focus:border-[#FF4500] transition-all placeholder:opacity-20 placeholder:uppercase"
-                    placeholder="NEO_1337"
+                    placeholder="Your name"
+                    className="w-full bg-white border border-black/12 rounded-xl px-4 py-3.5 text-[15px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all placeholder:text-black/25 shadow-sm"
                   />
                 </div>
+              )}
 
-                {/* AVATAR SELECTION */}
-                <div className="space-y-4 bg-gray-50 p-6 border-4 border-dashed border-gray-300">
-                  <label className="text-xs font-black uppercase tracking-widest block mb-4">SELECT AVATAR</label>
-                  
-                  {/* Avatar Preview */}
-                  <div className="flex items-center gap-4 p-4 border-4 border-black bg-accent/5">
-                    <div className="w-16 h-16 border-4 border-black bg-white flex items-center justify-center shrink-0 overflow-hidden shadow-brutal">
-                      {avatar && avatarMode === 'preset' ? (
-                        <div className="w-8 h-8">{AVATARS.find(a => a.id === avatar)?.icon}</div>
-                      ) : avatar && avatarMode === 'custom' ? (
-                        <img src={avatar} alt="Avatar Preview" className="w-full h-full object-cover" />
-                      ) : (
-                        <User className="w-8 h-8" />
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-xs font-black uppercase mb-1">Current Avatar</p>
-                      <p className="text-[10px] font-bold uppercase text-muted-foreground">
-                        {avatarMode === 'preset' ? 'PRESET ICON' : 'CUSTOM URL'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Tab Selection */}
-                  <div className="flex border-4 border-black">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAvatarMode('preset');
-                        setAvatar(AVATARS[0].id);
-                      }}
-                      className={`flex-1 py-3 text-xs font-black uppercase transition-all ${
-                        avatarMode === 'preset'
-                          ? 'bg-black text-white'
-                          : 'bg-white text-black hover:bg-accent/10'
-                      }`}
-                    >
-                      <div className="flex items-center justify-center gap-2">
-                        <Box className="w-4 h-4" />
-                        PRESET ICONS
-                      </div>
-                    </button>
-                    <div className="w-[4px] bg-black"></div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAvatarMode('custom');
-                        setAvatar('');
-                      }}
-                      className={`flex-1 py-3 text-xs font-black uppercase transition-all ${
-                        avatarMode === 'custom'
-                          ? 'bg-black text-white'
-                          : 'bg-white text-black hover:bg-accent/10'
-                      }`}
-                    >
-                      <div className="flex items-center justify-center gap-2">
-                        <LinkIcon className="w-4 h-4" />
-                        CUSTOM URL
-                      </div>
-                    </button>
-                  </div>
-
-                  {/* Content Area */}
-                  <div className="border-4 border-black p-6 bg-white min-h-[180px]">
-                    {avatarMode === 'preset' ? (
-                      // PRESET ICONS VIEW
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between mb-4">
-                          <h4 className="text-[10px] font-black uppercase tracking-widest text-accent">CHOOSE FROM {AVATARS.length} PRESET ICONS</h4>
-                        </div>
-                        <div className="grid grid-cols-4 gap-3">
-                          {AVATARS.map((av) => (
-                            <button
-                              key={av.id}
-                              type="button"
-                              onClick={() => setAvatar(av.id)}
-                              className={`aspect-square p-3 border-4 transition-all group relative ${
-                                avatar === av.id
-                                  ? 'border-black bg-black text-white shadow-brutal scale-95'
-                                  : 'border-gray-300 hover:border-black bg-white text-black hover:shadow-brutal hover:scale-105'
-                              }`}
-                              title={av.label}
-                            >
-                              <div className="w-full h-full flex items-center justify-center">{av.icon}</div>
-                              {avatar === av.id && (
-                                <div className="absolute -top-2 -right-2 w-5 h-5 bg-accent border-2 border-black flex items-center justify-center">
-                                  <CheckCheck className="w-3 h-3 text-white" />
-                                </div>
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                        <p className="text-[9px] font-bold uppercase text-muted-foreground mt-4 text-center">
-                          CLICK ANY ICON TO SELECT • ALL ICONS ARE OPTIMIZED
-                        </p>
-                      </div>
-                    ) : (
-                      // CUSTOM URL VIEW
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between mb-4">
-                          <h4 className="text-[10px] font-black uppercase tracking-widest text-accent">ENTER CUSTOM IMAGE URL</h4>
-                        </div>
-                        <div className="space-y-3">
-                          <input
-                            type="url"
-                            value={avatar}
-                            onChange={(e) => setAvatar(e.target.value)}
-                            className="w-full bg-[#F5F5F5] border-4 border-black p-4 font-bold outline-none focus:border-accent text-sm"
-                            placeholder="https://example.com/avatar.jpg"
-                          />
-                          <div className="bg-accent/5 border-2 border-black p-4">
-                            <p className="text-[9px] font-black uppercase mb-2 flex items-center gap-2">
-                              <Info className="w-3 h-3" />
-                              IMPORTANT NOTES:
-                            </p>
-                            <ul className="text-[9px] font-bold space-y-1 ml-5 list-disc">
-                              <li>USE DIRECT IMAGE URLs (ENDING IN .JPG, .PNG, .GIF, .WEBP)</li>
-                              <li>RECOMMENDED SIZE: 256X256 PIXELS OR LARGER</li>
-                              <li>ENSURE THE URL IS PUBLICLY ACCESSIBLE</li>
-                              <li>SQUARE IMAGES WORK BEST</li>
-                            </ul>
-                          </div>
-                          {avatar && (
-                            <div className="border-4 border-black p-4 bg-background">
-                              <p className="text-[9px] font-black uppercase mb-3">PREVIEW:</p>
-                              <div className="flex justify-center">
-                                <div className="w-24 h-24 border-4 border-black overflow-hidden">
-                                  <img 
-                                    src={avatar} 
-                                    alt="Custom avatar preview" 
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                      e.currentTarget.style.display = 'none';
-                                      e.currentTarget.parentElement!.innerHTML = '<div class="w-full h-full bg-red-100 flex items-center justify-center text-red-600 text-xs font-black">INVALID URL</div>';
-                                    }}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
+              <div>
+                <FieldLabel>Email address</FieldLabel>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  placeholder="you@example.com"
+                  className="w-full bg-white border border-black/12 rounded-xl px-4 py-3.5 text-[15px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all placeholder:text-black/25 shadow-sm"
+                />
               </div>
-            )}
 
-            <div className="space-y-2 group">
-              <label className="text-xs font-black uppercase tracking-widest flex items-center gap-2 group-focus-within:text-[#FF4500] transition-colors">
-                YOUR EMAIL <span className="text-xs opacity-50 lowercase">(the real one)</span>
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full bg-[#F5F5F5] border-4 border-black p-4 text-lg font-bold outline-none focus:bg-[#FF4500]/10 focus:border-[#FF4500] transition-all placeholder:opacity-20 placeholder:uppercase"
-                placeholder="human@example.com"
-              />
-            </div>
-
-            <div className="space-y-2 group">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-black uppercase tracking-widest group-focus-within:text-[#FF4500] transition-colors">
-                  SECRET CODE
-                </label>
-                {mode === 'login' && (
-                  <button 
-                    type="button" 
-                    onClick={() => setIsForgotModalOpen(true)}
-                    className="text-[10px] font-bold uppercase underline hover:text-black transition-colors"
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <FieldLabel>Password</FieldLabel>
+                  {mode === 'login' && (
+                    <button
+                      type="button"
+                      onClick={() => setIsForgotModalOpen(true)}
+                      className="text-[11px] font-mono uppercase tracking-wider text-black/35 hover:text-accent transition-colors underline underline-offset-2"
+                    >
+                      Forgot password?
+                    </button>
+                  )}
+                </div>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    placeholder="••••••••"
+                    className="w-full bg-white border border-black/12 rounded-xl px-4 py-3.5 pr-12 text-[15px] outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all placeholder:text-black/20 shadow-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-black/30 hover:text-black/60 transition-colors"
                   >
-                    FORGOT? CLICK ME, IDIOT.
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
+                </div>
+                {mode === 'signup' && (
+                  <p className="mt-2 text-[11px] font-mono text-black/30 uppercase tracking-wider">
+                    Minimum 6 characters
+                  </p>
                 )}
               </div>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full bg-[#F5F5F5] border-4 border-black p-4 text-lg font-bold outline-none focus:bg-[#FF4500]/10 focus:border-[#FF4500] transition-all"
-                  placeholder="••••••••"
-                />
+
+              <div className="pt-2">
                 <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 opacity-50 hover:opacity-100 hover:text-[#FF4500]"
+                  type="submit"
+                  disabled={loading || googleLoading}
+                  className="w-full bg-foreground text-background rounded-xl px-5 py-4 text-[15px] font-medium hover:bg-accent transition-colors flex items-center justify-center gap-2.5 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
                 >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {loading ? (
+                    <div className="w-5 h-5 border-2 border-background/30 border-t-background rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <span>{mode === 'login' ? 'Sign in' : 'Create account'}</span>
+                      <ArrowRight size={15} />
+                    </>
+                  )}
                 </button>
               </div>
+            </form>
+
+            <div className="my-8 h-px bg-black/8" />
+
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-[13px] text-black/40">
+                {mode === 'login' ? "Don't have an account?" : 'Already have an account?'}
+              </span>
+              <button
+                onClick={() => {
+                  setMode(mode === 'login' ? 'signup' : 'login');
+                  setUsername('');
+                  setEmail('');
+                  setPassword('');
+                }}
+                className="text-[13px] font-semibold text-foreground hover:text-accent transition-colors underline underline-offset-2"
+              >
+                {mode === 'login' ? 'Sign up' : 'Sign in'}
+              </button>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-black text-white relative overflow-hidden group border-2 border-black hover:bg-white hover:text-black transition-all"
-            >
-              <div className="absolute inset-0 bg-white translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300 ease-out" />
-              
-              <div className="relative z-10 py-5 text-base md:text-xl font-black uppercase tracking-widest flex items-center justify-center gap-3 group-hover:text-black text-white transition-colors">
-                {loading ? (
-                  <div className="flex items-center gap-2">
-                    <span className="animate-pulse">{loadingMsg}</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center gap-4 w-full">
-                    <div className="relative overflow-hidden h-7 flex-1 text-center flex items-center justify-center">
-                      <span className="absolute inset-0 flex items-center justify-center transition-transform duration-300 group-hover:-translate-y-full whitespace-nowrap">
-                        {mode === 'login' ? 'ENTER THE VOID' : 'START PROTOCOL'}
-                      </span>
-                      <span className="absolute inset-0 flex items-center justify-center transition-transform duration-300 translate-y-full group-hover:translate-y-0 whitespace-nowrap">
-                        {mode === 'login' ? 'LETS GO' : 'JOIN US'}
-                      </span>
-                    </div>
-
-                    <ArrowRight className="transition-transform duration-300 group-hover:translate-x-1 flex-shrink-0" />
-                  </div>
-                )}
-              </div>
-            </button>
-          </form>
-
-          <div className="mt-8 text-center pt-8 border-t-4 border-black/10">
-            <p className="text-xs font-bold uppercase text-muted-foreground mb-4">
-              {mode === 'login' ? 'FRESH MEAT?' : 'ALREADY INFILTRATED?'}
+            <p className="mt-5 text-center text-[11px] text-black/25 leading-relaxed">
+              By continuing you agree to our{' '}
+              <Link to="/terms" className="underline hover:text-black/50 transition-colors">
+                Terms
+              </Link>
+              {' '}and{' '}
+              <Link to="/privacy" className="underline hover:text-black/50 transition-colors">
+                Privacy Policy
+              </Link>
+              .
             </p>
-            <button
-              onClick={() => {
-                setMode(mode === 'login' ? 'signup' : 'login');
-                setUsername('');
-              }}
-              className="inline-block border-2 border-black bg-white px-6 py-2 text-xs font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px]"
-            >
-              {mode === 'login' ? 'CREATE IDENTITY' : 'ACCESS TERMINAL'}
-            </button>
           </div>
         </div>
-        
-        {/* Footer */}
-        <div className="absolute bottom-4 text-[10px] font-black uppercase opacity-20">
-          SECURE SECTOR 7G • AQORA SYSTEMS © 2026
+
+        <div className="relative z-10">
+          <HorizontalScale />
+          <div className="px-10 py-4 flex items-center justify-between border-t border-black/10">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-black/25">
+              Secure · Encrypted · Private
+            </span>
+            <span className="text-[10px] font-mono uppercase tracking-widest text-black/25">
+              Aqora Systems © 2026
+            </span>
+          </div>
         </div>
       </div>
-      <ForgotPasswordModal 
-        isOpen={isForgotModalOpen} 
-        onClose={() => setIsForgotModalOpen(false)} 
+
+      <ForgotPasswordModal
+        isOpen={isForgotModalOpen}
+        onClose={() => setIsForgotModalOpen(false)}
         initialEmail={email}
       />
     </div>
