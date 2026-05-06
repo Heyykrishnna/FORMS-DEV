@@ -1,11 +1,14 @@
 import { Question, QuestionType, QUESTION_TYPE_LABELS } from '@/types/form';
-import { Trash2, Copy, ChevronUp, ChevronDown, GripVertical, Sliders, Trophy, CheckCircle2, GitBranch, ArrowRight } from 'lucide-react';
+import { Trash2, Copy, ChevronUp, ChevronDown, GripVertical, Sliders, Trophy, CheckCircle2, GitBranch, ArrowRight, Wand2, RefreshCw } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Plus, X } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
+import { refineQuestion, getSmartValidation } from '@/services/groq';
+import { toast } from 'sonner';
 
 interface Props {
   question: Question;
@@ -20,10 +23,48 @@ interface Props {
   themeStyles?: { wrapper: string; card: string; accent: string; selected: string; input: string; button: string; label: string };
 }
 
-import { useState } from 'react';
-
 const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate, onMove, allQuestions, isQuiz, themeStyles }: Props) => {
   const [showLogic, setShowLogic] = useState(false);
+  const [isRefining, setIsRefining] = useState(false);
+  const [refineResult, setRefineResult] = useState<{ refined: string; improvements: string[] } | null>(null);
+  const [isValidating, setIsValidating] = useState(false);
+  const [validationResult, setValidationResult] = useState<{ suggestions: { rule: string; description: string }[]; reasoning: string } | null>(null);
+
+  const handleRefine = async () => {
+    if (!question.title.trim() || isRefining) return;
+    setIsRefining(true);
+    try {
+      const result = await refineQuestion(question.title);
+      setRefineResult({ refined: result.refined, improvements: result.improvements });
+    } catch (err: any) {
+      toast.error(err.message || "Refinement failed");
+    } finally {
+      setIsRefining(false);
+    }
+  };
+
+  const applyRefinement = () => {
+    if (!refineResult) return;
+    onUpdate({ title: refineResult.refined });
+    setRefineResult(null);
+    toast.success("Question refined!");
+  };
+
+  const handleSmartValidation = async () => {
+    if (isValidating) return;
+    setIsValidating(true);
+    try {
+      const result = await getSmartValidation(question);
+      setValidationResult({ suggestions: result.suggestions, reasoning: result.reasoning });
+      if (result.required !== question.required) {
+        onUpdate({ required: result.required });
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Validation check failed");
+    } finally {
+      setIsValidating(false);
+    }
+  };
 
   const {
     attributes,
@@ -203,6 +244,74 @@ const QuestionBlock = ({ question, index, total, onUpdate, onDelete, onDuplicate
             placeholder="Description (optional)"
             className="w-full bg-transparent text-sm text-muted-foreground outline-none placeholder:text-muted-foreground resize-none min-h-[40px]"
           />
+        )}
+
+        {/* ── AI REFINE + VALIDATION ROW ──────────────────────────────────── */}
+        {!isLayout && (
+          <div className="flex gap-2 flex-wrap">
+            <button
+              onClick={handleRefine}
+              disabled={isRefining || !question.title.trim()}
+              className="flex items-center gap-1.5 border border-foreground/20 hover:border-foreground bg-background px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all disabled:opacity-30 hover:bg-foreground hover:text-background"
+            >
+              {isRefining ? <RefreshCw className="h-3 w-3 animate-spin" /> : <Wand2 className="h-3 w-3" />}
+              {isRefining ? "Refining..." : "AI Refine"}
+            </button>
+            <button
+              onClick={handleSmartValidation}
+              disabled={isValidating}
+              className="flex items-center gap-1.5 border border-foreground/20 hover:border-foreground bg-background px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all disabled:opacity-30 hover:bg-foreground hover:text-background"
+            >
+              {isValidating ? <RefreshCw className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />}
+              {isValidating ? "Checking..." : "Smart Validate"}
+            </button>
+          </div>
+        )}
+
+        {/* Refine result panel */}
+        {refineResult && (
+          <div className="border border-foreground bg-background p-3 space-y-2 shadow-[3px_3px_0px_#000]">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5"><Wand2 className="h-3 w-3" /> Refined Version</span>
+              <button onClick={() => setRefineResult(null)} className="opacity-40 hover:opacity-100"><X className="h-3.5 w-3.5" /></button>
+            </div>
+            <p className="text-sm font-sans font-medium border-l-2 border-foreground pl-3">{refineResult.refined}</p>
+            {refineResult.improvements.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {refineResult.improvements.map((imp, i) => (
+                  <span key={i} className="text-[9px] border border-foreground/20 px-2 py-0.5 opacity-60 font-sans">{imp}</span>
+                ))}
+              </div>
+            )}
+            <div className="flex gap-2 pt-1">
+              <button onClick={applyRefinement} className="flex-1 border border-foreground bg-foreground text-background text-[10px] font-black uppercase tracking-wider px-3 py-1.5 hover:opacity-90 transition-all">
+                Apply
+              </button>
+              <button onClick={() => setRefineResult(null)} className="border border-foreground/30 text-[10px] font-black uppercase tracking-wider px-3 py-1.5 hover:border-foreground transition-all">
+                Discard
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Smart validation result panel */}
+        {validationResult && (
+          <div className="border border-foreground bg-background p-3 space-y-2 shadow-[3px_3px_0px_#000]">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5"><CheckCircle2 className="h-3 w-3" /> Validation Suggestions</span>
+              <button onClick={() => setValidationResult(null)} className="opacity-40 hover:opacity-100"><X className="h-3.5 w-3.5" /></button>
+            </div>
+            <p className="text-[11px] opacity-50 font-sans italic">{validationResult.reasoning}</p>
+            <div className="space-y-1.5">
+              {validationResult.suggestions.map((s, i) => (
+                <div key={i} className="flex items-start gap-2 text-[11px] font-sans">
+                  <span className="text-[9px] font-black border border-foreground/30 px-1.5 py-0.5 uppercase shrink-0 mt-0.5">{s.rule.replace(/_/g, ' ')}</span>
+                  <span className="opacity-60">{s.description}</span>
+                </div>
+              ))}
+            </div>
+            <button onClick={() => setValidationResult(null)} className="text-[10px] font-black uppercase tracking-wider opacity-40 hover:opacity-100 transition-all">Dismiss</button>
+          </div>
         )}
 
         {(question.type === 'single_choice' || question.type === 'multiple_choice' || question.type === 'dropdown' || question.type === 'yes_no') && (
