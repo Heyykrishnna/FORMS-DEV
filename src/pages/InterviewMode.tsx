@@ -60,6 +60,16 @@ const InterviewMode = () => {
     if (!value || isLoading) return;
 
     const currentQ = messages[messages.length - 1];
+    
+    // Email validation for initial email question
+    if (initStep === 1 && currentQ.type === 'email') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(value)) {
+        toast.error("Please enter a valid email address");
+        return;
+      }
+    }
+
     const newAnswers = [...answers, { question: currentQ.content, answer: value }];
 
     setMessages(prev => [...prev, { role: 'user', content: value }]);
@@ -108,6 +118,12 @@ const InterviewMode = () => {
       }]);
     } catch (err: any) {
       toast.error(err.message || "Failed to get next question");
+      // Add fallback AI message to prevent broken state
+      setMessages(prev => [...prev, {
+        role: 'ai',
+        content: "Sorry, I encountered an error. Please try again.",
+        type: 'short_text',
+      }]);
     } finally {
       setIsLoading(false);
     }
@@ -249,7 +265,7 @@ const InterviewMode = () => {
             </div>
           </div>
           <button
-            onClick={() => { setStarted(false); setMessages([]); setAnswers([]); setInitStep(0); setIsComplete(false); setTitle(''); }}
+            onClick={() => { setStarted(false); setMessages([]); setAnswers([]); setInitStep(0); setIsComplete(false); setTitle(''); setCurrentInput(''); setSelectedOption(''); setIsLoading(false); }}
             className="flex items-center gap-1.5 border border-foreground/30 hover:border-foreground px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-all"
           >
             <RotateCcw className="h-3 w-3" /> Restart
@@ -393,6 +409,7 @@ const InterviewMode = () => {
                 onKeyDown={handleKeyDown}
                 placeholder={isChoiceType ? "Or type your answer..." : "Type your answer..."}
                 disabled={isLoading}
+                type={currentAiMessage?.type === 'email' ? 'email' : 'text'}
                 className="flex-1 border border-foreground bg-[#F0F0F0] px-4 py-3 text-sm font-sans outline-none focus:bg-background transition-colors placeholder:opacity-40 disabled:opacity-40"
               />
               <button
