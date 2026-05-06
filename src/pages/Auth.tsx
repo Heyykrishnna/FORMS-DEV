@@ -31,6 +31,8 @@ const AVATARS = [
 
 import ForgotPasswordModal from '@/components/auth/ForgotPasswordModal';
 
+const getVerificationRedirectUrl = () => `${window.location.origin}/verify-email`;
+
 const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
@@ -77,7 +79,7 @@ const Auth = () => {
             throw new Error("WE NEED A NAME, AGENT.");
         }
         
-        const { data, error } = await apiClient.auth.signUp({
+        const { error } = await apiClient.auth.signUp({
           email,
           password,
           options: {
@@ -89,18 +91,16 @@ const Auth = () => {
         });
         if (error) throw error;
 
-        // Manually update profile to ensure data consistency
-        if (data.user) {
-            await apiClient.from('profiles').upsert({
-                id: data.user.id,
-                email: email,
-                username: username,
-                avatar_url: avatar,
-                updated_at: new Date().toISOString(),
-            });
-        }
+        const { error: verificationError } = await apiClient.auth.sendVerificationEmail({
+          email,
+          redirectTo: getVerificationRedirectUrl(),
+        });
+        if (verificationError) throw verificationError;
 
-        toast.success('Mission accomplished. Check your email & spam folder to confirm extraction.', {
+        setMode('login');
+        setPassword('');
+        setUsername('');
+        toast.success('Account created. Please verify the account from your email, then sign in.', {
           icon: <Skull className="h-4 w-4" />,
           className: "font-black uppercase border-4 border-black"
         });
@@ -109,6 +109,13 @@ const Auth = () => {
           email,
           password,
         });
+        if (error?.code === 'EMAIL_NOT_VERIFIED') {
+          toast.error('Please verify the account', {
+            className: "font-black uppercase border-4 border-[#FF4500] text-[#FF4500]",
+            icon: <AlertTriangle className="w-5 h-5" />
+          });
+          return;
+        }
         if (error) throw error;
         toast.success('Access granted. Welcome to the void.', {
           className: "font-black uppercase border-4 border-black"

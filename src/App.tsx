@@ -13,6 +13,7 @@ import AboutUs from "./pages/AboutUs";
 import Legal from "./pages/Legal";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
+import VerifyEmail from "./pages/VerifyEmail";
 import AdminDashboard from "./pages/AdminDashboard";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import FeedbackWidget from "./components/FeedbackWidget";
@@ -48,6 +49,7 @@ const AnimatedRoutes = () => {
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
