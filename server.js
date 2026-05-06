@@ -2,8 +2,8 @@ import http from "http";
 import { randomUUID } from "crypto";
 import https from "https";
 
-const GROQ_API_KEY = process.env.VITE_GROQ_API_KEY || process.env.VITE_GROQ_KEY;
-const GROQ_RESEARCH_API_KEY = process.env.VITE_GROQ_RESEARCH_API_KEY || process.env.VITE_GROQ_RESEARCH_KEY;
+const GROQ_API_KEY = process.env.GROQ_API_KEY || process.env.VITE_GROQ_API_KEY;
+const GROQ_RESEARCH_API_KEY = process.env.GROQ_RESEARCH_API_KEY || process.env.VITE_GROQ_RESEARCH_API_KEY;
 
 async function callGroq(messages, model = "llama-3.3-70b-versatile", apiKey = GROQ_API_KEY, jsonMode = false) {
   return new Promise((resolve, reject) => {
@@ -23,6 +23,7 @@ async function callGroq(messages, model = "llama-3.3-70b-versatile", apiKey = GR
         "Authorization": `Bearer ${apiKey}`,
         "Content-Length": Buffer.byteLength(body),
       },
+      timeout: 30000,
     };
 
     const req = https.request(options, (res) => {
@@ -40,6 +41,10 @@ async function callGroq(messages, model = "llama-3.3-70b-versatile", apiKey = GR
     });
 
     req.on("error", reject);
+    req.on("timeout", () => {
+      req.destroy();
+      reject(new Error("Groq API request timed out"));
+    });
     req.write(body);
     req.end();
   });
@@ -48,31 +53,14 @@ async function callGroq(messages, model = "llama-3.3-70b-versatile", apiKey = GR
 const PORT = 4000;
 const FRONTEND_ORIGIN = "http://localhost:8080";
 
-const users = [
-  {
-    id: "user-1",
-    email: "admin@aqora.dev",
-    password: "password",
-    username: "Admin",
-    avatar_url: "https://api.dicebear.com/6.x/initials/svg?seed=Admin",
-    role: "admin",
-    created_at: new Date().toISOString(),
-  },
-];
+// NOTE: Remove seeded admin for security. Use proper authentication with password hashing.
+// For development, users can sign up via the API.
+const users = [];
 
 const sessions = new Map();
 const accessTokens = new Map();
 
-const profiles = [
-  {
-    id: "user-1",
-    email: "admin@aqora.dev",
-    username: "Admin",
-    avatar_url: "https://api.dicebear.com/6.x/initials/svg?seed=Admin",
-    created_at: new Date().toISOString(),
-    bio: "Local test user",
-  },
-];
+const profiles = [];
 
 const forms = [
   {
@@ -277,6 +265,10 @@ const server = http.createServer(async (req, res) => {
     const id = pathname.replace("/api/forms/", "");
     const form = forms.find((item) => item.id === id);
     if (!form) return sendJson(res, 404, { message: "Form not found" });
+    // Ownership check: users can only access their own forms or public forms
+    if (form.userId && form.userId !== userId) {
+      return sendJson(res, 403, { message: "Forbidden" });
+    }
     return sendJson(res, 200, form);
   }
 
@@ -326,12 +318,22 @@ const server = http.createServer(async (req, res) => {
     const body = await parseJson(req);
     const form = forms.find((item) => item.id === id);
     if (!form) return sendJson(res, 404, { message: "Form not found" });
+    // Ownership check
+    if (form.userId && form.userId !== userId) {
+      return sendJson(res, 403, { message: "Forbidden" });
+    }
     Object.assign(form, body, { updatedAt: new Date().toISOString() });
     return sendJson(res, 200, form);
   }
 
   if (pathname.startsWith("/api/forms/") && method === "DELETE") {
     const id = pathname.replace("/api/forms/", "");
+    const form = forms.find((item) => item.id === id);
+    if (!form) return sendJson(res, 404, { message: "Form not found" });
+    // Ownership check
+    if (form.userId && form.userId !== userId) {
+      return sendJson(res, 403, { message: "Forbidden" });
+    }
     const index = forms.findIndex((item) => item.id === id);
     if (index >= 0) forms.splice(index, 1);
     return sendJson(res, 204, {});
@@ -356,6 +358,11 @@ const server = http.createServer(async (req, res) => {
     const id = pathname.replace("/api/responses/", "");
     const responseItem = responses.find((item) => item.id === id);
     if (!responseItem) return sendJson(res, 404, { message: "Response not found" });
+    // Ownership check via form ownership
+    const form = forms.find((f) => f.id === responseItem.formId);
+    if (form && form.userId && form.userId !== userId) {
+      return sendJson(res, 403, { message: "Forbidden" });
+    }
     return sendJson(res, 200, responseItem);
   }
 
@@ -372,6 +379,13 @@ const server = http.createServer(async (req, res) => {
 
   if (pathname.startsWith("/api/responses/") && method === "DELETE") {
     const id = pathname.replace("/api/responses/", "");
+    const responseItem = responses.find((item) => item.id === id);
+    if (!responseItem) return sendJson(res, 404, { message: "Response not found" });
+    // Ownership check via form ownership
+    const form = forms.find((f) => f.id === responseItem.formId);
+    if (form && form.userId && form.userId !== userId) {
+      return sendJson(res, 403, { message: "Forbidden" });
+    }
     const index = responses.findIndex((item) => item.id === id);
     if (index >= 0) responses.splice(index, 1);
     return sendJson(res, 204, {});
@@ -381,6 +395,10 @@ const server = http.createServer(async (req, res) => {
     const id = pathname.replace("/api/profiles/", "");
     const profile = profiles.find((item) => item.id === id);
     if (!profile) return sendJson(res, 404, { message: "Profile not found" });
+    // Ownership check
+    if (id !== userId) {
+      return sendJson(res, 403, { message: "Forbidden" });
+    }
     return sendJson(res, 200, profile);
   }
 
@@ -389,6 +407,10 @@ const server = http.createServer(async (req, res) => {
     const body = await parseJson(req);
     const profile = profiles.find((item) => item.id === id);
     if (!profile) return sendJson(res, 404, { message: "Profile not found" });
+    // Ownership check
+    if (id !== userId) {
+      return sendJson(res, 403, { message: "Forbidden" });
+    }
     Object.assign(profile, body);
     return sendJson(res, 200, profile);
   }
@@ -795,7 +817,11 @@ Return ONLY a JSON object:
       return sendJson(res, 500, { message: err.message || "Translation failed" });
     }
   }
-
+// ─── ROUTE ALIAS FOR COMPATIBILITY ─────────────────────────────────────
+if (pathname.startsWith("/api/functions/") && method === "POST") {
+  const functionName = pathname.replace("/api/functions/", "");
+  req.url = `/api/ai/${functionName}`;
+}
   return sendJson(res, 404, { message: "Endpoint not found" });
 });
 
