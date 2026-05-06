@@ -1,1 +1,1 @@
-export { supabase as apiClient } from "./supabase";
+export { backend as apiClient } from "./backend";

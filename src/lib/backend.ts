@@ -7,6 +7,9 @@ type AppUser = {
   email: string;
   role?: string;
   created_at?: string;
+  is_email_verified?: boolean;
+  is_user_verified?: boolean;
+  email_verified?: boolean;
   user_metadata?: Record<string, unknown>;
 };
 
@@ -125,48 +128,48 @@ async function refreshSession(): Promise<boolean> {
   const refreshToken = currentSession?.refresh_token;
   if (!refreshToken) return false;
 
-  // Coalesce concurrent refreshes
   if (inFlightRefresh) {
     return inFlightRefresh;
   }
 
   inFlightRefresh = (async () => {
-    const response = await rawRequest("/api/auth/refresh", {
-      method: "POST",
-      body: JSON.stringify({ refreshToken })
-    });
+    try {
+      const response = await rawRequest("/api/auth/refresh", {
+        method: "POST",
+        body: JSON.stringify({ refreshToken })
+      });
 
-    if (!response.ok) {
-      saveSession(null);
-      notifyAuth("SIGNED_OUT", null);
-      inFlightRefresh = null;
-      return false;
-    }
-
-    const payload = await parseJsonSafe(response);
-    if (!payload?.tokens || !payload?.user) {
-      saveSession(null);
-      notifyAuth("SIGNED_OUT", null);
-      inFlightRefresh = null;
-      return false;
-    }
-
-    const session: AppSession = {
-      access_token: payload.tokens.accessToken,
-      refresh_token: payload.tokens.refreshToken,
-      user: {
-        ...payload.user,
-        user_metadata: {
-          username: payload.user.username,
-          avatar_url: payload.user.avatar_url
-        }
+      if (!response.ok) {
+        saveSession(null);
+        notifyAuth("SIGNED_OUT", null);
+        return false;
       }
-    };
 
-    saveSession(session);
-    notifyAuth("TOKEN_REFRESHED", session);
-    inFlightRefresh = null;
-    return true;
+      const payload = await parseJsonSafe(response);
+      if (!payload?.tokens || !payload?.user) {
+        saveSession(null);
+        notifyAuth("SIGNED_OUT", null);
+        return false;
+      }
+
+      const session: AppSession = {
+        access_token: payload.tokens.accessToken,
+        refresh_token: payload.tokens.refreshToken,
+        user: {
+          ...payload.user,
+          user_metadata: {
+            username: payload.user.username,
+            avatar_url: payload.user.avatar_url
+          }
+        }
+      };
+
+      saveSession(session);
+      notifyAuth("TOKEN_REFRESHED", session);
+      return true;
+    } finally {
+      inFlightRefresh = null;
+    }
   })();
 
   return inFlightRefresh;
@@ -557,7 +560,43 @@ class QueryBuilder {
   }
 }
 
-async function handleAuthPayload(response: ApiHttpResponse) {
+function persistAuthSession(session: AppSession) {
+  saveSession(session);
+  notifyAuth("SIGNED_IN", session);
+}
+
+function isExplicitlyTrue(value: unknown) {
+  if (value === true) return true;
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (!normalized) return false;
+    if (normalized === "true" || normalized === "1" || normalized === "verified") return true;
+
+    const parsedDate = Date.parse(value);
+    return !Number.isNaN(parsedDate);
+  }
+  if (typeof value === "number") {
+    return value === 1;
+  }
+  return false;
+}
+
+function isVerifiedUser(user: AppUser) {
+  const candidateValues = [
+    user.is_email_verified,
+    user.is_user_verified,
+    user.email_verified,
+    (user as any).isEmailVerified,
+    (user as any).emailVerified,
+    (user as any).verified,
+    (user as any).email_verified_at
+  ];
+
+  return candidateValues.some(isExplicitlyTrue);
+}
+
+async function handleAuthPayload(response: ApiHttpResponse, options: { persistSession?: boolean } = {}) {
+  const { persistSession = true } = options;
   const payload = await parseJsonSafe(response);
   if (!response.ok) {
     return { data: null, error: toError(payload?.message || "Authentication failed") };
@@ -581,29 +620,29 @@ async function handleAuthPayload(response: ApiHttpResponse) {
     }
   };
 
-  saveSession(session);
-  notifyAuth("SIGNED_IN", session);
+  if (persistSession) {
+    persistAuthSession(session);
+  }
 
   return { data: { user: session.user, session }, error: null };
 }
 
-export const supabase = {
+export const backend = {
   from(table: string) {
     return new QueryBuilder(table);
   },
   functions: {
-    async invoke(name: string, options: { body: any }) {
-      const response = await apiFetch(`/api/ai/${name}`, {
+    async invoke(functionName: string, options: { body?: any } = {}) {
+      const response = await apiFetch(`/api/ai/${functionName}`, {
         method: "POST",
-        body: JSON.stringify(options.body)
-      }, "required");
-      
+        body: JSON.stringify(options.body ?? {}),
+      });
       const payload = await parseJsonSafe(response);
       if (!response.ok) {
-        return { data: null, error: toError(payload?.message || `Function ${name} failed`) };
+        return { data: null, error: { message: payload?.message || "Function invocation failed" } };
       }
       return { data: payload, error: null };
-    }
+    },
   },
   async rpc(functionName: string, params: Record<string, any>) {
     if (functionName === "increment_form_views") {
@@ -646,18 +685,54 @@ export const supabase = {
           avatar_url: input.options?.data?.avatar_url
         })
       });
-      const result = await handleAuthPayload(response);
-      if (result.error) return { data: null, error: result.error };
-      return { data: { user: result.data?.user }, error: null };
+      const payload = await parseJsonSafe(response);
+      if (!response.ok) {
+        return { data: null, error: toError(payload?.message || "Signup failed") };
+      }
+      return { data: { user: payload?.user ?? null }, error: null };
     },
+
     async signInWithPassword(input: { email: string; password: string }) {
       const response = await apiFetch("/api/auth/login", {
         method: "POST",
         body: JSON.stringify(input)
       });
-      const result = await handleAuthPayload(response);
+      const result = await handleAuthPayload(response, { persistSession: false });
+      if (result.error) return { data: null, error: result.error };
+      if (!isVerifiedUser(result.data.user)) {
+        return {
+          data: null,
+          error: toError("Please verify the account", "EMAIL_NOT_VERIFIED")
+        };
+      }
+      persistAuthSession(result.data.session);
       return { data: result.data, error: result.error };
     },
+
+    async sendVerificationEmail(input: { email: string; redirectTo?: string }) {
+      const response = await apiFetch("/api/auth/send-verification-email", {
+        method: "POST",
+        body: JSON.stringify(input)
+      });
+      const payload = await parseJsonSafe(response);
+      if (!response.ok) {
+        return { data: null, error: toError(payload?.message || "Failed to send verification email") };
+      }
+      return { data: payload, error: null };
+    },
+
+    async verifyEmail(input: { token: string; email?: string }) {
+      const response = await apiFetch("/api/auth/verify-email", {
+        method: "POST",
+        body: JSON.stringify(input)
+      });
+      const payload = await parseJsonSafe(response);
+      if (!response.ok) {
+        return { data: null, error: toError(payload?.message || "Failed to verify account") };
+      }
+      return { data: payload, error: null };
+    },
+
     async signOut() {
       const refreshToken = currentSession?.refresh_token;
       if (refreshToken) {
@@ -670,6 +745,7 @@ export const supabase = {
       notifyAuth("SIGNED_OUT", null);
       return { error: null };
     },
+
     async getSession() {
       return {
         data: {
@@ -677,6 +753,7 @@ export const supabase = {
         }
       };
     },
+
     onAuthStateChange(callback: (event: AuthEvent, session: AppSession | null) => void) {
       authListeners.add(callback);
       queueMicrotask(() => callback("INITIAL_SESSION", currentSession));
@@ -690,6 +767,7 @@ export const supabase = {
         }
       };
     },
+
     async resetPasswordForEmail(_email: string, _options?: Record<string, unknown>) {
       return {
         data: null,

@@ -6,6 +6,9 @@ type User = {
   email: string;
   role?: string;
   created_at?: string;
+  is_email_verified?: boolean;
+  is_user_verified?: boolean;
+  email_verified?: boolean;
   user_metadata?: Record<string, unknown>;
 };
 

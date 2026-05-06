@@ -13,10 +13,13 @@ import AboutUs from "./pages/AboutUs";
 import Legal from "./pages/Legal";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
+import VerifyEmail from "./pages/VerifyEmail";
 import AdminDashboard from "./pages/AdminDashboard";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import FeedbackWidget from "./components/FeedbackWidget";
 import AqoraAI from "@/pages/AqoraAI";
+import InterviewMode from "./pages/InterviewMode";
+import ResearchMode from "./pages/ResearchMode";
 
 import { Analytics } from '@vercel/analytics/react';
 import ScrollToTop from "./components/ScrollToTop";
@@ -50,6 +53,7 @@ const AnimatedRoutes = () => {
         <Route path="/" element={<Index />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/ai" element={<AqoraAI />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
@@ -63,6 +67,8 @@ const AnimatedRoutes = () => {
         <Route path="/privacy" element={<Legal />} />
         <Route path="/security" element={<Legal />} />
         <Route path="/collab/:token" element={<ProtectedRoute><CollabAccess /></ProtectedRoute>} />
+        <Route path="/interview" element={<ProtectedRoute><InterviewMode /></ProtectedRoute>} />
+        <Route path="/research" element={<ProtectedRoute><ResearchMode /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <FeedbackWidget />

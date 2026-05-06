@@ -22,6 +22,8 @@ import {
  Settings2,
  ArrowUpRight,
  MessageSquare,
+ FlaskConical,
+ Mic,
 } from 'lucide-react';
 import { createBlankForm, createFormFromTemplate } from '@/lib/formStore';
 import { FormData, Question } from '@/types/form';
@@ -473,11 +475,25 @@ const Dashboard = () => {
          {user?.email}
         </span>
       </Link>
-      <div className="relative w-[130px] h-10 hidden md:block">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 z-[100]">
+      <div className="relative w-[130px] h-10 hidden md:block overflow-visible" style={{ zIndex: 50, isolation: 'isolate' }}>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2">
           <MorphSurface />
         </div>
       </div>
+      <Link
+       to="/interview"
+       className="relative h-10 border border-foreground bg-background px-4 text-[10px] md:text-xs font-bold uppercase tracking-wider hover:bg-foreground hover:text-background transition-all flex items-center gap-2 z-[300]"
+      >
+       <Mic className="h-3.5 w-3.5" />
+       <span className="hidden sm:inline">Interview</span>
+      </Link>
+      <Link
+       to="/research"
+       className="relative h-10 border border-foreground bg-background px-4 text-[10px] md:text-xs font-bold uppercase tracking-wider hover:bg-foreground hover:text-background transition-all flex items-center gap-2 z-[300]"
+      >
+       <FlaskConical className="h-3.5 w-3.5" />
+       <span className="hidden sm:inline">Research</span>
+      </Link>
       <button
        onClick={handleCreate}
        className="h-10 border rounded-xl bg-accent px-6 md:text-sm text-[10px] font-medium text-accent-foreground shadow-sm hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all flex items-center gap-2"
@@ -615,6 +631,43 @@ const Dashboard = () => {
       </div>
     </div>
 
+    {/* AI TOOLS STRIP */}
+    <div className="mb-12 grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <Link
+        to="/interview"
+        className="group border border-foreground bg-background p-6 flex items-center justify-between hover:bg-foreground hover:text-background transition-all shadow-[4px_4px_0px_#000] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px]"
+      >
+        <div>
+          <div className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">AI Mode</div>
+          <p className="text-xl font-black font-sans tracking-tight">Interview Mode</p>
+          <p className="text-xs opacity-50 mt-1 font-sans">Dynamic adaptive Q&A powered by AI</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="border border-foreground group-hover:border-background p-3 transition-colors">
+            <Mic className="h-5 w-5" />
+          </div>
+          <ArrowUpRight className="h-4 w-4 opacity-30 group-hover:opacity-100 transition-opacity" />
+        </div>
+      </Link>
+
+      <Link
+        to="/research"
+        className="group border border-foreground bg-background p-6 flex items-center justify-between hover:bg-foreground hover:text-background transition-all shadow-[4px_4px_0px_#000] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px]"
+      >
+        <div>
+          <div className="text-[10px] font-black uppercase tracking-widest opacity-40 mb-1">AI Mode</div>
+          <p className="text-xl font-black font-sans tracking-tight">Research Mode</p>
+          <p className="text-xs opacity-50 mt-1 font-sans">Generate structured research forms with AI</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="border border-foreground group-hover:border-background p-3 transition-colors">
+            <FlaskConical className="h-5 w-5" />
+          </div>
+          <ArrowUpRight className="h-4 w-4 opacity-30 group-hover:opacity-100 transition-opacity" />
+        </div>
+      </Link>
+    </div>
+
     {/* FORMS LIST */}
     <div className="mb-8 flex items-center justify-between">
      <h2 className="text-2xl font-bold font-sans tracking-tight">
@@ -631,14 +684,6 @@ const Dashboard = () => {
       <div className="absolute top-0 right-0 w-64 h-64 bg-accent/5 rounded-full -mr-32 -mt-32 blur-[100px] group-hover:bg-accent/10 transition-colors" />
       
       <div className="max-w-xl mx-auto relative z-10">
-       <div className="flex justify-center mb-8 gap-4">
-        <div className="p-4 border border-foreground bg-white shadow-sm group-hover:rotate-6 transition-transform">
-         <Bot className="h-12 w-12 text-accent" />
-        </div>
-        <div className="p-4 border border-foreground bg-accent text-accent-foreground shadow-sm -rotate-6 group-hover:rotate-0 transition-transform">
-         <Sparkles className="h-12 w-12" />
-        </div>
-       </div>
        
        <p className="text-4xl md:text-6xl font-medium mb-6 tracking-tight leading-none">
         No forms yet.
@@ -648,12 +693,6 @@ const Dashboard = () => {
        </p>
        
        <div className="flex flex-col sm:flex-row gap-6">
-        <button
-         onClick={() => setIsAIModalOpen(true)}
-         className="flex-1 border rounded-xl bg-foreground px-12 py-5 text-xl font-medium text-background shadow-md hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all flex items-center justify-center gap-3"
-        >
-         Ask Aqora AI
-        </button>
         <button
          onClick={handleCreate}
          className="flex-1 border rounded-xl bg-accent px-12 py-5 text-xl font-medium text-accent-foreground shadow-md hover:translate-x-2 hover:translate-y-2 hover:shadow-none transition-all"

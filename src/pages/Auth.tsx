@@ -520,6 +520,7 @@ const FieldLabel = ({ children }: { children: React.ReactNode }) => (
     {children}
   </p>
 );
+const getVerificationRedirectUrl = () => `${window.location.origin}/verify-email`;
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
@@ -557,25 +558,42 @@ const Auth = () => {
     setLoading(true);
     try {
       if (mode === 'signup') {
-        if (!username.trim()) throw new Error('Display name is required.');
-        const { data, error } = await supabase.auth.signUp({
+        if (!username.trim()) {
+            throw new Error("WE NEED A NAME, AGENT.");
+        }
+        
+        const { error } = await apiClient.auth.signUp({
           email,
           password,
           options: { data: { username, avatar_url: 'user' } },
         });
         if (error) throw error;
-        if (data.user) {
-          await supabase.from('profiles').upsert({
-            id: data.user.id,
-            email,
-            username,
-            avatar_url: 'user',
-            updated_at: new Date().toISOString(),
-          });
-        }
-        toast.success('Account created. Check your email to confirm.');
+
+        const { error: verificationError } = await apiClient.auth.sendVerificationEmail({
+          email,
+          redirectTo: getVerificationRedirectUrl(),
+        });
+        if (verificationError) throw verificationError;
+
+        setMode('login');
+        setPassword('');
+        setUsername('');
+        toast.success('Account created. Please verify the account from your email, then sign in.', {
+          icon: <Skull className="h-4 w-4" />,
+          className: "font-black uppercase border-4 border-black"
+        });
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await apiClient.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error?.code === 'EMAIL_NOT_VERIFIED') {
+          toast.error('Please verify the account', {
+            className: "font-black uppercase border-4 border-[#FF4500] text-[#FF4500]",
+            icon: <AlertTriangle className="w-5 h-5" />
+          });
+          return;
+        }
         if (error) throw error;
         toast.success('Welcome back.');
         navigate('/dashboard');
