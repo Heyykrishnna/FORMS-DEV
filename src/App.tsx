@@ -16,6 +16,8 @@ import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import FeedbackWidget from "./components/FeedbackWidget";
+import InterviewMode from "./pages/InterviewMode";
+import ResearchMode from "./pages/ResearchMode";
 
 import { Analytics } from '@vercel/analytics/react';
 import ScrollToTop from "./components/ScrollToTop";
@@ -61,6 +63,8 @@ const AnimatedRoutes = () => {
         <Route path="/privacy" element={<Legal />} />
         <Route path="/security" element={<Legal />} />
         <Route path="/collab/:token" element={<ProtectedRoute><CollabAccess /></ProtectedRoute>} />
+        <Route path="/interview" element={<ProtectedRoute><InterviewMode /></ProtectedRoute>} />
+        <Route path="/research" element={<ProtectedRoute><ResearchMode /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <FeedbackWidget />

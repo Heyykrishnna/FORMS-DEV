@@ -24,7 +24,7 @@ type ApiHttpResponse = {
   json: () => Promise<any>;
 };
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:4000").replace(/\/$/, "");
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8000").replace(/\/$/, "");
 const STORAGE_KEY = "aqora_auth_session";
 
 let currentSession: AppSession | null = loadSession();
@@ -574,22 +574,23 @@ async function handleAuthPayload(response: ApiHttpResponse) {
   return { data: { user: session.user, session }, error: null };
 }
 
-export const backend = {
+export const supabase = {
   from(table: string) {
     return new QueryBuilder(table);
   },
   functions: {
-    async invoke(functionName: string, options: { body?: any } = {}) {
-      const response = await apiFetch(`/api/ai/${functionName}`, {
+    async invoke(name: string, options: { body: any }) {
+      const response = await apiFetch(`/api/functions/${name}`, {
         method: "POST",
-        body: JSON.stringify(options.body ?? {}),
-      });
+        body: JSON.stringify(options.body)
+      }, "required");
+      
       const payload = await parseJsonSafe(response);
       if (!response.ok) {
-        return { data: null, error: { message: payload?.message || "Function invocation failed" } };
+        return { data: null, error: toError(payload?.message || `Function ${name} failed`) };
       }
       return { data: payload, error: null };
-    },
+    }
   },
   async rpc(functionName: string, params: Record<string, any>) {
     if (functionName === "increment_form_views") {

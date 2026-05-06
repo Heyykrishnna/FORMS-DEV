@@ -8,7 +8,8 @@ import {
   CircleDot, CheckSquare, ChevronDown,
   Calendar, Clock, Upload, Star, Sliders,
   Heading, FileText, ToggleLeft, Plus, GitBranch, Palette, Eye, Layout, CheckCircle2,
-  CheckCircle, Link, Share2, Award, ExternalLink, Instagram, Globe, Twitter, Linkedin, Facebook
+  CheckCircle, Link, Share2, Award, ExternalLink, Instagram, Globe, Twitter, Linkedin, Facebook,
+  Sparkles, Wand2, Zap, X, Check, RefreshCw, ChevronRight
 } from 'lucide-react';
 import { THEME_LABELS, FormTheme } from '@/types/form';
 import {
@@ -35,6 +36,8 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { suggestNextQuestions, optimizeForm, autoCategorise, applyToneControl, translateForm, QuestionSuggestion, OptimizeResult, Tone } from '@/services/groq';
+import { toast } from 'sonner';
 
 const QUESTION_ICONS: Record<QuestionType, any> = {
   short_text: Type,
@@ -300,6 +303,180 @@ const EditTab = ({ form, onUpdate }: Props) => {
   const [showThemeSelector, setShowThemeSelector] = useState(false);
   const [activeSection, setActiveSection] = useState<'questions' | 'ending'>('questions');
 
+  // ── AI State ──────────────────────────────────────────────────────────────
+  const [isSuggesting, setIsSuggesting] = useState(false);
+  const [suggestions, setSuggestions] = useState<QuestionSuggestion[]>([]);
+  const [showSuggestPanel, setShowSuggestPanel] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState(false);
+  const [optimizeResult, setOptimizeResult] = useState<OptimizeResult | null>(null);
+  const [showOptimizePanel, setShowOptimizePanel] = useState(false);
+
+  // ── Tone Control state ────────────────────────────────────────────────────
+  const [isApplyingTone, setIsApplyingTone] = useState(false);
+  const [showTonePanel, setShowTonePanel] = useState(false);
+  const [selectedTone, setSelectedTone] = useState<Tone>('formal');
+
+  // ── Auto Categorise state ─────────────────────────────────────────────────
+  const [isCategorising, setIsCategorising] = useState(false);
+  const [showCategorisePanel, setShowCategorisePanel] = useState(false);
+  const [categoriseResult, setCategoriseResult] = useState<{ sections: { name: string; description: string; questionIds: string[] }[]; reasoning: string } | null>(null);
+
+  // ── Translate state ───────────────────────────────────────────────────────
+  const [isTranslating, setIsTranslating] = useState(false);
+  const [showTranslatePanel, setShowTranslatePanel] = useState(false);
+  const [targetLanguage, setTargetLanguage] = useState('Spanish');
+
+  const handleSuggestQuestions = async () => {
+    if (isSuggesting) return;
+    setIsSuggesting(true);
+    try {
+      const results = await suggestNextQuestions({
+        title: form.title,
+        description: form.description,
+        questions: form.questions,
+      });
+      setSuggestions(results);
+      setShowSuggestPanel(true);
+    } catch (err: any) {
+      toast.error(err.message || "AI suggestion failed");
+    } finally {
+      setIsSuggesting(false);
+    }
+  };
+
+  const handleAcceptSuggestion = (suggestion: QuestionSuggestion) => {
+    const newQ: Question = {
+      id: suggestion.id || crypto.randomUUID(),
+      type: suggestion.type,
+      title: suggestion.title,
+      description: suggestion.description,
+      required: suggestion.required,
+      options: suggestion.options,
+    };
+    onUpdate({ questions: [...form.questions, newQ] });
+    setSuggestions(prev => prev.filter(s => s.id !== suggestion.id));
+    toast.success("Question added!");
+    if (suggestions.length <= 1) setShowSuggestPanel(false);
+  };
+
+  const handleOptimizeForm = async () => {
+    if (isOptimizing || form.questions.length === 0) return;
+    setIsOptimizing(true);
+    try {
+      const result = await optimizeForm(form);
+      setOptimizeResult(result);
+      setShowOptimizePanel(true);
+    } catch (err: any) {
+      toast.error(err.message || "AI optimization failed");
+    } finally {
+      setIsOptimizing(false);
+    }
+  };
+
+  const handleApplyOptimization = () => {
+    if (!optimizeResult) return;
+    onUpdate({ questions: optimizeResult.questions });
+    toast.success(`Form optimized! ${optimizeResult.removedCount} removed, ${optimizeResult.improvedCount} improved.`);
+    setShowOptimizePanel(false);
+    setOptimizeResult(null);
+  };
+
+  const handleApplyTone = async () => {
+    if (isApplyingTone || form.questions.length === 0) return;
+    setIsApplyingTone(true);
+    try {
+      const result = await applyToneControl(form.questions, selectedTone, form.title);
+      const updatedQuestions = form.questions.map(q => {
+        const rewritten = result.questions.find(r => r.id === q.id);
+        if (!rewritten) return q;
+        return { ...q, title: rewritten.title, description: rewritten.description ?? q.description };
+      });
+      onUpdate({ questions: updatedQuestions });
+      toast.success(`Tone applied: ${selectedTone}`);
+      setShowTonePanel(false);
+    } catch (err: any) {
+      toast.error(err.message || "Tone control failed");
+    } finally {
+      setIsApplyingTone(false);
+    }
+  };
+
+  const handleAutoCategorise = async () => {
+    if (isCategorising || form.questions.length === 0) return;
+    setIsCategorising(true);
+    try {
+      const result = await autoCategorise(form.questions, form.title);
+      setCategoriseResult(result);
+      setShowCategorisePanel(true);
+    } catch (err: any) {
+      toast.error(err.message || "Categorisation failed");
+    } finally {
+      setIsCategorising(false);
+    }
+  };
+
+  const handleApplyCategorise = () => {
+    if (!categoriseResult) return;
+    const newQuestions = [...form.questions];
+    const result: typeof newQuestions = [];
+    categoriseResult.sections.forEach(section => {
+      // Add section header
+      result.push({
+        id: crypto.randomUUID(),
+        type: 'section_header',
+        title: section.name,
+        description: section.description,
+        required: false,
+      });
+      // Add questions belonging to this section
+      section.questionIds.forEach(qid => {
+        const q = newQuestions.find(q => q.id === qid);
+        if (q) result.push(q);
+      });
+    });
+    // Add any questions not in any section
+    const assignedIds = new Set(categoriseResult.sections.flatMap(s => s.questionIds));
+    newQuestions.forEach(q => { if (!assignedIds.has(q.id) && q.type !== 'section_header') result.push(q); });
+    onUpdate({ questions: result });
+    toast.success(`Grouped into ${categoriseResult.sections.length} sections!`);
+    setShowCategorisePanel(false);
+    setCategoriseResult(null);
+  };
+
+  const handleTranslate = async () => {
+    if (isTranslating || !targetLanguage.trim() || form.questions.length === 0) return;
+    setIsTranslating(true);
+    try {
+      const result = await translateForm(form.questions, targetLanguage, form.title, form.description);
+      const updatedQuestions = form.questions.map(q => {
+        const translated = result.questions.find(r => r.id === q.id);
+        if (!translated) return q;
+        return {
+          ...q,
+          title: translated.title,
+          description: translated.description ?? q.description,
+          options: translated.options
+            ? q.options?.map(opt => {
+                const tOpt = translated.options?.find(o => o.id === opt.id);
+                return tOpt ? { ...opt, label: tOpt.label } : opt;
+              })
+            : q.options,
+        };
+      });
+      onUpdate({
+        title: result.title || form.title,
+        description: result.description || form.description,
+        questions: updatedQuestions,
+      });
+      toast.success(`Translated to ${targetLanguage}!`);
+      setShowTranslatePanel(false);
+    } catch (err: any) {
+      toast.error(err.message || "Translation failed");
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
   const style = THEME_STYLES[form.theme || 'brutalist_dark'];
   const addQuestion = (type: QuestionType) => {
     if (activeSection !== 'questions') setActiveSection('questions');
@@ -554,6 +731,206 @@ const EditTab = ({ form, onUpdate }: Props) => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* ── AI TOOLBAR ─────────────────────────────────────────────────────── */}
+      <div className="mt-4 flex gap-3">
+        <button
+          onClick={handleSuggestQuestions}
+          disabled={isSuggesting}
+          className="flex-1 flex items-center justify-center gap-2 border border-foreground bg-background hover:bg-foreground hover:text-background px-4 py-3 text-xs font-black uppercase tracking-wider transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-[3px_3px_0px_#000] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px]"
+        >
+          {isSuggesting ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+          {isSuggesting ? "Thinking..." : "Suggest Questions"}
+        </button>
+        <button
+          onClick={handleOptimizeForm}
+          disabled={isOptimizing || form.questions.length === 0}
+          className="flex-1 flex items-center justify-center gap-2 border border-foreground bg-accent text-accent-foreground hover:opacity-90 px-4 py-3 text-xs font-black uppercase tracking-wider transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-[3px_3px_0px_#000] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px]"
+        >
+          {isOptimizing ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
+          {isOptimizing ? "Optimizing..." : "Optimize Form"}
+        </button>
+      </div>
+
+      {/* ── SUGGEST PANEL ──────────────────────────────────────────────────── */}
+      {showSuggestPanel && suggestions.length > 0 && (
+        <div className="mt-4 border border-foreground bg-background p-4 space-y-3 shadow-[4px_4px_0px_#000]">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4" />
+              <span className="text-xs font-black uppercase tracking-widest">AI Suggestions</span>
+              <span className="text-[9px] font-black border border-foreground px-2 py-0.5 uppercase tracking-wider">{suggestions.length} questions</span>
+            </div>
+            <button onClick={() => setShowSuggestPanel(false)} className="border border-foreground/30 hover:border-foreground p-1 transition-colors"><X className="h-3.5 w-3.5" /></button>
+          </div>
+          {suggestions.map((s) => (
+            <div key={s.id} className="border border-foreground/20 hover:border-foreground bg-card p-3 space-y-2 transition-colors">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex-1">
+                  <p className="text-sm font-semibold font-sans">{s.title}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-wider font-mono">{s.type.replace(/_/g, ' ')} · {s.required ? 'Required' : 'Optional'}</p>
+                </div>
+                <button onClick={() => handleAcceptSuggestion(s)} className="flex items-center gap-1 border border-foreground bg-foreground text-background hover:bg-accent hover:border-accent text-[10px] font-black uppercase tracking-wider px-3 py-1.5 transition-all shrink-0">
+                  <Check className="h-3 w-3" /> Add
+                </button>
+              </div>
+              {s.why && <p className="text-[11px] opacity-50 border-l-2 border-foreground/30 pl-2 italic font-sans">{s.why}</p>}
+            </div>
+          ))}
+          <button onClick={handleSuggestQuestions} disabled={isSuggesting} className="w-full flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest opacity-40 hover:opacity-100 py-2 transition-all border border-foreground/20 hover:border-foreground">
+            <RefreshCw className={cn("h-3 w-3", isSuggesting && "animate-spin")} /> Regenerate
+          </button>
+        </div>
+      )}
+
+      {/* ── OPTIMIZE PANEL ─────────────────────────────────────────────────── */}
+      {showOptimizePanel && optimizeResult && (
+        <div className="mt-4 border border-foreground bg-background p-4 space-y-3 shadow-[4px_4px_0px_#000]">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <Wand2 className="h-4 w-4" />
+              <span className="text-xs font-black uppercase tracking-widest">Optimization Ready</span>
+              <span className="text-[9px] font-black border border-foreground px-2 py-0.5 uppercase tracking-wider">
+                {optimizeResult.removedCount} removed · {optimizeResult.improvedCount} improved
+              </span>
+            </div>
+            <button onClick={() => setShowOptimizePanel(false)} className="border border-foreground/30 hover:border-foreground p-1 transition-colors"><X className="h-3.5 w-3.5" /></button>
+          </div>
+          <div className="space-y-1.5 max-h-40 overflow-y-auto">
+            {optimizeResult.changes.map((change, i) => (
+              <div key={i} className="flex items-start gap-2 text-[11px] opacity-60 font-sans">
+                <ChevronRight className="h-3 w-3 mt-0.5 shrink-0" />{change}
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-2 pt-1">
+            <button onClick={handleApplyOptimization} className="flex-1 border border-foreground bg-foreground text-background text-xs font-black uppercase tracking-widest px-4 py-2.5 hover:shadow-[3px_3px_0px_#000] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all">
+              Apply Optimization
+            </button>
+            <button onClick={() => setShowOptimizePanel(false)} className="px-4 py-2.5 text-xs font-black uppercase tracking-widest border border-foreground/30 hover:border-foreground transition-colors">
+              Discard
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── SECOND ROW: TONE · CATEGORISE · TRANSLATE ──────────────────────── */}
+      <div className="mt-3 flex gap-3">
+        <button
+          onClick={() => setShowTonePanel(!showTonePanel)}
+          className="flex-1 flex items-center justify-center gap-2 border border-foreground/30 hover:border-foreground bg-background px-4 py-2.5 text-[10px] font-black uppercase tracking-wider transition-all hover:bg-foreground hover:text-background"
+        >
+          <Zap className="h-3.5 w-3.5" /> Tone Control
+        </button>
+        <button
+          onClick={handleAutoCategorise}
+          disabled={isCategorising || form.questions.length === 0}
+          className="flex-1 flex items-center justify-center gap-2 border border-foreground/30 hover:border-foreground bg-background px-4 py-2.5 text-[10px] font-black uppercase tracking-wider transition-all hover:bg-foreground hover:text-background disabled:opacity-40"
+        >
+          {isCategorising ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <ChevronRight className="h-3.5 w-3.5" />}
+          {isCategorising ? "Grouping..." : "Auto Group"}
+        </button>
+        <button
+          onClick={() => setShowTranslatePanel(!showTranslatePanel)}
+          className="flex-1 flex items-center justify-center gap-2 border border-foreground/30 hover:border-foreground bg-background px-4 py-2.5 text-[10px] font-black uppercase tracking-wider transition-all hover:bg-foreground hover:text-background"
+        >
+          <Check className="h-3.5 w-3.5" /> Translate
+        </button>
+      </div>
+
+      {/* ── TONE PANEL ─────────────────────────────────────────────────────── */}
+      {showTonePanel && (
+        <div className="mt-3 border border-foreground bg-background p-4 space-y-3 shadow-[4px_4px_0px_#000]">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-widest flex items-center gap-2"><Zap className="h-3.5 w-3.5" /> Tone Control</span>
+            <button onClick={() => setShowTonePanel(false)} className="border border-foreground/30 hover:border-foreground p-1 transition-colors"><X className="h-3.5 w-3.5" /></button>
+          </div>
+          <p className="text-[11px] opacity-50 font-sans">Rewrite all questions in a different tone. The meaning stays the same, only the wording changes.</p>
+          <div className="flex gap-2">
+            {(['formal', 'casual', 'friendly'] as Tone[]).map(t => (
+              <button
+                key={t}
+                onClick={() => setSelectedTone(t)}
+                className={`flex-1 border py-2 text-[10px] font-black uppercase tracking-wider transition-all ${
+                  selectedTone === t
+                    ? 'border-foreground bg-foreground text-background'
+                    : 'border-foreground/30 hover:border-foreground'
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={handleApplyTone}
+            disabled={isApplyingTone}
+            className="w-full border border-foreground bg-foreground text-background text-xs font-black uppercase tracking-widest py-2.5 hover:shadow-[3px_3px_0px_#000] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all disabled:opacity-40 flex items-center justify-center gap-2"
+          >
+            {isApplyingTone ? <><RefreshCw className="h-3.5 w-3.5 animate-spin" /> Applying...</> : `Apply ${selectedTone} Tone`}
+          </button>
+        </div>
+      )}
+
+      {/* ── CATEGORISE PANEL ───────────────────────────────────────────────── */}
+      {showCategorisePanel && categoriseResult && (
+        <div className="mt-3 border border-foreground bg-background p-4 space-y-3 shadow-[4px_4px_0px_#000]">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-widest">{categoriseResult.sections.length} Groups Suggested</span>
+            <button onClick={() => setShowCategorisePanel(false)} className="border border-foreground/30 hover:border-foreground p-1 transition-colors"><X className="h-3.5 w-3.5" /></button>
+          </div>
+          <p className="text-[11px] opacity-50 font-sans italic">{categoriseResult.reasoning}</p>
+          <div className="space-y-2 max-h-48 overflow-y-auto">
+            {categoriseResult.sections.map((s, i) => (
+              <div key={i} className="border border-foreground/20 p-2.5">
+                <p className="text-xs font-black uppercase tracking-wider">{s.name}</p>
+                <p className="text-[10px] opacity-50 font-sans mt-0.5">{s.questionIds.length} questions · {s.description}</p>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <button onClick={handleApplyCategorise} className="flex-1 border border-foreground bg-foreground text-background text-xs font-black uppercase tracking-widest py-2.5 hover:shadow-[3px_3px_0px_#000] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all">
+              Apply Grouping
+            </button>
+            <button onClick={() => setShowCategorisePanel(false)} className="px-4 py-2.5 text-xs font-black uppercase tracking-widest border border-foreground/30 hover:border-foreground transition-colors">
+              Discard
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── TRANSLATE PANEL ────────────────────────────────────────────────── */}
+      {showTranslatePanel && (
+        <div className="mt-3 border border-foreground bg-background p-4 space-y-3 shadow-[4px_4px_0px_#000]">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-widest flex items-center gap-2"><Check className="h-3.5 w-3.5" /> Translate Form</span>
+            <button onClick={() => setShowTranslatePanel(false)} className="border border-foreground/30 hover:border-foreground p-1 transition-colors"><X className="h-3.5 w-3.5" /></button>
+          </div>
+          <p className="text-[11px] opacity-50 font-sans">Translate all questions, options, and descriptions into another language.</p>
+          <div>
+            <label className="text-[10px] font-black uppercase tracking-widest opacity-50 block mb-2">Target Language</label>
+            <input
+              value={targetLanguage}
+              onChange={e => setTargetLanguage(e.target.value)}
+              placeholder="e.g. Spanish, French, Arabic, Hindi..."
+              className="w-full border border-foreground bg-[#F0F0F0] px-3 py-2 text-sm font-sans outline-none focus:bg-background transition-colors"
+            />
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {['Spanish', 'French', 'German', 'Arabic', 'Hindi', 'Portuguese', 'Japanese', 'Chinese'].map(lang => (
+                <button key={lang} onClick={() => setTargetLanguage(lang)} className={`text-[9px] font-black border px-2 py-1 uppercase tracking-wider transition-all ${targetLanguage === lang ? 'border-foreground bg-foreground text-background' : 'border-foreground/20 hover:border-foreground'}`}>
+                  {lang}
+                </button>
+              ))}
+            </div>
+          </div>
+          <button
+            onClick={handleTranslate}
+            disabled={isTranslating || !targetLanguage.trim()}
+            className="w-full border border-foreground bg-foreground text-background text-xs font-black uppercase tracking-widest py-2.5 hover:shadow-[3px_3px_0px_#000] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all disabled:opacity-40 flex items-center justify-center gap-2"
+          >
+            {isTranslating ? <><RefreshCw className="h-3.5 w-3.5 animate-spin" /> Translating...</> : `Translate to ${targetLanguage}`}
+          </button>
+        </div>
+      )}
 
         </>
       ) : (
